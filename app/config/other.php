@@ -1,7 +1,5 @@
 <?php
 
 return [
-  'aaa' => [
-    'bbb' => 2
-  ]
+  'base_url' => ''
 ];
