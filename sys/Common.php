@@ -54,7 +54,7 @@ if (!function_exists('isPhpVersion')) {
 
 
 
-if (!function_exists ('responseStatusText')) {
+if (!function_exists('responseStatusText')) {
   function responseStatusText ($code) {
     // https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81
     $responseStatusText = [
@@ -68,6 +68,20 @@ if (!function_exists ('responseStatusText')) {
     return isset ($responseStatusText[$code]) ? $responseStatusText[$code] : '';
   }
 }
+
+if (!function_exists('responseStatusHeader')) {
+  function responseStatusHeader ($code, $str = '') {
+      $str = responseStatusText ($code);
+      $str || $str = responseStatusText ($code = 500);
+
+      if (strpos (PHP_SAPI, 'cgi') === 0)
+        return header ('Status: ' . $code . ' ' . $str, true);
+
+      in_array (($protocol = isset ($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'), array ('HTTP/1.0', 'HTTP/1.1', 'HTTP/2')) || $protocol = 'HTTP/1.1';
+      return header ($protocol . ' ' . $code . ' ' . $str, true, $code);
+  }
+}
+
 
 if (!function_exists('gg')) {
   function gg($text, $code = 500, $contents = array ()) {

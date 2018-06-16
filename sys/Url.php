@@ -15,9 +15,9 @@ class Url {
   }
 
   private static function parseRequestUri() {
-    return array_filter(explode('/', $_SERVER['REQUEST_URI']), function($t) {
+    return ($tmp = parse_url('http://__' . $_SERVER['REQUEST_URI'])) && isset($tmp['path']) ? array_filter(explode('/', $tmp['path']), function($t) {
       return $t !== '';
-    });
+    }) : [];
   }
 
   private static function parseArgv() {
