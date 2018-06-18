@@ -28,6 +28,9 @@ define('PATH_APP', PATH . 'app' . DIRECTORY_SEPARATOR);
 // view 的絕對位置
 define('PATH_VIEW', PATH_APP . 'view' . DIRECTORY_SEPARATOR);
 
+// model 的絕對位置
+define('PATH_MODEL', PATH_APP . 'model' . DIRECTORY_SEPARATOR);
+
 if (!@include_once PATH_SYS . 'Load.php')
   exit('初始化失敗，載入 Load.php 失敗！');
 
@@ -62,34 +65,14 @@ Url::init();
 Load::path(PATH_SYS . 'Router.php');
 Router::init();
 
-class Output {
-  static function text ($str) {
-    echo $str;
-  }
-  static function json ($json) {
-    echo json_encode($json);
-  }
-  static function router ($router) {
-    if (!$router) {
-      responseStatusHeader(404);
-      return self::text(View::maybe('error/404.php')->get());
-    }
+Load::path(PATH_SYS . 'Output.php');
 
-    responseStatusHeader($router->getStatus());
+Load::path(PATH_SYS . 'Model.php');
 
-    if (($exec = $router->exec()) === null)
-      return self::text('');
 
-    if (is_string($exec))
-      return self::text($exec);
 
-    if (is_array($exec))
-      return self::json($exec);
 
-    if ($exec instanceOf View)
-      return self::text($exec->get());
-  }
-}
+
 
 $router = Router::getMatchRouter();
 Output::router ($router);

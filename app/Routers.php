@@ -1,23 +1,49 @@
 <?php
 
-$f1 = function () {
-  return '1a';
-};
-$f2 = function () {
-  // return Router::current()
-  //              ->setWork(['你權限未過'])
-  //              ->setStatus(500);
-};
+// $f1 = function () {
+//   return '1a';
+// };
+// $f2 = function () {
+//   // return Router::current()
+//   //              ->setWork(['你權限未過'])
+//   //              ->setStatus(500);
+// };
 
 Router::get('/aaa/(user:num)/bbb/(title:any)')
-      ->before($f1)
-      ->before($f2)
       ->work(function() {
         // $user = Router::current()->getParams('user');
+        // $book = new M\BookArticle();
+
+          // M\BookArticle::one()
+
+
+        // $obj = M\BookArticle::one();
+
+        $obj = M\BookArticle::one(Where::create('id IN (?)', [2]));
+        // $obj = M\BookArticle::one('id = ?', 2);
+        // $obj = M\BookArticle::one('id = ?', 2);
+
+        // $obj = M\BookArticle::one(['where' => ['id = ?', 2]]);
+        // $obj = M\BookArticle::one(['where' => ['id = ?', 2], 'select' => 'id']);
+
+        // M\BookArticle::first();
+        // M\BookArticle::last(['order' => 'id ASC, ss DESC']);
+        // M\BookArticle::all();
+
+        // M\BookArticle::find('one', Where::create('id = ?', 2));
+        // M\BookArticle::find('one', ['where' => ['id = ?', 2], 'order' => 'id DESC']);
+        // M\BookArticle::find('one', 'id = ?', 2);
+
+
+        // M\BookArticle::find('one');
+
+
+        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // var_dump ($book);
+        // exit ();
+        
         return ;
-      })
-      ->after($f1)
-      ->after($f2);
+      });
 
 // Router::get('bbb')->work('get Hello 2');
 

@@ -3,11 +3,11 @@
 class Load {
   private static $cache = array ();
 
-  public static function path($path) {
+  public static function path($path, $error = '載入檔案失敗。') {
     if (!empty(self::$cache[$path]))
       return true;
 
-    is_file($path) && is_readable($path) || gg('載入檔案失敗。');
+    is_file($path) && is_readable($path) || gg($error);
 
     require_once $path;
 
