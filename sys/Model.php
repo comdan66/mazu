@@ -22,18 +22,6 @@ if (!function_exists('isHash')) {
     return @is_string($keys[0]) ? true : false;
   }
 }
-if (!function_exists('reverseOrder')) {
-  function reverseOrder($order) {
-    if (!trim($order))
-      return $order;
-    
-    return implode(', ', array_map(function($part) {
-      $v = trim(strtolower($part));
-      return strpos($v,' asc') === false ? strpos($v,' desc') === false ? $v . ' DESC' : preg_replace('/desc/i', 'ASC', $v) : preg_replace('/asc/i', 'DESC', $v);
-    }, explode(',', $order)));
-  }
-}
-
 if (!function_exists('denamespace')) {
   function denamespace($class_name) {
     if (is_object($class_name))

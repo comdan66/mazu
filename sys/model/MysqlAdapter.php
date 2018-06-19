@@ -50,7 +50,7 @@ class Column {
       return (int) $val;
   }
 
-  public function cast($val, $connection) {
+  public function cast($val) {
     if ($val === null)
       return null;
 
@@ -68,22 +68,20 @@ class Column {
         if (!$val)
           return null;
 
-        // $dateClass = Config::instance()->get_date_class();
-
-        // if ($val instanceof $dateClass)
-        //   return $val;
-
         if ($val instanceof \DateTime)
           return $dateClass::createFromFormat(Connection::DATETIME_TRANSLATE_FORMAT, $val->format(Connection::DATETIME_TRANSLATE_FORMAT), $val->getTimezone());
+    
+        $val = date_create($val);
+        $errors = \DateTime::getLastErrors();
 
-        return $connection->stringTodatetime($val);
+        return $errors['warning_count'] || $errors['error_count'] ? null : $val;
     }
     return $val;
   }
 
   public function mapRawType() {
     $this->rawType == 'integer' && $this->rawType = 'int';
-    return $this->type = array_key_exists($this->rawType, self::$typeMapping) ? self::$typeMapping[$this->rawType] : self::STRING;
+    return $this->type = isset(self::$typeMapping[$this->rawType]) ? self::$typeMapping[$this->rawType] : self::STRING;
   }
 }
 
@@ -100,25 +98,25 @@ class MysqlAdapter extends Connection {
   public function queryColumnInfo($table) {
     return $this->query("SHOW COLUMNS FROM " . $table);
   }
-  public function createColumn(&$row) {
+
+  public function createColumn($row) {
     $column = new Column();
+    $row = array_change_key_case($row, CASE_LOWER);
 
-
-    // $column->inflected_name  = Inflector::variablize($row['field']);
-    $column->name = $row['field'];
-    $column->nullable = $row['null'] === 'YES';
-    $column->primaryKey = $row['key'] === 'PRI';
+    $column->name          = $row['field'];
+    $column->nullable      = $row['null'] === 'YES';
+    $column->primaryKey    = $row['key'] === 'PRI';
     $column->autoIncrement = $row['extra'] === 'auto_increment';
 
     if ($row['type'] == 'timestamp' || $row['type'] == 'datetime') {
       $column->rawType = 'datetime';
-      $column->length = 19;
+      $column->length  = 19;
     } elseif ($row['type'] == 'date') {
       $column->rawType = 'date';
-      $column->length = 10;
+      $column->length  = 10;
     } elseif ($row['type'] == 'time') {
       $column->rawType = 'time';
-      $column->length = 8;
+      $column->length  = 8;
     } else {
       preg_match('/^([A-Za-z0-9_]+)(\(([0-9]+(,[0-9]+)?)\))?/', $row['type'], $matches);
       $column->rawType = (count($matches) > 0 ? $matches[1] : $row['type']);
@@ -126,18 +124,12 @@ class MysqlAdapter extends Connection {
     }
 
     $column->mapRawType();
-    $column->default = $column->cast($row['default'], $this);
+    $column->default = $column->cast($row['default']);
 
     return $column;
   }
 
 
-  // public function limit($sql, $offset, $limit)
-  // {
-  //   $offset = is_null($offset) ? '' : intval($offset) . ',';
-  //   $limit = intval($limit);
-  //   return "$sql LIMIT {$offset}$limit";
-  // }
 
 
   // public function query_for_tables()

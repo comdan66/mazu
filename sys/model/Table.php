@@ -5,121 +5,123 @@ namespace _M;
 
 class Table {
   private static $caches = [];
-  public $class;
-  public $table;
+  private $modelClassName;
+  public $tableName;
   public $columns;
   public $primaryKeys;
 
-  public function __construct($className) {
-    $this->class = Reflections::instance()->add($className)->get($className);
+  public function __construct($modelClassName) {
 
-    $this->setTableName($className)
+    $this->setTableName($modelClassName)
          ->getMetaData()
          ->setPrimaryKeys();
   }
 
-  private function setPrimaryKeys() {
-    $this->primaryKeys = ($primaryKeys = $this->class->getStaticPropertyValue('primaryKeys', null)) ? is_array($primaryKeys) ? $primaryKeys : [$primaryKeys] : \M\modelsColumn(array_filter($this->columns, function ($column) { return $column->primaryKey; }), 'name');
+  private function setTableName($modelClassName){
+    $this->modelClassName = $modelClassName;
+    $this->tableName = isset($modelClassName::$tableName) ? $modelClassName::$tableName : \M\denamespace($modelClassName);
     return $this;
   }
 
   private function getMetaData () {
-    $table = Connection::instance()->quoteName($this->table);
-    $this->columns = Connection::instance()->columns($table);
+    $this->columns = Connection::instance()->columns(Connection::instance()->quoteName($this->tableName));
     return $this;
   }
 
-  private function setTableName($className){
-    $this->table = ($table = $this->class->getStaticPropertyValue('tableName', null)) ? $table : \M\denamespace($this->class->getName());
+  private function setPrimaryKeys() {
+    $modelClassName = $this->modelClassName;
+    $this->primaryKeys = isset($modelClassName::$primaryKeys) ? is_array($modelClassName::$primaryKeys) ? $modelClassName::$primaryKeys : [$modelClassName::$primaryKeys] : \M\modelsColumn(array_values(array_filter($this->columns, function ($column) { return $column->primaryKey; })), 'name');
     return $this;
   }
 
-  public static function load($modelClassName) {
+  public static function instance($modelClassName) {
     return isset(self::$caches[$modelClassName]) ? self::$caches[$modelClassName] : self::$caches[$modelClassName] = new Table($modelClassName);
   }
   
   public function find($options) {
     $sql = $this->optionsToSql($options);
+    
+    // $readonly = (array_key_exists('readonly', $options) && $options['readonly']) ? true : false;
+    // $eager_load = array_key_exists('include', $options) ? $options['include'] : null;
 
-    $readonly = (array_key_exists('readonly',$options) && $options['readonly']) ? true : false;
-    $eager_load = array_key_exists('include',$options) ? $options['include'] : null;
-
-    return $this->find_by_sql($sql->to_s(),$sql->get_where_values(), $readonly, $eager_load);
+    return $this->findBySql($sql, $sql->getWhereValues());
   }
   
-  public function createJoins($joins) {
-    if (!is_array($joins))
-      return $joins;
+  // public function createJoins($joins) {
+  //   if (!is_array($joins))
+  //     return $joins;
 
-    $ret = $space = '';
+  //   $ret = $space = '';
 
-    $existingTables = [];
+  //   $existingTables = [];
 
-    foreach ($joins as $value) {
-      $ret .= $space;
+  //   foreach ($joins as $value) {
+  //     $ret .= $space;
 
-      if (stripos($value, 'JOIN ') === false) {
+  //     if (stripos($value, 'JOIN ') === false) {
 
-        if (array_key_exists($value, $this->relationships)) {
+  //       if (array_key_exists($value, $this->relationships)) {
 
-          $rel = $this->get_relationship($value);
+  //         $rel = $this->get_relationship($value);
 
-          if (array_key_exists($rel->class_name, $existingTables)) {
-            $alias = $value;
-            $existingTables[$rel->class_name]++;
-          } else {
-            $existingTables[$rel->class_name] = true;
-            $alias = null;
-          }
+  //         if (array_key_exists($rel->class_name, $existingTables)) {
+  //           $alias = $value;
+  //           $existingTables[$rel->class_name]++;
+  //         } else {
+  //           $existingTables[$rel->class_name] = true;
+  //           $alias = null;
+  //         }
 
-          $ret .= $rel->construct_inner_join_sql($this, false, $alias);
-        }
-        else
-          throw new RelationshipException("Relationship named $value has not been declared for class: {$this->class->getName()}");
-      }
-      else
-        $ret .= $value;
+  //         $ret .= $rel->construct_inner_join_sql($this, false, $alias);
+  //       }
+  //       else
+  //         throw new RelationshipException("Relationship named $value has not been declared for class: {$this->class->getName()}");
+  //     }
+  //     else
+  //       $ret .= $value;
 
-      $space = ' ';
-    }
-    return $ret;
-  }
+  //     $space = ' ';
+  //   }
+  //   return $ret;
+  // }
   public function optionsToSql($options) {
-    $table = Connection::instance()->quoteName(array_key_exists('from', $options) ? $options['from'] : $this->table);
+    $modelClassName = $this->modelClassName;
+    $quoteTableName = Connection::instance()->quoteName(isset($modelClassName::$from) ? $modelClassName::$from : $this->tableName);
     
-    $sql = new SqlBuilder($table);
+    $sql = new SqlBuilder($quoteTableName);
 
+    // if (isset($options['joins'])) {
+    //   $sql->joins($this->createJoins($options['joins']));
 
-    if (isset($options['joins'])) {
-      $sql->joins($this->createJoins($options['joins']));
+    //   isset($options['select']) || $options['select'] = Connection::instance()->quoteName($this->table) . '.*';
+    // }
 
-      isset($options['select']) || $options['select'] = Connection::instance()->quoteName($this->table) . '.*';
+    return $sql->selectOption($options);
+  }
+  public function findBySql($sql, $values = [], $readonly = false, $includes = []) {
+
+    // $collect_attrs_for_includes = is_null($includes) ? false : true;
+
+    $list = $attrs = [];
+
+    $sth = Connection::instance()->query($sql, $values);
+
+    $self = $this;
+    while ($row = $sth->fetch()) {
+
+      
+      $model = new $this->modelClassName($row, false, true, false);
+
+      $includes &&
+        array_push($attrs, $model->attributes());
+
+      array_push($list, $model);
     }
 
-    isset($options['select']) && $sql->select($options['select']);
+    $includes && $list &&
+      $this->execute_eager_load($list, $attrs, $includes);
 
-    if (isset($options['where'])) {
-      is_string($options['where']) && $options['where'] = [$options['where']];
-      // call_user_func_array([$sql, 'where'], $options['where']);
-      $sql->where($options['where']);
-    }
-
-    if (isset ($options['order']))
-      $sql->order((string)$options['order']);
-
-    if (isset ($options['limit']))
-      $sql->limit($options['limit']);
-
-    if (isset ($options['offset']))
-      $sql->offset($options['offset']);
-
-    if (isset ($options['group']))
-      $sql->group($options['group']);
-
-    if (isset ($options['having']))
-      $sql->having($options['having']);
-
-    return $sql;
+    return $list;
   }
 
 
@@ -248,45 +250,6 @@ class Table {
 //     return $this->class->name . '-' . $pk;
 //   }
 
-//   public function find_by_sql($sql, $values=null, $readonly=false, $includes=null)
-//   {
-//     $this->last_sql = $sql;
-
-//     $collect_attrs_for_includes = is_null($includes) ? false : true;
-//     $list = $attrs = array();
-//     $sth = $this->conn->query($sql,$this->process_data($values));
-
-//     $self = $this;
-//     while (($row = $sth->fetch()))
-//     {
-//       $cb = function() use ($row, $self)
-//       {
-//         return new $self->class->name($row, false, true, false);
-//       };
-//       if ($this->cache_individual_model)
-//       {
-//         $key = $this->cache_key_for_model(array_intersect_key($row, array_flip($this->pk)));
-//         $model = Cache::get($key, $cb, $this->cache_model_expire);
-//       }
-//       else
-//       {
-//         $model = $cb();
-//       }
-
-//       if ($readonly)
-//         $model->readonly();
-
-//       if ($collect_attrs_for_includes)
-//         $attrs[] = $model->attributes();
-
-//       $list[] = $model;
-//     }
-
-//     if ($collect_attrs_for_includes && !empty($list))
-//       $this->execute_eager_load($list, $attrs, $includes);
-
-//     return $list;
-//   }
 
 //   /**
 //    * Executes an eager load of a given named relationship for this table.
@@ -424,26 +387,25 @@ class Table {
 //     return $ret;
 //   }
 
-//   private function &process_data($hash)
-//   {
-//     if (!$hash)
-//       return $hash;
+  // private function processData($hash) {
+  //   if (!$hash)
+  //     return $hash;
 
-//     $date_class = Config::instance()->get_date_class();
-//     foreach ($hash as $name => &$value)
-//     {
-//       if ($value instanceof $date_class || $value instanceof \DateTime)
-//       {
-//         if (isset($this->columns[$name]) && $this->columns[$name]->type == Column::DATE)
-//           $hash[$name] = $this->conn->date_to_string($value);
-//         else
-//           $hash[$name] = $this->conn->datetime_to_string($value);
-//       }
-//       else
-//         $hash[$name] = $value;
-//     }
-//     return $hash;
-//   }
+  //   $date_class = Config::instance()->get_date_class();
+  //   foreach ($hash as $name => &$value)
+  //   {
+  //     if ($value instanceof $date_class || $value instanceof \DateTime)
+  //     {
+  //       if (isset($this->columns[$name]) && $this->columns[$name]->type == Column::DATE)
+  //         $hash[$name] = $this->conn->date_to_string($value);
+  //       else
+  //         $hash[$name] = $this->conn->datetime_to_string($value);
+  //     }
+  //     else
+  //       $hash[$name] = $value;
+  //   }
+  //   return $hash;
+  // }
 
 
 

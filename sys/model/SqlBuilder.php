@@ -8,23 +8,41 @@ class Expressions {
   private $expressions;
   private $values = [];
 
-  public function __construct($expressions = null) {
-    $values = null;
-
-    if (is_array($expressions)) {
-      $glue = func_num_args() > 2 ? func_get_arg(2) : ' AND ';
-      list($expressions,$values) = $this->buildSqlFromHash($expressions, $glue);
-    }
-
-    if ($expressions != '') {
-      $values || $values = array_slice(func_get_args(), 2);
-
-      $this->values = $values;
-      $this->expressions = $expressions;
-    }
+  public function __construct($expressions) {
+    $this->values = null;
+    $this->expressions = $expressions;
   }
-  public function bindValues($values) {
+  
+  public function setValues($values) {
     $this->values = $values;
+  }
+
+  public function __toString () {
+    $return = "";
+
+    $valuesCount = count($this->values);
+    $quotes = 0;
+
+    for ($i = 0, $len = strlen ($this->expressions), $j = 0; $i < $len; $i++) {
+      $ch = $this->expressions[$i];
+
+      if ($ch == Expressions::MARKER)
+      {
+        if ($quotes % 2 == 0)
+        {
+          if ($j > $valuesCount-1)
+            throw new ExpressionsException("No bound parameter for index $j");
+
+          $ch = $this->substitute($this->values,$substitute,$i,$j++);
+        }
+      }
+      elseif ($ch == '\'' && $i > 0 && $this->expressions[$i-1] != '\\')
+        ++$quotes;
+
+      $return .= $ch;
+    }
+    return $return;
+
   }
 
   
@@ -48,35 +66,6 @@ class Expressions {
   //   $this->connection = $connection;
   // }
 
-  public function __toString () {
-    $return = "";
-echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-var_dump ();
-exit ();
-    $valuesCount = count($values);
-    $quotes = 0;
-
-    for ($i = 0, $len = strlen ($this->expressions), $j = 0; $i < $len; $i++) {
-      $ch = $this->expressions[$i];
-
-      if ($ch == Expressions::MARKER)
-      {
-        if ($quotes % 2 == 0)
-        {
-          if ($j > $valuesCount-1)
-            throw new ExpressionsException("No bound parameter for index $j");
-
-          $ch = $this->substitute($values,$substitute,$i,$j++);
-        }
-      }
-      elseif ($ch == '\'' && $i > 0 && $this->expressions[$i-1] != '\\')
-        ++$quotes;
-
-      $return .= $ch;
-    }
-    return $return;
-
-  }
   public function to_s($substitute=false, &$options=null) {
     if (!$options) $options = array();
     
@@ -177,64 +166,131 @@ exit ();
 }
 
 class SqlBuilder {
-  private $table;
+  private $quoteTableName;
   private $joins;
-  private $operation = 'SELECT';
+  private $operation = 'Select';
   private $select = '*';
 
-  public function __construct($table) {
-    $this->table = $table;
+  private $where;
+  private $order;
+  private $limit;
+  private $offset;
+  private $group;
+  private $having;
+  private $values;
+
+  public function __construct($quoteTableName) {
+    $this->quoteTableName = $quoteTableName;
+
+    $this->joins = [];
+    $this->operation = 'buildSelect';
+    $this->select = '*';
+    $this->where = null;
+    $this->order = null;
+    $this->limit = 0;
+    $this->offset = 0;
+    $this->group = null;
+    $this->having = null;
+    $this->values = [];
   }
+
   public function joins($joins) {
+    if ($joins === null)
+      return $this;
+
     $this->joins = $joins;
     return $this;
   }
 
   public function select($select) {
-    $this->operation = 'SELECT';
+    if ($select === null)
+      return $this;
+
+    $this->operation = 'buildSelect';
     $this->select = $select;
     return $this;
   }
   public function where($where) {
-    $this->applyWhereWhere($where);
+    if ($where === null)
+      return $this;
+
+    $this->where = array_shift($where);
+    $this->values = $where;
+
     return $this;
   }
 
-  private function applyWhereWhere($args) {
-    $numArgs = count($args);
-
-    if ($numArgs == 1 && \M\isHash($args[0])) {
-      // $hash = $this->joins ? $args[0] : $this->prepend_table_name_to_fields($args[0]);
-
-      // $e = new Expressions($hash);
-
-      // $this->where = $e->to_s();
-      // $this->where_values = array_flatten($e->values());
-    } elseif ($numArgs > 0) {
-      $values = array_slice($args, 1);
-
-      foreach ($values as $name => &$value) {
-        
-        if (is_array($value)) {
-          $e = new Expressions($args[0]);
-          $e->bindValues($values);
-          $this->where = '' . $e;
-          $this->where_values = \M\arrayFlatten($e->values());
-          echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-          var_dump ($this->where);
-          exit ();
-          return;
-        }
-      }
-
-      // no nested array so nothing special to do
-      $this->where = $args[0];
-      $this->where_values = &$values;
-      echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-      var_dump ($this->where_values);
-      exit ();
-    }
+  public function order($order) {
+    $this->order = (string)$order;
+    return $this;
   }
+  public function limit($limit) {
+    $this->limit = intval($limit);
+    return $this;
+  }
+
+  public function offset($offset) {
+    $this->offset = intval($offset);
+    return $this;
+  }
+
+  public function group($group) {
+    if ($group === null)
+      return $this;
+
+    $this->group = $group;
+    return $this;
+  }
+
+  public function having($having) {
+    if ($having === null)
+      return $this;
+
+    $this->having = $having;
+    return $this;
+  }
+
+  public function selectOption($options) {
+    foreach (['select', 'where', 'order', 'limit', 'offset', 'group', 'having'] as $method)
+      isset($options[$method]) && $this->$method($options[$method]);
+    return $this;
+  }
+  public function __toString() {
+    return $this->toString();
+  }
+
+  public function toString() {
+    $func = $this->operation;
+    return $this->$func();
+  }
+
+  private function buildSelect() {
+    $sql = "SELECT " . $this->select . " FROM " . $this->quoteTableName;
+
+    $this->joins  && $sql .= ' ' . $this->joins;
+    $this->where  && $sql .= ' WHERE ' . $this->where;
+    $this->group  && $sql .= ' GROUP BY ' . $this->group;
+    $this->having && $sql .= ' HAVING ' . $this->having;
+    $this->order  && $sql .= ' ORDER BY ' . $this->order;
+    
+    if ($this->limit || $this->offset)
+      $sql .= ' LIMIT ' . intval($this->offset) . ', ' . intval($this->limit);
+
+    return $sql;
+  }
+
+  public function getWhereValues() {
+    return $this->values;
+  }
+
+
+
+
+
+
+
+
+
 
 
   // private $order;
@@ -244,33 +300,11 @@ class SqlBuilder {
   // private $having;
   // private $update;
 
-  // private $where;
   // private $where_values = array();
 
   // private $data;
   // private $sequence;
 
-  // /**
-  //  * Returns the SQL string.
-  //  *
-  //  * @return string
-  //  */
-  // public function __toString()
-  // {
-  //   return $this->to_s();
-  // }
-
-  // /**
-  //  * Returns the SQL string.
-  //  *
-  //  * @see __toString
-  //  * @return string
-  //  */
-  // public function to_s()
-  // {
-  //   $func = 'build_' . strtolower($this->operation);
-  //   return $this->$func();
-  // }
 
   // /**
   //  * Returns the bind values.
@@ -290,41 +324,10 @@ class SqlBuilder {
   //   return array_flatten($ret);
   // }
 
-  // public function get_where_values()
-  // {
-  //   return $this->where_values;
-  // }
 
 
-  // public function order($order)
-  // {
-  //   $this->order = $order;
-  //   return $this;
-  // }
 
-  // public function group($group)
-  // {
-  //   $this->group = $group;
-  //   return $this;
-  // }
 
-  // public function having($having)
-  // {
-  //   $this->having = $having;
-  //   return $this;
-  // }
-
-  // public function limit($limit)
-  // {
-  //   $this->limit = intval($limit);
-  //   return $this;
-  // }
-
-  // public function offset($offset)
-  // {
-  //   $this->offset = intval($offset);
-  //   return $this;
-  // }
 
 
 
@@ -359,7 +362,7 @@ class SqlBuilder {
   // public function delete()
   // {
   //   $this->operation = 'DELETE';
-  //   $this->applyWhereWhere(func_get_args());
+  //   $this->applyWhere(func_get_args());
   //   return $this;
   // }
 
@@ -513,30 +516,6 @@ class SqlBuilder {
   //   return $e->to_s();
   // }
 
-  // private function build_select()
-  // {
-  //   $sql = "SELECT $this->select FROM $this->table";
-
-  //   if ($this->joins)
-  //     $sql .= ' ' . $this->joins;
-
-  //   if ($this->where)
-  //     $sql .= " WHERE $this->where";
-
-  //   if ($this->group)
-  //     $sql .= " GROUP BY $this->group";
-
-  //   if ($this->having)
-  //     $sql .= " HAVING $this->having";
-
-  //   if ($this->order)
-  //     $sql .= " ORDER BY $this->order";
-
-  //   if ($this->limit || $this->offset)
-  //     $sql = $this->connection->limit($sql,$this->offset,$this->limit);
-
-  //   return $sql;
-  // }
 
   // private function build_update()
   // {

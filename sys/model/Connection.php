@@ -24,7 +24,7 @@ abstract class Connection {
   
   // static $DEFAULT_PORT = 0;
   private static $instance = null;
-  public static $pdoOptions = [PDO::ATTR_CASE => PDO::CASE_LOWER, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL, PDO::ATTR_STRINGIFY_FETCHES => false];
+  public static $pdoOptions = [PDO::ATTR_CASE => PDO::CASE_NATURAL, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL, PDO::ATTR_STRINGIFY_FETCHES => false];
   public static $quoteCharacter = '`';
 
   private $connection = null;
@@ -56,9 +56,9 @@ abstract class Connection {
     return self::$instance = MysqlAdapter::create($host, $db, $user, $pass)->setEncoding($charset);
   }
   
-  public function query($sql, &$vals = []) {
+  public function query($sql, $vals = []) {
     try {
-      $sth = $this->connection->prepare($sql);
+      $sth = $this->connection->prepare((string)$sql);
 
       $sth || gg('Connection prepare failure!');
     } catch (PDOException $e) {
@@ -108,10 +108,13 @@ abstract class Connection {
 
   public function stringTodatetime($string) {
     $date = date_create($string);
+
     $errors = \DateTime::getLastErrors();
 
     if ($errors['warning_count'] > 0 || $errors['error_count'] > 0)
       return null;
+
+    return $date;
 
     // $date_class = Config::instance()->get_date_class();
 
@@ -241,7 +244,6 @@ abstract class Connection {
   // }
 
 
-  // abstract function limit($sql, $offset, $limit);
 
 
   // abstract function query_for_tables();

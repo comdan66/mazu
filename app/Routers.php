@@ -19,12 +19,19 @@ Router::get('/aaa/(user:num)/bbb/(title:any)')
 
         // $obj = M\BookArticle::one();
 
-        $obj = M\BookArticle::one(Where::create('id IN (?)', [2]));
+        // $obj = M\BookArticle::one(Where::create('id IN (?)', [2]));
+        // $obj = M\BookArticle::one('id = 2');
+
         // $obj = M\BookArticle::one('id = ?', 2);
         // $obj = M\BookArticle::one('id = ?', 2);
 
+        $obj = M\BookArticle::one(['select' => 'id', 'where' => 'id = 2']);
+
+        echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        var_dump ($obj->createdAt->format ('Y-m-d H:i:s'));
+        exit ();
         // $obj = M\BookArticle::one(['where' => ['id = ?', 2]]);
-        // $obj = M\BookArticle::one(['where' => ['id = ?', 2], 'select' => 'id']);
+        // $obj = M\BookArticle::one(['where' => ['id = ?', 2], 'select' => 'id', 'order' => 'id ASC, ss DESC']);
 
         // M\BookArticle::first();
         // M\BookArticle::last(['order' => 'id ASC, ss DESC']);

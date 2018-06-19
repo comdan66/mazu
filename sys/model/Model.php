@@ -3,10 +3,97 @@
 namespace _M;
 
 class Model {
+  private $newRecord = true;
+  private $attrs = [];
+
   private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'joins', 'include', 'readonly', 'group', 'from', 'having'];
 
-  public function __construct() {
+  public function __construct($attrs = [], $guardAttrs = true, $find = false, $newRecord = true) {
+    $this->newRecord = $newRecord;
+// echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+// var_dump (static::table()->columns);
+// exit ();
+
+    if (!$find)
+      foreach (static::table()->columns as $name => $meta)
+        $this->attrs[$meta->name] = $meta->default;
+    else
+      foreach ($attrs as $name => $value)
+        if (isset(static::table()->columns[$name]))
+          $this->attrs[$name] = static::table()->columns[$name]->cast ($value);
   }
+
+  public function &__get($name) {
+    if (array_key_exists($name, $this->attrs))
+      return $this->attrs[$name];
+
+    gg (get_called_class() . ' 找不到名稱為「' . $name . '」此物件變數！');
+  }
+
+  // public function &read_attribute($name)
+  // {
+  //   // check for aliased attribute
+  //   if (array_key_exists($name, static::$alias_attribute))
+  //     $name = static::$alias_attribute[$name];
+
+  //   // check for attribute
+  //   if (array_key_exists($name,$this->attributes))
+  //     return $this->attributes[$name];
+
+  //   // check relationships if no attribute
+  //   if (array_key_exists($name,$this->__relationships))
+  //     return $this->__relationships[$name];
+
+  //   $table = static::table();
+
+  //   // this may be first access to the relationship so check Table
+  //   if (($relationship = $table->get_relationship($name)))
+  //   {
+  //     $this->__relationships[$name] = $relationship->load($this);
+  //     return $this->__relationships[$name];
+  //   }
+
+  //   if ($name == 'id')
+  //   {
+  //     $pk = $this->get_primary_key(true);
+  //     if (isset($this->attributes[$pk]))
+  //       return $this->attributes[$pk];
+  //   }
+
+  //   //do not remove - have to return null by reference in strict mode
+  //   $null = null;
+
+  //   foreach (static::$delegate as &$item)
+  //   {
+  //     if (($delegated_name = $this->is_delegated($name,$item)))
+  //     {
+  //       $to = $item['to'];
+  //       if ($this->$to)
+  //       {
+  //         $val =& $this->$to->__get($delegated_name);
+  //         return $val;
+  //       }
+  //       else
+  //         return $null;
+  //     }
+  //   }
+
+  //   throw new UndefinedPropertyException(get_called_class(),$name);
+  // }
+
+
+
+
+
+// false, true, false
+//   public function __construct(array $attributes=array(), $guard_attributes=true, $instantiating_via_find=false, $new_record=true)
+//   {
+
+//     // initialize attributes applying defaults
+
+
+//   }
+
 
   public static function one() {
     return call_user_func_array(['static', 'find'], array_merge(['one'], func_get_args()));
@@ -24,12 +111,19 @@ class Model {
     return call_user_func_array(['static', 'find'], array_merge(['all'], func_get_args()));
   }
 
+  public static function create($attrs) {
+    $obj = new static($attrs);
+    return $obj;
+  }
   public static function find() {
+    $className = get_called_class();
+
     $options = func_get_args();
-    $options || gg('請給予 ' . get_called_class() . ' 查詢條件！');
+    $options || gg('請給予 ' . $className . ' 查詢條件！');
 
     // 過濾 method
-    in_array($method = array_shift($options), $tmp = ['one', 'first', 'last', 'all']) || gg('Find 僅能使用 ' . implode('、', $tmp) . ' ' . $tmp .'種查詢條件！');
+    in_array($method = array_shift($options), $tmp = ['one', 'first', 'last', 'all'])
+      || gg('Find 僅能使用 ' . implode('、', $tmp) . ' ' . $tmp .'種查詢條件！');
     
     // Model::find('one', Where::create('id = ?', 2));
     isset($options[0]) && $options[0] instanceof \Where && $options[0] = ['where' => $options[0]->toArray()];
@@ -39,20 +133,28 @@ class Model {
 
     $options = array_shift($options);
     
-    $method == 'last' && $options['order'] = isset ($options['order']) ? \M\reverseOrder ((string)$options['order']) : join(' DESC, ', static::table()->primaryKeys) . ' DESC';
+    isset($options['where']) && is_string($options['where']) && $options['where'] = [$options['where']];
+
+    $method == 'last' && $options['order'] = isset ($options['order']) ? self::reverseOrder ((string)$options['order']) : join(' DESC, ', static::table()->primaryKeys) . ' DESC';
 
     // 過濾對的 key by validOptions
     $options && $options = array_intersect_key($options, array_flip(self::$validOptions));
-    $single = $method != 'all';
+
     in_array ($method, ['one', 'first']) && $options = array_merge($options, ['limit' => 1, 'offset' => 0]);
 
     $list = static::table()->find($options);
     
-    return $single ? (isset($list[0]) ? $list[0] : null) : $list;
+    return $method != 'all' ? (isset($list[0]) ? $list[0] : null) : $list;
+  }
+  private static function reverseOrder($order) {
+    return trim($order) ? implode(', ', array_map(function($part) {
+      $v = trim(strtolower($part));
+      return strpos($v,' asc') === false ? strpos($v,' desc') === false ? $v . ' DESC' : preg_replace('/desc/i', 'ASC', $v) : preg_replace('/asc/i', 'DESC', $v);
+    }, explode(',', $order))) : 'order';
   }
 
   public static function table() {
-    return Table::load(get_called_class());
+    return Table::instance(get_called_class());
   }
 
 
@@ -62,11 +164,9 @@ class Model {
 
 //   public $errors;
 
-//   private $attributes = array();
 //   private $__dirty = null;
 //   private $__readonly = false;
 //   private $__relationships = array();
-//   private $__new_record = true;
 //   static $connection;
 //   static $db;
 //   static $table_name;
@@ -79,39 +179,6 @@ class Model {
 //   static $attr_protected = array();
 //   static $delegate = array();
 
-//   public function __construct(array $attributes=array(), $guard_attributes=true, $instantiating_via_find=false, $new_record=true)
-//   {
-//     $this->__new_record = $new_record;
-
-//     // initialize attributes applying defaults
-//     if (!$instantiating_via_find)
-//     {
-//       foreach (static::table()->columns as $name => $meta)
-//         $this->attributes[$meta->inflected_name] = $meta->default;
-//     }
-
-//     $this->set_attributes_via_mass_assignment($attributes, $guard_attributes);
-
-//     // since all attribute assignment now goes thru assign_attributes() we want to reset
-//     // dirty if instantiating via find since nothing is really dirty when doing that
-//     if ($instantiating_via_find)
-//       $this->__dirty = array();
-
-//     $this->invoke_callback('after_construct',false);
-//   }
-
-//   public function &__get($name)
-//   {
-//     // check for getter
-//     if (method_exists($this, "get_$name"))
-//     {
-//       $name = "get_$name";
-//       $value = $this->$name();
-//       return $value;
-//     }
-
-//     return $this->read_attribute($name);
-//   }
 
 //   public function __isset($attribute_name)
 //   {
@@ -130,10 +197,10 @@ class Model {
 //     }
 
 //     if (array_key_exists($name,$this->attributes))
-//       return $this->assign_attribute($name,$value);
+//       return $this->assignAttribute($name,$value);
 
 //     if ($name == 'id')
-//       return $this->assign_attribute($this->get_primary_key(true),$value);
+//       return $this->assignAttribute($this->get_primary_key(true),$value);
 
 //     foreach (static::$delegate as &$item)
 //     {
@@ -148,92 +215,6 @@ class Model {
 //   {
 //     // make sure the models Table instance gets initialized when waking up
 //     static::table();
-//   }
-
-//   public function assign_attribute($name, $value)
-//   {
-//     $table = static::table();
-//     if (!is_object($value)) {
-//       if (array_key_exists($name, $table->columns)) {
-//         $value = $table->columns[$name]->cast($value, static::connection());
-//       } else {
-//         $col = $table->get_column_by_inflected_name($name);
-//         if (!is_null($col)){
-//           $value = $col->cast($value, static::connection());
-//         }
-//       }
-//     }
-
-//     // convert php's \DateTime to ours
-//     if ($value instanceof \DateTime) {
-//       $date_class = Config::instance()->get_date_class();
-//       if (!($value instanceof $date_class))
-//         $value = $date_class::createFromFormat(
-//           Connection::DATETIME_TRANSLATE_FORMAT,
-//           $value->format(Connection::DATETIME_TRANSLATE_FORMAT),
-//           $value->getTimezone()
-//         );
-//     }
-
-//     if ($value instanceof DateTimeInterface)
-//       // Tell the Date object that it's associated with this model and attribute. This is so it
-//       // has the ability to flag this model as dirty if a field in the Date object changes.
-//       $value->attribute_of($this,$name);
-
-//     $this->attributes[$name] = $value;
-//     $this->flag_dirty($name);
-//     return $value;
-//   }
-
-//   public function &read_attribute($name)
-//   {
-//     // check for aliased attribute
-//     if (array_key_exists($name, static::$alias_attribute))
-//       $name = static::$alias_attribute[$name];
-
-//     // check for attribute
-//     if (array_key_exists($name,$this->attributes))
-//       return $this->attributes[$name];
-
-//     // check relationships if no attribute
-//     if (array_key_exists($name,$this->__relationships))
-//       return $this->__relationships[$name];
-
-//     $table = static::table();
-
-//     // this may be first access to the relationship so check Table
-//     if (($relationship = $table->get_relationship($name)))
-//     {
-//       $this->__relationships[$name] = $relationship->load($this);
-//       return $this->__relationships[$name];
-//     }
-
-//     if ($name == 'id')
-//     {
-//       $pk = $this->get_primary_key(true);
-//       if (isset($this->attributes[$pk]))
-//         return $this->attributes[$pk];
-//     }
-
-//     //do not remove - have to return null by reference in strict mode
-//     $null = null;
-
-//     foreach (static::$delegate as &$item)
-//     {
-//       if (($delegated_name = $this->is_delegated($name,$item)))
-//       {
-//         $to = $item['to'];
-//         if ($this->$to)
-//         {
-//           $val =& $this->$to->__get($delegated_name);
-//           return $val;
-//         }
-//         else
-//           return $null;
-//       }
-//     }
-
-//     throw new UndefinedPropertyException(get_called_class(),$name);
 //   }
 
 //   public function flag_dirty($name)
@@ -869,7 +850,7 @@ class Model {
 //    */
 //   public function set_attributes(array $attributes)
 //   {
-//     $this->set_attributes_via_mass_assignment($attributes, true);
+//     $this->setAttributesViaMassAssignment($attributes, true);
 //   }
 
 //   /**
@@ -879,53 +860,6 @@ class Model {
 //    * @param array $attributes An array in the form array(name => value, ...)
 //    * @param boolean $guard_attributes Flag of whether or not protected/non-accessible attributes should be guarded
 //    */
-//   private function set_attributes_via_mass_assignment(array &$attributes, $guard_attributes)
-//   {
-//     //access uninflected columns since that is what we would have in result set
-//     $table = static::table();
-//     $exceptions = array();
-//     $use_attr_accessible = !empty(static::$attr_accessible);
-//     $use_attr_protected = !empty(static::$attr_protected);
-//     $connection = static::connection();
-
-//     foreach ($attributes as $name => $value)
-//     {
-//       // is a normal field on the table
-//       if (array_key_exists($name,$table->columns))
-//       {
-//         $value = $table->columns[$name]->cast($value,$connection);
-//         $name = $table->columns[$name]->inflected_name;
-//       }
-
-//       if ($guard_attributes)
-//       {
-//         if ($use_attr_accessible && !in_array($name,static::$attr_accessible))
-//           continue;
-
-//         if ($use_attr_protected && in_array($name,static::$attr_protected))
-//           continue;
-
-//         // set valid table data
-//         try {
-//           $this->$name = $value;
-//         } catch (UndefinedPropertyException $e) {
-//           $exceptions[] = $e->getMessage();
-//         }
-//       }
-//       else
-//       {
-//         // ignore OciAdapter's limit() stuff
-//         if ($name == 'ar_rnum__')
-//           continue;
-
-//         // set arbitrary data
-//         $this->assign_attribute($name,$value);
-//       }
-//     }
-
-//     if (!empty($exceptions))
-//       throw new UndefinedPropertyException(get_called_class(),$exceptions);
-//   }
 
 //   /**
 //    * Add a model to the given named ($name) relationship.
