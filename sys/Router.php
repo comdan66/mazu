@@ -88,18 +88,6 @@ class Router {
     return $this->setWork($work);
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
   public static function init() {
     Load::path(PATH_APP . 'Routers.php');
   }
@@ -164,6 +152,8 @@ class Router {
   }
 
 }
+
+Router::init();
 
 // class Router {
 //   private static $directories;

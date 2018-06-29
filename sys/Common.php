@@ -65,7 +65,7 @@ if (!function_exists('responseStatusText')) {
       500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway', 503 => 'Service Unavailable', 504 => 'Gateway Timeout', 505 => 'HTTP Version Not Supported', 506 => 'Variant Also Negotiates', 507 => 'Insufficient Storage', 508 => 'Loop Detected', 510 => 'Not Extended', 511 => 'Network Authentication Required'
     ];
 
-    return isset ($responseStatusText[$code]) ? $responseStatusText[$code] : '';
+    return isset($responseStatusText[$code]) ? $responseStatusText[$code] : '';
   }
 }
 
@@ -77,18 +77,36 @@ if (!function_exists('responseStatusHeader')) {
       if (strpos (PHP_SAPI, 'cgi') === 0)
         return header ('Status: ' . $code . ' ' . $str, true);
 
-      in_array (($protocol = isset ($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'), array ('HTTP/1.0', 'HTTP/1.1', 'HTTP/2')) || $protocol = 'HTTP/1.1';
+      in_array (($protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'), array ('HTTP/1.0', 'HTTP/1.1', 'HTTP/2')) || $protocol = 'HTTP/1.1';
       return header ($protocol . ' ' . $code . ' ' . $str, true, $code);
   }
 }
 
 
+if (!function_exists('implodeRecursive')) {
+  function implodeRecursive($glue, $pieces) {
+    $ret = '';
+
+    foreach ($pieces as $piec)
+      $ret .= isset($piec) ? !is_object($piec) ? !is_bool($piec) ? is_array($piec) ? '[' . implodeRecursive($glue, $piec) . ']' . $glue : $piec . $glue : ($piec ? 'true' : 'false') . $glue : get_class($piec) . $glue : 'null' . $glue;
+
+    $ret = substr($ret, 0, 0 - strlen($glue));
+
+    return $ret;
+  }
+}
 if (!function_exists('gg')) {
-  function gg($text, $code = 500, $contents = array ()) {
-    is_array($text) && $text = json_encode($text);
-    is_object($text) && $text = print_r($text, true);
+  function gg($text, $code = 500, $contents = []) {
+    $text = print_r($text, true);
+    // is_object($text) && $text = print_r($text, true);
 
     $statusText = ($statusText = responseStatusText ($code)) ? $code . ' ' . $statusText : '';
+    
+    $traces = debug_backtrace (DEBUG_BACKTRACE_PROVIDE_OBJECT);
+
+    isset($contents['traces']) || $contents['traces'] = array_combine (
+      array_map(function($trace) { return (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''); }, $traces),
+      array_map(function($trace) { return (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : ''); }, $traces));
 
     if (isCli())
       echo View::maybe('error' . DIRECTORY_SEPARATOR . 'ggCli.php')
@@ -97,6 +115,7 @@ if (!function_exists('gg')) {
     else
       echo View::maybe('error' . DIRECTORY_SEPARATOR . 'ggHtml.php')
                ->with('text', $text)
+               ->with('contents', $contents)
                ->get();
     exit;
   }

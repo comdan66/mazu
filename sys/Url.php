@@ -75,3 +75,5 @@ class Url {
     exit;
   }
 }
+
+Url::init();

@@ -13,7 +13,7 @@ date_default_timezone_set('Asia/Taipei');
 // 定義版號
 define('MAZU', '1.0.0');
 
-//取得此專案資料夾之絕對位置
+// 取得此專案資料夾之絕對位置
 define('PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 
 // sys 的絕對位置
@@ -43,35 +43,30 @@ if (!@include_once PATH_SYS . 'Common.php')
 if (!isPhpVersion('5.6'))
   exit('PHP 版本太舊，請大於等於 5.6');
 
+
 // 載入基準
 Load::path(PATH_SYS . 'Benchmark.php');
+
+// 開始
 Benchmark::markStar('整體');
 
 // 載入編碼
 Load::path(PATH_SYS . 'Charset.php');
-Charset::init();
 
 // 載入 Log
 Load::path(PATH_SYS . 'Log.php');
 
 // 載入 Url
 Load::path(PATH_SYS . 'Url.php');
-Url::init();
-
-// 載入 Model
-// Load::path(PATH_SYS . 'Model.php');
 
 // 載入 Router
 Load::path(PATH_SYS . 'Router.php');
-Router::init();
 
+// 載入 Output
 Load::path(PATH_SYS . 'Output.php');
 
+// 載入 Model
 Load::path(PATH_SYS . 'Model.php');
-
-
-
-
 
 
 $router = Router::getMatchRouter();

@@ -14,8 +14,7 @@ Router::get('/aaa/(user:num)/bbb/(title:any)')
         // $user = Router::current()->getParams('user');
         // $book = new M\BookArticle();
 
-          // M\BookArticle::one()
-
+        // M\BookArticle::one()
 
         // $obj = M\BookArticle::one();
 
@@ -24,12 +23,13 @@ Router::get('/aaa/(user:num)/bbb/(title:any)')
 
         // $obj = M\BookArticle::one('id = ?', 2);
         // $obj = M\BookArticle::one('id = ?', 2);
+// gg('asd');
+gg(\M\Article::one());
+gg([\M\Article::one()]);
 
-        $obj = M\BookArticle::one(['select' => 'id', 'where' => 'id = 2']);
+        $obj = \M\Article::one();
+        var_dump ($obj);
 
-        echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        var_dump ($obj->createdAt->format ('Y-m-d H:i:s'));
-        exit ();
         // $obj = M\BookArticle::one(['where' => ['id = ?', 2]]);
         // $obj = M\BookArticle::one(['where' => ['id = ?', 2], 'select' => 'id', 'order' => 'id ASC, ss DESC']);
 

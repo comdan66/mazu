@@ -52,3 +52,4 @@ class Charset {
     return preg_match('/[^\x00-\x7F]/S', $str) === 0;
   }
 }
+Charset::init();
