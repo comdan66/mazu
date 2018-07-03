@@ -70,15 +70,15 @@ if (!function_exists('responseStatusText')) {
 }
 
 if (!function_exists('responseStatusHeader')) {
-  function responseStatusHeader ($code, $str = '') {
-      $str = responseStatusText ($code);
-      $str || $str = responseStatusText ($code = 500);
+  function responseStatusHeader($code, $str = '') {
+      $str = responseStatusText($code);
+      $str || $str = responseStatusText($code = 500);
 
-      if (strpos (PHP_SAPI, 'cgi') === 0)
-        return header ('Status: ' . $code . ' ' . $str, true);
+      if (strpos(PHP_SAPI, 'cgi') === 0)
+        return header('Status: ' . $code . ' ' . $str, true);
 
-      in_array (($protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'), array ('HTTP/1.0', 'HTTP/1.1', 'HTTP/2')) || $protocol = 'HTTP/1.1';
-      return header ($protocol . ' ' . $code . ' ' . $str, true, $code);
+      in_array(($protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'), ['HTTP/1.0', 'HTTP/1.1', 'HTTP/2']) || $protocol = 'HTTP/1.1';
+      return header($protocol . ' ' . $code . ' ' . $str, true, $code);
   }
 }
 
@@ -97,14 +97,16 @@ if (!function_exists('implodeRecursive')) {
 }
 if (!function_exists('gg')) {
   function gg($text, $code = 500, $contents = []) {
+    isCli() || responseStatusHeader(500);
+    isCli() ? @system('clear') : @ob_end_clean();
+
     $text = print_r($text, true);
-    // is_object($text) && $text = print_r($text, true);
 
-    $statusText = ($statusText = responseStatusText ($code)) ? $code . ' ' . $statusText : '';
+    $statusText = ($statusText = responseStatusText($code)) ? $code . ' ' . $statusText : '';
     
-    $traces = debug_backtrace (DEBUG_BACKTRACE_PROVIDE_OBJECT);
+    $traces = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
 
-    isset($contents['traces']) || $contents['traces'] = array_combine (
+    isset($contents['traces']) || $contents['traces'] = array_combine(
       array_map(function($trace) { return (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''); }, $traces),
       array_map(function($trace) { return (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : ''); }, $traces));
 
@@ -183,3 +185,91 @@ if (!function_exists('arr2dTo1d')) {
     return $new;
   }
 }
+
+if (!function_exists('errorHandler')) {
+  function errorHandler($severity, $message, $filepath, $line) {
+    $levels = [E_ERROR => 'Error', E_WARNING => 'Warning', E_PARSE => 'Parsing Error', E_NOTICE => 'Notice', E_CORE_ERROR => 'Core Error', E_CORE_WARNING => 'Core Warning', E_COMPILE_ERROR => 'Compile Error', E_COMPILE_WARNING => 'Compile Warning', E_USER_ERROR => 'User Error', E_USER_WARNING => 'User Warning', E_USER_NOTICE => 'User Notice', E_STRICT => 'Runtime Notice'];
+    $isError = (((E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $severity) === $severity);
+
+    if (($severity & error_reporting()) !== $severity)
+      return;
+
+    if (str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')))
+      gg('不明錯誤', 500, [
+        'details' => [
+          '類型' => isset($levels[$severity]) ? $levels[$severity] : $severity,
+          '訊息' => $message,
+          '位置' => $filepath . '(' . $line . ')'
+        ]
+      ]);
+
+    if ($isError)
+      exit(1);
+  }
+}
+
+if (!function_exists('exceptionHandler')) {
+  function exceptionHandler($exception) {
+    
+    if (str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')))
+      gg('有 Exception 未使用 try catch', 500, [
+        'details' => [
+          '物件' => get_class($exception),
+          '訊息' => $exception->getMessage(),
+          '檔案' => $exception->getFile() . '(' . $exception->getLine() . ')'
+        ],
+        'traces' => array_combine(
+          array_map(function($trace) { return (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''); }, $exception->getTrace()),
+          array_map(function($trace) { return (isset ($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : ''); }, $exception->getTrace()))
+      ]);
+
+    exit(1);
+  }
+}
+
+if (!function_exists('shutdownHandler')) {
+  function shutdownHandler() {
+    $lastError = error_get_last();
+   
+    if (isset($lastError['type']) && ($lastError['type'] & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING)))
+      errorHandler($lastError['type'], $lastError['message'], $lastError['file'], $lastError['line']);
+  }
+}
+
+if (!function_exists('dump')) {
+  function dump($val, $l = 1) {
+    if (is_string($val))
+      return '"' . $val . '"';
+    
+    if (is_numeric($val))
+      return $val;
+// $val=[];
+    if (is_array($val))
+      return "[\n" . str_repeat('  ', $l) . implode(",\n" . str_repeat('  ', $l), array_map(function ($k, $v) use($l) { return dump($k) . ' ➜ ' . dump($v, $l + 1);}, array_keys($val), $val)) . "\n" . str_repeat('  ', $l - 1) . "]";
+
+    if ($val instanceof \M\Model)
+      return 'Model(' . \M\deNamespace(get_class($val)) . ") {\n" . str_repeat('  ', $l) . implode(",\n" . str_repeat('  ', $l), array_map(function ($k, $v) use($l) { return dump($k) . ' ➜ ' . dump($v, $l + 1);}, array_keys($val->attrs()), $val->attrs())) . "\n" . str_repeat('  ', $l - 1) . "}";
+    
+    if ($val instanceof \_M\DateTime)
+      return 'DateTime(' . '"' . $val . '"' . ")";
+    
+    if ($val instanceof \M\ImageUploader)
+      return "ImageUploader(" . '"' . $val . '"' . ") {\n" . str_repeat('  ', $l) . '"versions" ➜ ' . "[" . implode(', ', array_map('dump', array_keys($val->versions()))) . "]" . "\n" . str_repeat('  ', $l - 1) . "}";
+    
+    if ($val instanceof \M\FileUploader)
+      return "FileUploader(" . '"' . $val . '"' . ")";
+    
+    if (is_object($val) && method_exists($val, '__toString'))
+      return '"' . $val . '"';
+
+    if (is_object($val) && !method_exists($val, '__toString'))
+      return 'Object(' . get_class($val) . ')';
+  }
+}
+
+/* ------------------------------------------------------
+ *  定義自己的 Error Handler
+ * ------------------------------------------------------ */
+set_error_handler('errorHandler');
+set_exception_handler('exceptionHandler');
+register_shutdown_function('shutdownHandler');

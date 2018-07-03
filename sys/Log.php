@@ -3,7 +3,7 @@
 class Log {
   private static $extension = '.log';
   private static $permissions = 0777;
-  private static $dateFormat = 'Y-m-d H:i:s';
+  private static $dateFormat = 'H:i:s';
   private static $fopens = [];
 
   public static function message($text, $prefix = 'log-') {
@@ -27,18 +27,17 @@ class Log {
     return is_int($result);
   }
 
-  private static function formatLine($date, $title, $msg) {
-    return cliColor($date, 'w') . cliColor('：', 'N') . $title . cliColor('：', 'N') . $msg . "\n";
-  }
   public static function info($msg) {
-    return self::message(self::formatLine(date(self::$dateFormat), cliColor('紀錄', 'g'), $msg), 'log-info-');
-  }
+    
+    // is_object($msg) && $msg = json_encode($msg);
+
+    return self::message(date(self::$dateFormat) . '｜' . dump($msg) . "\n" . str_repeat ('-', 80), 'log-info-'); }
   public static function error($msg) {
-    return self::message(self::formatLine(date(self::$dateFormat), cliColor('錯誤', 'r'), $msg), 'log-error-');
-  }
-  public static function warning($msg) {
-    return self::message(self::formatLine(date(self::$dateFormat), cliColor('警告', 'y'), $msg), 'log-warning-');
-  }
+    is_array($msg) && $msg = json_encode($msg);
+    // is_object($msg) && $msg = json_encode($msg);
+
+    return self::message(date(self::$dateFormat) . '｜' . $msg . "\n" . str_repeat ('-', 80), 'log-error-'); }
+
   public static function closeAll() {
     foreach(self::$fopens as $fopen) fclose($fopen);
     return true;

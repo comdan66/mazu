@@ -215,7 +215,6 @@ a:hover{
     color:#787878
 }
 #main>div>blockquote pre{
-    border: 1px solid rgba(255, 0, 0, .3);
     display: inline-block;
     width: 100%;
     overflow-x: auto;
@@ -373,8 +372,47 @@ a:hover{
 
         <blockquote><pre><?php echo $text;?></pre></blockquote>
 
-        <h2>回朔追蹤</h2>
+<?php if (!empty($contents['details'])) { ?>
+            <h2>錯誤原因</h2>
+            <table>
+              <tbody>
+        <?php   foreach ($contents['details'] as $key => $detail) { ?>
+                  <tr>
+                    <th width='100'><?php echo $key;?></th>
+                    <td><?php echo $detail;?></td>
+                  </tr>
+        <?php   } ?>
+              </tbody>
+            </table>
+  <?php } ?>
 
+  <?php if (!empty($contents['traces'])) { ?>
+            <h2>回朔追蹤</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th width="50" class="c">順序</th>
+                  <th width="250">標題</th>
+                  <th>內容</th>
+                </tr>
+              </thead>
+              <tbody>
+        <?php   $i = 0;
+                foreach ($contents['traces'] as $key => $trace) {
+                  $dir = pathinfo($key, PATHINFO_DIRNAME);
+                  $base = pathinfo($key, PATHINFO_BASENAME); ?>
+                  <tr>
+                    <td class="c"><?php echo ++$i;?></td>
+                    <td><?php echo ($dir && $dir != '.'  ? '<a class="p">' . $dir . DIRECTORY_SEPARATOR . '</a>' : '') . $base;?></td>
+                    <td><?php echo $trace;?></td>
+                  </tr>
+        <?php   } ?>
+              </tbody>
+            </table>
+  <?php } ?>
+
+        <!-- 
+        <h2>回朔追蹤</h2>
         <table>
           <thead>
             <tr>
@@ -383,19 +421,17 @@ a:hover{
               <th>內容</th>
             </tr>
           </thead>
+
           <tbody>
-            <tr>
-              <td class="c">1</td>
-              <td>2</td>
-              <td>3</td>
-            </tr>
-            <tr>
-              <td class="c">1</td>
-              <td>2<a class='p'>asd</a></td>
-              <td>3</td>
-            </tr>
+
+            echo implode ('', array_filter (array_map (function ($content, $key) { return $key != 'quote' ? $key != 'detail' ? $key == 'traces' ? '<h2>回朔追蹤</h2><table><thead><tr><th width="50" class="c">順序</th><th width="250">標題</th><th>內容</th></tr></thead>' . implode ('', array_map (function ($val, $key, $i) { 
+            $dir = pathinfo ($key, PATHINFO_DIRNAME);
+            $base = pathinfo ($key, PATHINFO_BASENAME);
+
+            return '<tr><td class="c"><i>#' . $i . '</i></td><td></td><td>' .  . '</td></tr>'; }, $content, $ks = array_keys ($content), range (count ($ks), 1))) . '</tbody></table>' : '' : '<table><tbody>' . implode ('', array_map (function ($val, $key) { return '<tr><th width="100">' . $key . '</th><td>' . $val . '</td></tr>'; }, $content, array_keys ($content))) . '</tbody></table>' : '<blockquote>' . $content . '</blockquote>'; }, $contents, array_keys ($contents))));
+
           </tbody>
-        </table>
+        </table> -->
 
 
         <i></i>

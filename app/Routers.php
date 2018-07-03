@@ -9,6 +9,10 @@
 //   //              ->setStatus(500);
 // };
 
+
+class Book {
+    var $a = 1;
+}
 Router::get('/aaa/(user:num)/bbb/(title:any)')
       ->work(function() {
         // $user = Router::current()->getParams('user');
@@ -23,12 +27,38 @@ Router::get('/aaa/(user:num)/bbb/(title:any)')
 
         // $obj = M\BookArticle::one('id = ?', 2);
         // $obj = M\BookArticle::one('id = ?', 2);
-// gg('asd');
-gg(\M\Article::one());
-gg([\M\Article::one()]);
+        // 1/0;
+        $obj = M\Article::one();
+        // Log::info([1,2,3,4]);
+        $a = [1,2,3,['a', 'b', 'c', ['a1' => 1, 'b2' => $obj]]];
+        
+        echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        echo dump($a);
 
-        $obj = \M\Article::one();
-        var_dump ($obj);
+        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // var_dump (dump('ad'));
+        // var_dump (dump([M\Article::one(), 1, 'abc']));
+        // $obj = M\Article::one();
+        // echo dump([new Book()]);
+        // exit ();;
+
+
+        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // var_dump (json_encode(M\Article::one()));
+        // exit ();
+        // Log::error('a');
+
+
+        // 
+        // throw new Exception('dd');
+        
+
+// gg('asd');
+// gg(\M\Article::one());
+// gg([\M\Article::one()]);
+
+        // $obj = \M\Article::one();
+        // var_dump ($obj);
 
         // $obj = M\BookArticle::one(['where' => ['id = ?', 2]]);
         // $obj = M\BookArticle::one(['where' => ['id = ?', 2], 'select' => 'id', 'order' => 'id ASC, ss DESC']);

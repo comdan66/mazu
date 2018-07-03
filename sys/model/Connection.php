@@ -11,7 +11,7 @@ class Connection {
   private $connection = null;
 
   protected function __construct() {
-    $config = Config::getConnection ();
+    $config = Config::getConnection();
     $config || Config::error('沒有設定 MySQL 連線資訊！');
     
     foreach (['hostname', 'username', 'password', 'database', 'char_set'] as $key)
