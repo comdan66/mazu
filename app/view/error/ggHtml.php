@@ -373,13 +373,13 @@ a:hover{
         <blockquote><pre><?php echo $text;?></pre></blockquote>
 
 <?php if (!empty($contents['details'])) { ?>
-            <h2>錯誤原因</h2>
+            <h2>訊息</h2>
             <table>
               <tbody>
-        <?php   foreach ($contents['details'] as $key => $detail) { ?>
+        <?php   foreach ($contents['details'] as $detail) { ?>
                   <tr>
-                    <th width='100'><?php echo $key;?></th>
-                    <td><?php echo $detail;?></td>
+                    <th width='100'><?php echo $detail['title'];?></th>
+                    <td><?php echo $detail['content'];?></td>
                   </tr>
         <?php   } ?>
               </tbody>
@@ -392,19 +392,19 @@ a:hover{
               <thead>
                 <tr>
                   <th width="50" class="c">順序</th>
-                  <th width="250">標題</th>
-                  <th>內容</th>
+                  <th width="250">路徑</th>
+                  <th>資訊</th>
                 </tr>
               </thead>
               <tbody>
-        <?php   $i = 0;
-                foreach ($contents['traces'] as $key => $trace) {
-                  $dir = pathinfo($key, PATHINFO_DIRNAME);
-                  $base = pathinfo($key, PATHINFO_BASENAME); ?>
+        <?php   $c = count($contents['traces']);
+                foreach ($contents['traces'] as $i => $trace) {
+                  $dir = pathinfo($trace['path'], PATHINFO_DIRNAME);
+                  $base = pathinfo($trace['path'], PATHINFO_BASENAME); ?>
                   <tr>
-                    <td class="c"><?php echo ++$i;?></td>
+                    <td class="c"><?php echo $c - $i;?></td>
                     <td><?php echo ($dir && $dir != '.'  ? '<a class="p">' . $dir . DIRECTORY_SEPARATOR . '</a>' : '') . $base;?></td>
-                    <td><?php echo $trace;?></td>
+                    <td><?php echo $trace['info'];?></td>
                   </tr>
         <?php   } ?>
               </tbody>

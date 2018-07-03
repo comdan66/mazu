@@ -1,16 +1,18 @@
 <?php
 
-class Load {
-  private static $cache = array ();
-
-  public static function path($path, $error = '載入檔案失敗。') {
-    if (!empty(self::$cache[$path]))
+if (!function_exists('load')) {
+  function load($path, $error = null) {
+    static $cache;
+    
+    if (isset($cache[$path]))
       return true;
 
-    is_file($path) && is_readable($path) || gg($error);
+    $error || $error = '載入檔案「' . $path . '」失敗！';
+
+    is_file($path) && is_readable($path) || (is_callable('gg') ? gg($error) : exit($error));
 
     require_once $path;
 
-    return self::$cache[$path] = true;
+    return $cache[$path] = true;
   }
 }

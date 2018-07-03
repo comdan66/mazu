@@ -1,4 +1,4 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 if (MB_ENABLED === true)
   return;

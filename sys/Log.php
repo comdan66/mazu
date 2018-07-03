@@ -6,8 +6,8 @@ class Log {
   private static $dateFormat = 'H:i:s';
   private static $fopens = [];
 
-  public static function message($text, $prefix = 'log-') {
-    if (!(is_dir(PATH_LOG) && isReallyWritable(PATH_LOG)))
+  public static function msg($text, $prefix = 'log-') {
+    if (!is_dir(PATH_LOG)|| !isReallyWritable(PATH_LOG))
       return false;
 
     $newfile = !file_exists($path = PATH_LOG . $prefix . date('Y-m-d') . self::$extension);
@@ -18,8 +18,8 @@ class Log {
       else
         self::$fopens[$path] = $fopen;
 
-    for($written = 0, $length = Charset::strlen($text); $written < $length; $written += $result)
-      if (($result = fwrite(self::$fopens[$path], Charset::substr($text, $written))) === false)
+    for($written = 0, $length = charsetStrlen($text); $written < $length; $written += $result)
+      if (($result = fwrite(self::$fopens[$path], charsetSubstr($text, $written))) === false)
         break;
 
     $newfile && @chmod($path, self::$permissions);
@@ -28,29 +28,35 @@ class Log {
   }
 
   public static function info($msg) {
-    
-    // is_object($msg) && $msg = json_encode($msg);
+    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    var_dump (debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
+    exit ();
+    $traces = ($traces = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)) && ($traces = array_pop($traces)) && isset($traces['file'], $traces['line']) ? ' | ' . $traces['file'] . '(' . $traces['line'] . ')' : '';
 
-    return self::message(date(self::$dateFormat) . '｜' . dump($msg) . "\n" . str_repeat ('-', 80), 'log-info-'); }
+    return self::msg('═ ' . date(self::$dateFormat) . $traces . ' ' . str_repeat('═', ($traces = 80 - 11 - strlen($traces)) < 0 ? 0 : $traces) . "\n" . dump($msg) . "\n" . ' ' . "\n\n", 'log-info-');
+  }
+
   public static function error($msg) {
-    is_array($msg) && $msg = json_encode($msg);
-    // is_object($msg) && $msg = json_encode($msg);
+    return self::msg('═ ' . date(self::$dateFormat) . ' ' . str_repeat('═', 80 - 11) . "\n" . dump($msg) . "\n\n", 'log-error-');
+  }
 
-    return self::message(date(self::$dateFormat) . '｜' . $msg . "\n" . str_repeat ('-', 80), 'log-error-'); }
+  public static function warning($msg) {
+    return self::msg('═ ' . date(self::$dateFormat) . ' ' . str_repeat('═', 80 - 11) . "\n" . dump($msg) . "\n\n", 'log-warning-');
+  }
 
   public static function closeAll() {
-    foreach(self::$fopens as $fopen) fclose($fopen);
+    foreach(self::$fopens as $fopen)
+      fclose($fopen);
     return true;
   }
 
-
   // public static function queryLine() {
   //   self::$type || self::$type = ENVIRONMENT !== 'cmd' ? request_is_cli() ? cliColor('cli', 'c') . cliColor(' ➜ ', 'N') . cliColor(URL::uriString(), 'C') : cliColor('web', 'p') . cliColor(' ➜ ', 'N') . cliColor(URL::uriString(), 'P') : cliColor('cmd', 'y') . cliColor(' ➜ ', 'N') . cliColor(CMD_FILE, 'Y');
-  //   @self::message("\n" . self::$type . cliColor(' ╞' . str_repeat('═', CLI_LEN -(strlen(self::$type) - 31)) . "\n", 'N'), 'query-');
+  //   @self::msg("\n" . self::$type . cliColor(' ╞' . str_repeat('═', CLI_LEN -(strlen(self::$type) - 31)) . "\n", 'N'), 'query-');
   //   return true;
   // }
   // public static function query($valid, $time, $sql, $values) {
-  //   @self::message(self::formatQuery(date(self::$config['dateFormat']), $valid, $time, $sql, $values), 'query-');
+  //   @self::msg(self::formatQuery(date(self::$config['dateFormat']), $valid, $time, $sql, $values), 'query-');
   //   return true;
   // }
   // private static function formatQuery($date, $valid, $time, $sql, $values) {

@@ -7,9 +7,9 @@ if (defined('MODEL_LOADED'))
 
 define('MODEL_LOADED', true);
 
-\Load::path(PATH_SYS . 'Model' . DIRECTORY_SEPARATOR . 'Func.php');
+\Load::path(PATH_SYS . 'model' . DIRECTORY_SEPARATOR . 'Func.php');
 \Load::path(PATH_SYS . 'Uploader.php');
-\Load::path(PATH_SYS . 'Model' . DIRECTORY_SEPARATOR . 'Config.php');
+\Load::path(PATH_SYS . 'model' . DIRECTORY_SEPARATOR . 'Config.php');
 
 Class Model {
   private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'group', 'having', 'include', 'readonly'];

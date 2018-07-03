@@ -1,4 +1,4 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class View {
   private $path;
@@ -55,7 +55,7 @@ class View {
       
       // 將 include output 存起來
       ob_start();
-      !include $___path___;
+      include $___path___;
       $buffer = ob_get_contents();
       @ob_end_clean();
     }

@@ -1,50 +1,59 @@
 <?php
 
-// 取得 Config
+if (!function_exists('load')) {
+  function load($path, $error = null) {
+    static $cache;
+    
+    if (isset($cache[$path]))
+      return true;
+
+    $error || $error = '載入檔案「' . $path . '」失敗！';
+
+    if (!(is_file($path) && is_readable($path)))
+      return false;
+
+    require_once $path;
+
+    return $cache[$path] = true;
+  }
+}
+
 if (!function_exists('config')) {
   function config() {
     static $files, $keys;
 
     if (!$args = func_get_args())
-      exit('Config 使用方式錯誤！');
+      gg('Config 使用方式錯誤！');
 
     $fileName = array_shift($args);
-
-    $argsStr = implode('', $args);
+    $argsStr  = implode('', $args);
 
     if (isset($keys[$argsStr]))
       return $keys[$argsStr];
     
     if (!isset($files[$fileName])) {
-      if (!file_exists($path = PATH_APP . 'config' . DIRECTORY_SEPARATOR . $fileName . '.php'))
-        exit('檔案名稱為「' . $fileName . '」的 Config 檔案不存在！');
+      if (!file_exists($path = PATH_APP . 'config' . DIRECTORY_SEPARATOR . ENVIRONMENT . DIRECTORY_SEPARATOR . $fileName . '.php') && !file_exists($path = PATH_APP . 'config' . DIRECTORY_SEPARATOR . $fileName . '.php'))
+        gg('檔案名稱為「' . $fileName . '」的 Config 檔案不存在！');
 
       $files[$fileName] = include_once($path);
     }
 
     $tmp = $files[$fileName];
 
-    foreach ($args as $arg) {
-      if (isset($tmp[$arg])) {
-        $tmp = $tmp[$arg];
-      } else {
-        $tmp = null;
+    foreach ($args as $arg)
+      if (($tmp = isset($tmp[$arg]) ? $tmp[$arg] : null) === null)
         break;
-      }
-    }
 
     return $keys[$argsStr] = $tmp;
   }
 }
 
-// 是否為 Cli
 if (!function_exists('isCli')) {
   function isCli() {
     return PHP_SAPI === 'cli' || defined('STDIN');
   }
 }
 
-// 回傳是否大於等於版本
 if (!function_exists('isPhpVersion')) {
   function isPhpVersion($version) {
     static $versions;
@@ -52,11 +61,9 @@ if (!function_exists('isPhpVersion')) {
   }
 }
 
-
-
+// https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81
 if (!function_exists('responseStatusText')) {
   function responseStatusText ($code) {
-    // https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81
     $responseStatusText = [
       100 => 'Continue', 101 => 'Switching Protocols', 102 => 'Processing',
       200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information', 204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content', 207 => 'Multi-Status', 208 => 'Already Reported', 226 => 'IM Used',
@@ -95,33 +102,45 @@ if (!function_exists('implodeRecursive')) {
     return $ret;
   }
 }
+
 if (!function_exists('gg')) {
   function gg($text, $code = 500, $contents = []) {
+    static $api;
+    
+
+    if ($text === null)
+      return $api = $code;
+
     isCli() || responseStatusHeader(500);
     isCli() ? @system('clear') : @ob_end_clean();
 
-    $text = print_r($text, true);
-
     $statusText = ($statusText = responseStatusText($code)) ? $code . ' ' . $statusText : '';
     
-    $traces = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
-
-    isset($contents['traces']) || $contents['traces'] = array_combine(
-      array_map(function($trace) { return (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''); }, $traces),
-      array_map(function($trace) { return (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : ''); }, $traces));
-
-    if (isCli())
+    isset($contents['traces']) || $contents['traces'] = array_map(function($trace) {
+      return [
+        'path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''),
+        'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')
+      ];
+    }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
+    
+    if (!class_exists('View') || $api === 'api') {
+      $contents = array_merge(array ('text' => $text), $contents);
+      @header('Content-Type: application/json');
+      echo json_encode($contents);
+    } else if (isCli())
       echo View::maybe('error' . DIRECTORY_SEPARATOR . 'ggCli.php')
-               ->with('text', $text)
+               ->with('text', dump($text, 1))
+               ->with('contents', $contents)
                ->get();
     else
       echo View::maybe('error' . DIRECTORY_SEPARATOR . 'ggHtml.php')
-               ->with('text', $text)
+               ->with('text', dump($text))
                ->with('contents', $contents)
                ->get();
     exit;
   }
 }
+
 if (!function_exists('isReallyWritable')) {
   function isReallyWritable($file) {
     if (DIRECTORY_SEPARATOR === '/')
@@ -145,7 +164,6 @@ if (!function_exists('isReallyWritable')) {
     return true;
   }
 }
-
 
 if (!function_exists('cliColor')) {
   function cliColor($str, $fontColor = null, $backgroundColor = null) {
@@ -172,19 +190,19 @@ if (!function_exists('cliColor')) {
   }
 }
 
-if (!function_exists('arr2dTo1d')) {
-  function arr2dTo1d($arr) {
-    $new = [];
+// if (!function_exists('arr2dTo1d')) {
+//   function arr2dTo1d($arr) {
+//     $new = [];
 
-    foreach ($arr as $key => $value)
-      if (is_array($value))
-        $new = array_merge($new, $value);
-      else
-        array_push($new, $value);
+//     foreach ($arr as $key => $value)
+//       if (is_array($value))
+//         $new = array_merge($new, $value);
+//       else
+//         array_push($new, $value);
 
-    return $new;
-  }
-}
+//     return $new;
+//   }
+// }
 
 if (!function_exists('errorHandler')) {
   function errorHandler($severity, $message, $filepath, $line) {
@@ -194,35 +212,30 @@ if (!function_exists('errorHandler')) {
     if (($severity & error_reporting()) !== $severity)
       return;
 
-    if (str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')))
-      gg('不明錯誤', 500, [
-        'details' => [
-          '類型' => isset($levels[$severity]) ? $levels[$severity] : $severity,
-          '訊息' => $message,
-          '位置' => $filepath . '(' . $line . ')'
-        ]
-      ]);
+    $details = [['title' => '類型', 'content' => isset($levels[$severity]) ? $levels[$severity] : $severity], ['title' => '訊息', 'content' => $message], ['title' => '位置', 'content' => $filepath . '(' . $line . ')']];
+    $traces = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
 
-    if ($isError)
-      exit(1);
+    str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && gg($message, 500, ['details' => $details, 'traces' => $traces]);
+
+    if (!$isError)
+      return log::warning(['text' => $message, 'details' => $details, 'traces' => $traces]);
+
+    isCli() || responseStatusHeader(500);
+    log::error(['text' => $message, 'details' => $details, 'traces' => $traces]);
+    exit(1);
   }
 }
 
 if (!function_exists('exceptionHandler')) {
   function exceptionHandler($exception) {
-    
-    if (str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')))
-      gg('有 Exception 未使用 try catch', 500, [
-        'details' => [
-          '物件' => get_class($exception),
-          '訊息' => $exception->getMessage(),
-          '檔案' => $exception->getFile() . '(' . $exception->getLine() . ')'
-        ],
-        'traces' => array_combine(
-          array_map(function($trace) { return (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''); }, $exception->getTrace()),
-          array_map(function($trace) { return (isset ($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : ''); }, $exception->getTrace()))
-      ]);
+    $message = '有 Exception 未使用 try catch！';
+    $details = [['title' => '類型', 'content' => get_class($exception)], ['title' => '訊息', 'content' => $exception->getMessage()], ['title' => '位置', 'content' => $exception->getFile() . '(' . $exception->getLine() . ')']];
+    $traces = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, $exception->getTrace());
 
+    str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && gg($message, 500, ['details' => $details, 'traces' => $traces]);
+
+    isCli() || responseStatusHeader(500);
+    log::error(['text' => $message, 'details' => $details, 'traces' => $traces]);
     exit(1);
   }
 }
@@ -230,40 +243,22 @@ if (!function_exists('exceptionHandler')) {
 if (!function_exists('shutdownHandler')) {
   function shutdownHandler() {
     $lastError = error_get_last();
-   
-    if (isset($lastError['type']) && ($lastError['type'] & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING)))
-      errorHandler($lastError['type'], $lastError['message'], $lastError['file'], $lastError['line']);
+    isset($lastError['type']) && ($lastError['type'] & (E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING)) && errorHandler($lastError['type'], $lastError['message'], $lastError['file'], $lastError['line']);
   }
 }
 
 if (!function_exists('dump')) {
-  function dump($val, $l = 1) {
-    if (is_string($val))
-      return '"' . $val . '"';
-    
-    if (is_numeric($val))
-      return $val;
-// $val=[];
-    if (is_array($val))
-      return "[\n" . str_repeat('  ', $l) . implode(",\n" . str_repeat('  ', $l), array_map(function ($k, $v) use($l) { return dump($k) . ' ➜ ' . dump($v, $l + 1);}, array_keys($val), $val)) . "\n" . str_repeat('  ', $l - 1) . "]";
-
-    if ($val instanceof \M\Model)
-      return 'Model(' . \M\deNamespace(get_class($val)) . ") {\n" . str_repeat('  ', $l) . implode(",\n" . str_repeat('  ', $l), array_map(function ($k, $v) use($l) { return dump($k) . ' ➜ ' . dump($v, $l + 1);}, array_keys($val->attrs()), $val->attrs())) . "\n" . str_repeat('  ', $l - 1) . "}";
-    
-    if ($val instanceof \_M\DateTime)
-      return 'DateTime(' . '"' . $val . '"' . ")";
-    
-    if ($val instanceof \M\ImageUploader)
-      return "ImageUploader(" . '"' . $val . '"' . ") {\n" . str_repeat('  ', $l) . '"versions" ➜ ' . "[" . implode(', ', array_map('dump', array_keys($val->versions()))) . "]" . "\n" . str_repeat('  ', $l - 1) . "}";
-    
-    if ($val instanceof \M\FileUploader)
-      return "FileUploader(" . '"' . $val . '"' . ")";
-    
-    if (is_object($val) && method_exists($val, '__toString'))
-      return '"' . $val . '"';
-
-    if (is_object($val) && !method_exists($val, '__toString'))
-      return 'Object(' . get_class($val) . ')';
+  function dump($val, $l = 0) {
+    if ($val === null) return str_repeat(' ', $l) . 'null';
+    if (is_string($val)) return str_repeat(' ', $l) . '"' . $val . '"';
+    if (is_numeric($val)) return str_repeat(' ', $l) . $val;
+    if (is_array($val)) return str_repeat(' ', $l) . "[\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val), $val)) . "\n" . str_repeat(' ', $l) . "]";
+    if ($val instanceof \M\Model) return str_repeat(' ', $l) . 'Model(' . \M\deNamespace(get_class($val)) . ") {\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val->attrs()), $val->attrs())) . "\n" . str_repeat(' ', $l) . "}";
+    if ($val instanceof \_M\DateTime) return str_repeat(' ', $l) . 'DateTime(' . '"' . $val . '"' . ")";
+    if ($val instanceof \M\ImageUploader) return str_repeat(' ', $l) . "ImageUploader(" . '"' . $val . '"' . ") {\n" . str_repeat(' ', $l + 2) . '"versions": ' . "[" . implode(', ', array_map('dump', array_keys($val->versions()))) . "]" . "\n" . str_repeat(' ', $l) . "}";
+    if ($val instanceof \M\FileUploader) return str_repeat(' ', $l) . "FileUploader(" . '"' . $val . '"' . ")";
+    if (is_object($val) && method_exists($val, '__toString')) return str_repeat(' ', $l) . '"' . $val . '"';
+    if (is_object($val) && !method_exists($val, '__toString')) return str_repeat(' ', $l) . 'Object(' . get_class($val) . ')';
   }
 }
 

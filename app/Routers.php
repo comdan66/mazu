@@ -13,7 +13,7 @@
 class Book {
     var $a = 1;
 }
-Router::get('/aaa/(user:num)/bbb/(title:any)')
+Router::get('/')
       ->work(function() {
         // $user = Router::current()->getParams('user');
         // $book = new M\BookArticle();
@@ -27,13 +27,26 @@ Router::get('/aaa/(user:num)/bbb/(title:any)')
 
         // $obj = M\BookArticle::one('id = ?', 2);
         // $obj = M\BookArticle::one('id = ?', 2);
-        // 1/0;
-        $obj = M\Article::one();
-        // Log::info([1,2,3,4]);
-        $a = [1,2,3,['a', 'b', 'c', ['a1' => 1, 'b2' => $obj]]];
+// gg(null, 'api');
         
-        echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        echo dump($a);
+        // throw new Exception('dd');
+
+        // gg('asd');
+
+        $obj = M\Article::one();
+        // // $b = function (){};
+        $a = [1,2,3,['a', '', ['a1' => 1, 'b2' => $obj, new Book()]]];
+        // gg($a);
+        Log::info($a);
+
+        // gg($a);
+        // 1/0;
+        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // echo dump($a);
+
+
+        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // echo dump($a);
 
         // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
         // var_dump (dump('ad'));
@@ -48,9 +61,8 @@ Router::get('/aaa/(user:num)/bbb/(title:any)')
         // exit ();
         // Log::error('a');
 
-
+// 1/0;
         // 
-        // throw new Exception('dd');
         
 
 // gg('asd');

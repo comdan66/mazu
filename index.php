@@ -13,64 +13,65 @@ date_default_timezone_set('Asia/Taipei');
 // 定義版號
 define('MAZU', '1.0.0');
 
-// 取得此專案資料夾之絕對位置
-define('PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
-
-// sys 的絕對位置
-define('PATH_SYS', PATH . 'sys' . DIRECTORY_SEPARATOR);
-
-// log 的絕對位置
-define('PATH_LOG', PATH . 'log' . DIRECTORY_SEPARATOR);
-
-// app 的絕對位置
-define('PATH_APP', PATH . 'app' . DIRECTORY_SEPARATOR);
-
-// view 的絕對位置
-define('PATH_VIEW', PATH_APP . 'view' . DIRECTORY_SEPARATOR);
-
-// model 的絕對位置
-define('PATH_MODEL', PATH_APP . 'model' . DIRECTORY_SEPARATOR);
-
-if (!@include_once PATH_SYS . 'Load.php')
-  exit('初始化失敗，載入 Load.php 失敗！');
-
-if (!@include_once PATH_SYS . 'View.php')
-  exit('初始化失敗，載入 View.php 失敗！');
-
-if (!@include_once PATH_SYS . 'Common.php')
-  exit('初始化失敗，載入 Common.php 失敗！');
-
-if (!isPhpVersion('5.6'))
-  exit('PHP 版本太舊，請大於等於 5.6');
 
 
-// 載入基準
-Load::path(PATH_SYS . 'Benchmark.php');
+/* ------------------------------------------------------
+ *  定義路徑常數
+ * ------------------------------------------------------ */
 
-// 開始
+define('PATH', dirname(__FILE__)        . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
+define('PATH_SYS',   PATH .     'sys'   . DIRECTORY_SEPARATOR); // sys 絕對位置
+define('PATH_LOG',   PATH .     'log'   . DIRECTORY_SEPARATOR); // log 絕對位置
+define('PATH_APP',   PATH .     'app'   . DIRECTORY_SEPARATOR); // app 絕對位置
+define('PATH_VIEW',  PATH_APP . 'view'  . DIRECTORY_SEPARATOR); // view 絕對位置
+define('PATH_MODEL', PATH_APP . 'model' . DIRECTORY_SEPARATOR); // model 絕對位置
+
+
+
+/* ------------------------------------------------------
+ *  載入初始函式
+ * ------------------------------------------------------ */
+
+if (!@include_once PATH_SYS . 'CommonFunc.php')
+  exit('載入 CommonFunc 失敗！');
+
+
+
+/* ------------------------------------------------------
+ *  只允許包含 5.6 版本以上使用
+ * ------------------------------------------------------ */
+
+isPhpVersion('5.6')              || gg('PHP 版本太舊，請大於等於 5.6 版本！');
+
+load(PATH_SYS . 'View.php')      || gg('載入 View 失敗！');
+load(PATH     . 'Env.php')       || gg('載入 Env 失敗！');
+load(PATH_SYS . 'Benchmark.php') || gg('載入 Benchmark 失敗！');
 Benchmark::markStar('整體');
 
-// 載入編碼
-Load::path(PATH_SYS . 'Charset.php');
+load(PATH_SYS . 'Charset.php')   || gg('載入 Charset 失敗！');
+load(PATH_SYS . 'Log.php')       || gg('載入 Log 失敗！');
 
-// 載入 Log
-Load::path(PATH_SYS . 'Log.php');
+function FunctionName($value='')
+{
+Log::info('123');
+}
+FunctionName();
 
-// 載入 Url
-Load::path(PATH_SYS . 'Url.php');
+// // 載入 Url
+// load(PATH_SYS . 'Url.php');
 
-// 載入 Router
-Load::path(PATH_SYS . 'Router.php');
+// // 載入 Router
+// load(PATH_SYS . 'Router.php');
 
-// 載入 Output
-Load::path(PATH_SYS . 'Output.php');
+// // 載入 Output
+// load(PATH_SYS . 'Output.php');
 
-// 載入 Model
-Load::path(PATH_SYS . 'Model.php');
+// // 載入 Model
+// load(PATH_SYS . 'Model.php');
 
 
-$router = Router::getMatchRouter();
-Output::router ($router);
+// $router = Router::getMatchRouter();
+// Output::router ($router);
 
 
 
