@@ -15,14 +15,14 @@ define('MODEL_LOADED', true);
 
 // \Load::sysModel('Uploader.php');
 
-Class Model {
+abstract class Model {
   private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'group', 'having', 'include', 'readonly'];
 
   public static function table() {
     return \_M\Table::instance(get_called_class());
   }
 
-  public static function one()   {
+  public static function one() {
     return call_user_func_array(['static', 'find'], array_merge(['one'], func_get_args()));
   }
   
@@ -30,11 +30,11 @@ Class Model {
     return call_user_func_array(['static', 'find'], array_merge(['first'], func_get_args()));
   }
   
-  public static function last()  {
+  public static function last() {
     return call_user_func_array(['static', 'find'], array_merge(['last'], func_get_args()));
   }
   
-  public static function all()   {
+  public static function all() {
     return call_user_func_array(['static', 'find'], array_merge(['all'], func_get_args()));
   }
   
@@ -83,7 +83,6 @@ Class Model {
   private $attrs = [];
   private $className = null;
   private $tableName = null;
-
   private $isNew = true;
   private $dirty = [];
   private $relations = [];
@@ -107,8 +106,14 @@ Class Model {
     return $key !== null ? array_key_exists($key, $this->attrs) ? $this->attrs[$key] : $d4 : $this->attrs;
   }
 
-  public function getTableName() { return $this->tableName; }
-  public function setIsReadonly($isReadonly) { $this->isReadonly = $isReadonly; return $this; }
+  public function getTableName() {
+    return $this->tableName;
+  }
+
+  public function setIsReadonly($isReadonly) {
+    $this->isReadonly = $isReadonly;
+    return $this;
+  }
 
   public function setIsNew($isNew) {
     if ($this->isNew = $isNew)
@@ -180,7 +185,11 @@ Class Model {
         unset($relation[$foreignKey]);
 
         $obj = new $className($relation);
-        $obj->setIsNew(false)->setTableName($tableName)->setClassName($className)->setIsReadonly($byReadonly)->setUploadBind();
+        $obj->setIsNew(false)
+            ->setTableName($tableName)
+            ->setClassName($className)
+            ->setIsReadonly($byReadonly)
+            ->setUploadBind();
 
         if (isset($tmps[$tmp]))
           array_push($tmps[$tmp], $obj);
@@ -443,10 +452,12 @@ Class Model {
 \_M\Config::setErrorFunc('gg');
 \_M\Config::setConnection(config('database'));
 
+\M\Uploader::setTmpDir(PATH_TMP);
+\M\Uploader::setLogFunc('Log::uploader');
+\M\Uploader::setErrorFunc('gg');
+\M\Uploader::useDriverLocal(['upload']);
+// \M\Uploader::useDriverS3('test.ioa.tw', ['upload']);
 
-// \M\Uploader::setDriver('local');
-// \M\Uploader::setBaseDirs(['upload']);
-// \M\Uploader::setTmpDir(PATH . '/tmp/');
 
 // \M\Uploader::setBaseUrl('http://127.0.0.1/OARM/');
 

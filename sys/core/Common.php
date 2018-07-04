@@ -130,21 +130,29 @@ if (!function_exists('gg')) {
     if ($code === 404)
       $contents = [];
 
+    if (isset($contents['msgs'][0]) && $contents['msgs'][0] instanceof Exception) {
+      // $text = $exception->getMessage();
+
+      $contents['traces']  = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, $contents['msgs'][0]->getTrace());
+      // $contents['msgs'][0] = $contents['msgs'][0]->getMessage();
+      $contents['msgs'] = array_map('dump', $contents['msgs']);
+    }
+
     switch ($type) {
       default:
       case 'api':
-        $text === null || $contents = array_merge(['text' => dump($text)], $contents);
+        $contents = array_merge(['text' => dump($text)], $contents);
 
         @header('Content-Type: application/json');
         echo json_encode($contents);
         exit;
       
       case 'cli':
-        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggCli.php' : '404Cli.php'))->with('text', $text !== null ? dump($text, 1) : null)->with('contents', $contents)->get();
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggCli.php' : '404Cli.php'))->with('text', dump($text, 1))->with('contents', $contents)->get();
         exit;
 
       case 'html':
-        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggHtml.php' : '404Html.php'))->with('text', $text !== null ? dump($text) : null)->with('contents', $contents)->get();
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggHtml.php' : '404Html.php'))->with('text', dump($text))->with('contents', $contents)->get();
         exit;
     }
   }
@@ -266,8 +274,11 @@ if (!function_exists('dump')) {
     if ($val instanceof \_M\DateTime) return str_repeat(' ', $l) . 'DateTime(' . '"' . $val . '"' . ")";
     if ($val instanceof \M\ImageUploader) return str_repeat(' ', $l) . "ImageUploader(" . '"' . $val . '"' . ") {\n" . str_repeat(' ', $l + 2) . '"versions": ' . "[" . implode(', ', array_map('dump', array_keys($val->versions()))) . "]" . "\n" . str_repeat(' ', $l) . "}";
     if ($val instanceof \M\FileUploader) return str_repeat(' ', $l) . "FileUploader(" . '"' . $val . '"' . ")";
+    if ($val instanceof Exception) return $val->getMessage();
     if (is_object($val) && method_exists($val, '__toString')) return str_repeat(' ', $l) . '"' . $val . '"';
     if (is_object($val) && !method_exists($val, '__toString')) return str_repeat(' ', $l) . 'Object(' . get_class($val) . ')';
+
+    gg('dump 函式錯誤！型態：' . gettype($val));
   }
 }
 

@@ -2,6 +2,8 @@
 
 namespace _M;
 
+defined('MAZU') || exit('此檔案不允許讀取！');
+
 class DateTime {
   private $format;
   private $datetime;

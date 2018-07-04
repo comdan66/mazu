@@ -23,10 +23,10 @@ class Article extends Model {
     'users' => ['model' => 'User', 'primaryKey' => 'name'],
   ];
 
-  // static $uploaders = [
-  //   // 'cover'  => 'ArticleCoverFileUploader',
-  //   'cover' => 'ArticleCoverImageUploader',
-  // ];
+  static $uploaders = [
+    'cover'  => 'ArticleCoverFileUploader',
+    // 'cover' => 'ArticleCoverImageUploader',
+  ];
 }
 
 // class ArticleCoverImageUploader extends ImageUploader {
@@ -48,7 +48,7 @@ class Article extends Model {
 
 // }
 
-// class ArticleCoverFileUploader extends FileUploader {
+class ArticleCoverFileUploader extends FileUploader {
 
-// }
+}
 // // 1/0

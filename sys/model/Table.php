@@ -2,14 +2,16 @@
 
 namespace _M;
 
+defined('MAZU') || exit('此檔案不允許讀取！');
 
 class Table {
   private static $caches = [];
 
   private $className;
-  public  $tableName;
-  public  $columns;
-  public  $primaryKeys;
+
+  public $tableName;
+  public $columns;
+  public $primaryKeys;
 
   protected function __construct($className) {
     $this->setTableName($className)
@@ -96,7 +98,6 @@ class Table {
 
   public function delete($primaryKeys) {
     $data = $this->processDataToStr($primaryKeys);
-    
     $where = $this->mergeWherePrimaryKeys($primaryKeys);
 
     $sql = SqlBuilder::create(Config::quoteName($this->tableName))
@@ -119,8 +120,6 @@ class Table {
 
   public function update($data, $primaryKeys) {
     $data = $this->processDataToStr($data);
-    
-
     $where = $this->mergeWherePrimaryKeys($primaryKeys);
 
     $sql = SqlBuilder::create(Config::quoteName($this->tableName))
@@ -138,6 +137,7 @@ class Table {
     
     $objs = array_map(function ($row) use ($tableName, $className, $readonly) {
       $obj = new $this->className($row);
+
       return $obj->setIsNew(false)
                  ->setTableName($tableName)
                  ->setClassName($className)
@@ -156,6 +156,7 @@ class Table {
           $include = ['include' => $tmp];
         }
       }
+
       foreach (['hasOne', 'hasMany', 'belongToOne', 'belongToMany'] as $val)
         if (isset($className::$$val) && ($tmp = $className::$$val) && isset($tmp[$name]))
           $className::relations($val, array_merge($tmp[$name], $include), $objs, $name);

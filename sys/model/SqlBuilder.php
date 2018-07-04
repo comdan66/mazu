@@ -2,11 +2,20 @@
 
 namespace _M;
 
+defined('MAZU') || exit('此檔案不允許讀取！');
+
 class SqlBuilder {
-  private $quoteTableName;
-  private $toStringFunc = null;
-  private $select = '*';
-  private $where, $order, $limit, $offset, $group, $having, $values, $data;
+  private $quoteTableName,
+          $toStringFunc,
+          $select,
+          $where,
+          $order,
+          $limit,
+          $offset,
+          $group,
+          $having,
+          $values,
+          $data;
 
   public function __construct($quoteTableName) {
     $this->quoteTableName = $quoteTableName;
@@ -44,7 +53,9 @@ class SqlBuilder {
     $i = 0;
     foreach ($where as &$value)
       if (is_array($value)) {
-        ($i = strpos($whereStr, '(?)', $i)) === false && Config::error('Where 格式有誤！', '條件：'. $whereStr, '參數：' . implode(',', $value));
+        $i = strpos($whereStr, '(?)', $i);
+        $i !== false || Config::error('Where 格式有誤！', '條件：' . $whereStr, '參數：' . implode(',', $value));
+
         $whereStr = substr($whereStr, 0, $i) . '(' . ($value ? implode(',', array_map(function () { return '?'; }, $value)) : '?') . ')' . substr($whereStr, $i += 3);
         $value = $value ? $value : 'null';
       }
@@ -91,7 +102,9 @@ class SqlBuilder {
 
   public function setSelectOption($options) {
     foreach (['select', 'where', 'order', 'limit', 'offset', 'group', 'having'] as $method)
-      isset($options[$method]) && $this->$method($options[$method]);
+      if (isset($options[$method]))
+        $this->$method($options[$method]);
+
     return $this;
   }
 
@@ -139,12 +152,8 @@ class SqlBuilder {
   public function bindValues() {
     $ret = [];
 
-    if ($this->data)
-      $ret = array_values($this->data);
-
-    if ($this->values)
-      $ret = array_merge($ret, $this->values);
-
+    $this->data && $ret = array_values($this->data);
+    $this->values && $ret = array_merge($ret, $this->values);
     $this->values = \arrayFlatten($ret);
     
     return $this;

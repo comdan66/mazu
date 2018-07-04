@@ -40,16 +40,6 @@ class Config {
     $connection && is_array($connection) && self::$connection = $connection;
   }
 
-
-
-
-
-
-
-
-  
-  
-
   public static function noQueryLogFunc() {
     return self::$queryLogFunc === null;
   }
@@ -71,7 +61,8 @@ class Config {
   }
 
   public static function error($error) {
-    ($func = self::$errorFunc) && call_user_func_array($func, [null, 500, ['msgs' => func_get_args()]]) || exit($error);
+    $args = func_get_args();
+    ($func = self::$errorFunc) && call_user_func_array($func, [array_shift($args), 500, ['msgs' => $args]]) || exit(implode(', ', $args));
   }
 }
 
@@ -81,15 +72,16 @@ if (!function_exists('autoloadModel')) {
     if (!(($namespaces = \M\getNamespaces($className)) && in_array($namespace = array_shift($namespaces), ['M', '_M']) && ($modelName = \M\deNamespace($className))))
       return false;
 
-    $path = ($namespace == 'M' ? \_M\Config::getModelsDir() : __DIR__ . DIRECTORY_SEPARATOR) . $modelName . '.php';
+    $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'uploader' . DIRECTORY_SEPARATOR : '';
+    $path = ($namespace == '_M' || $uploader ? PATH_SYS_MODEL . $uploader : \_M\Config::getModelsDir()) . $modelName . '.php';
 
-    if (!is_readable($path))
+    if (!(is_file($path) && is_readable($path)))
       return false;
 
-    require_once $path;
+    include_once $path;
 
-    class_exists($className) || \_M\Config::error('找不到 Model 名稱為「' . $className . '」的物件。');
+    class_exists($className) || \_M\Config::error('找不到名稱為「' . $className . '」的 Model 物件！');
   }
-  
+
   spl_autoload_register('\_M\autoloadModel', false, true);
 }

@@ -50,6 +50,10 @@ class Log {
     return self::msg(self::logFormat(func_get_args()), 'log-model-');
   }
 
+  public static function uploader($msg) {
+    return self::msg(self::logFormat(func_get_args()), 'log-uploader-');
+  }
+
   public static function closeAll() {
     foreach(self::$fopens as $fopen)
       fclose($fopen);

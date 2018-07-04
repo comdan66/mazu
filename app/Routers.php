@@ -13,8 +13,13 @@
 class Book {
     var $a = 1;
 }
-Router::cli('/123')
+Router::cli('/')
       ->work(function() {
+
+      });
+Router::get('/w')
+      ->work(function() {
+        $obj = M\Article::one('id = 1');
         // $user = Router::current()->getParams('user');
         // $book = new M\BookArticle();
 

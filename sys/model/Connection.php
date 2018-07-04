@@ -2,13 +2,20 @@
 
 namespace _M;
 
+defined('MAZU') || exit('此檔案不允許讀取！');
+
 use PDO;
 use PDOException;
 
 class Connection {
   private static $instance = null;
-  public static $pdoOptions = [PDO::ATTR_CASE => PDO::CASE_NATURAL, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL, PDO::ATTR_STRINGIFY_FETCHES => false];
   private $connection = null;
+  public static $pdoOptions = [
+    PDO::ATTR_CASE => PDO::CASE_NATURAL,
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL,
+    PDO::ATTR_STRINGIFY_FETCHES => false
+  ];
 
   protected function __construct() {
     $config = Config::getConnection();
@@ -20,7 +27,7 @@ class Connection {
     try {
       $this->connection = new PDO('mysql:host=' . $config['hostname'] . ';dbname=' . $config['database'], $config['username'], $config['password'], Connection::$pdoOptions);
     } catch (PDOException $e) {
-      Config::error($e);
+      Config::error('PDO 連線錯誤！', $e);
     }
 
     $this->setEncoding($config['char_set']);
@@ -49,7 +56,7 @@ class Connection {
       $sth->setFetchMode($fetchModel);
       $this->execute($sth, $sql, $vals) || Config::error('執行 Connection execute 失敗！');
     } catch (PDOException $e) {
-      Config::error($e);
+      Config::error('PDO 執行失敗！', $e);
     }
 
     return $sth;
@@ -79,13 +86,13 @@ class Connection {
     return true;
   }
 
-  public function lastInsertId() {
-    return $this->connection->lastInsertId();
-  }
-
   public function rollback() {
     if (!$this->connection) return false;
     $this->connection->rollback() || Config::error('Rollback 失敗！');
     return true;
+  }
+
+  public function lastInsertId() {
+    return $this->connection->lastInsertId();
   }
 }
