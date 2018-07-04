@@ -2,24 +2,47 @@
 
 namespace M;
 
+defined('MAZU') || exit('此檔案不允許讀取！');
+
 if (defined('MODEL_LOADED'))
-  return;
+  return true;
 
 define('MODEL_LOADED', true);
 
-\Load::path(PATH_SYS . 'model' . DIRECTORY_SEPARATOR . 'Func.php');
-\Load::path(PATH_SYS . 'Uploader.php');
-\Load::path(PATH_SYS . 'model' . DIRECTORY_SEPARATOR . 'Config.php');
+\Load::sysModel('Where.php')  || gg('載入 Where 失敗！');
+\Load::sysModel('Func.php')   || gg('載入 Model Func 失敗！');
+\Load::sysModel('Config.php') || gg('載入 Model Config 失敗！');
+
+// \Load::sysModel('Uploader.php');
 
 Class Model {
   private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'group', 'having', 'include', 'readonly'];
-  public static function table() { return \_M\Table::instance(get_called_class()); }
 
-  public static function one()   { return call_user_func_array(['static', 'find'], array_merge(['one'], func_get_args())); }
-  public static function first() { return call_user_func_array(['static', 'find'], array_merge(['first'], func_get_args())); }
-  public static function last()  { return call_user_func_array(['static', 'find'], array_merge(['last'], func_get_args())); }
-  public static function all()   { return call_user_func_array(['static', 'find'], array_merge(['all'], func_get_args())); }
-  public static function count($options = []) { $obj = call_user_func_array(['static', 'find'], array_merge(['one'], [array_merge($options, ['select' => 'COUNT(*)', 'readonly' => true])]))->attrs(); return intval($obj = array_shift($obj)); }
+  public static function table() {
+    return \_M\Table::instance(get_called_class());
+  }
+
+  public static function one()   {
+    return call_user_func_array(['static', 'find'], array_merge(['one'], func_get_args()));
+  }
+  
+  public static function first() {
+    return call_user_func_array(['static', 'find'], array_merge(['first'], func_get_args()));
+  }
+  
+  public static function last()  {
+    return call_user_func_array(['static', 'find'], array_merge(['last'], func_get_args()));
+  }
+  
+  public static function all()   {
+    return call_user_func_array(['static', 'find'], array_merge(['all'], func_get_args()));
+  }
+  
+  public static function count($options = []) {
+    $obj = call_user_func_array(['static', 'find'], array_merge(['one'], [array_merge($options, ['select' => 'COUNT(*)', 'readonly' => true])]))->attrs();
+    $obj = array_shift($obj);
+    return intval($obj);
+  }
 
   public static function find() {
     $className = get_called_class();
@@ -48,7 +71,6 @@ Class Model {
     $method == 'last' && $options['order'] = isset ($options['order']) ? \M\reverseOrder ((string)$options['order']) : implode(' DESC, ', static::table()->primaryKeys) . ' DESC';
 
     // 過濾對的 key by validOptions
-    
     $options && $options = array_intersect_key($options, array_flip(self::$validOptions));
 
     in_array ($method, ['one', 'first']) && $options = array_merge($options, ['limit' => 1, 'offset' => 0]);
@@ -71,9 +93,20 @@ Class Model {
     $this->setAttrs($attrs)->cleanFlagDirty();
   }
 
-  public function setClassName($className) { $this->className = $className; return $this; }
-  public function setTableName($tableName) { $this->tableName = $tableName; return $this; }
-  public function attrs($key = null, $d4 = null) { return $key !== null ? array_key_exists($key, $this->attrs) ? $this->attrs[$key] : $d4 : $this->attrs; }
+  public function setClassName($className) {
+    $this->className = $className;
+    return $this;
+  }
+  
+  public function setTableName($tableName) {
+    $this->tableName = $tableName;
+    return $this;
+  }
+  
+  public function attrs($key = null, $d4 = null) {
+    return $key !== null ? array_key_exists($key, $this->attrs) ? $this->attrs[$key] : $d4 : $this->attrs;
+  }
+
   public function getTableName() { return $this->tableName; }
   public function setIsReadonly($isReadonly) { $this->isReadonly = $isReadonly; return $this; }
 
@@ -404,18 +437,16 @@ Class Model {
   }
 }
 
-
-
 \_M\Config::setModelsDir(PATH_MODEL);
-// \_M\Config::setQueryLogerFunc('Log::query');
-// \_M\Config::setLogerFunc('Log::error');
-// \_M\Config::setErrorFunc('gg');
-
+\_M\Config::setQueryLogFunc('Log::query');
+\_M\Config::setLogFunc('Log::model');
+\_M\Config::setErrorFunc('gg');
 \_M\Config::setConnection(config('database'));
 
-\M\Uploader::setDriver('local');
-\M\Uploader::setBaseDirs(['upload']);
-\M\Uploader::setTmpDir(PATH . '/tmp/');
 
-\M\Uploader::setBaseUrl('http://127.0.0.1/OARM/');
+// \M\Uploader::setDriver('local');
+// \M\Uploader::setBaseDirs(['upload']);
+// \M\Uploader::setTmpDir(PATH . '/tmp/');
+
+// \M\Uploader::setBaseUrl('http://127.0.0.1/OARM/');
 

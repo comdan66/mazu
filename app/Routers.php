@@ -13,14 +13,13 @@
 class Book {
     var $a = 1;
 }
-Router::get('/')
+Router::cli('/123')
       ->work(function() {
         // $user = Router::current()->getParams('user');
         // $book = new M\BookArticle();
 
         // M\BookArticle::one()
 
-        // $obj = M\BookArticle::one();
 
         // $obj = M\BookArticle::one(Where::create('id IN (?)', [2]));
         // $obj = M\BookArticle::one('id = 2');

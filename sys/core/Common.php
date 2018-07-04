@@ -4,18 +4,28 @@
 class Load {
   private static $cache = [];
 
-  public static function path($path, $error = null) {
+  public static function file($path) {
     if (isset(self::$cache[$path]))
       return true;
-
-    $error || $error = '載入檔案「' . $path . '」失敗！';
 
     if (!(is_file($path) && is_readable($path)))
       return false;
 
-    require_once $path;
+    include_once $path;
 
     return self::$cache[$path] = true;
+  }
+  public static function path($path) {
+    return self::file(PATH . $path);
+  }
+  public static function sysCore($path) {
+    return self::file(PATH_SYS_CORE . $path);
+  }
+  public static function sysModel($path) {
+    return self::file(PATH_SYS_MODEL . $path);
+  }
+  public static function app($path) {
+    return self::file(PATH_APP . $path);
   }
 }
 
@@ -108,7 +118,7 @@ if (!function_exists('gg')) {
   function gg($text, $code = 500, $contents = []) {
     static $api;
 
-    if ($text === null)
+    if ($text === null && $code === 'api')
       return $api = $code;
 
     isCli() || responseStatusHeader($code);
@@ -123,17 +133,18 @@ if (!function_exists('gg')) {
     switch ($type) {
       default:
       case 'api':
-        $contents = array_merge(['text' => $text], $contents);
+        $text === null || $contents = array_merge(['text' => dump($text)], $contents);
+
         @header('Content-Type: application/json');
         echo json_encode($contents);
         exit;
       
       case 'cli':
-        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggCli.php' : '404Cli.php'))->with('text', dump($text, 1))->with('contents', $contents)->get();
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggCli.php' : '404Cli.php'))->with('text', $text !== null ? dump($text, 1) : null)->with('contents', $contents)->get();
         exit;
 
       case 'html':
-        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggHtml.php' : '404Html.php'))->with('text', dump($text))->with('contents', $contents)->get();
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggHtml.php' : '404Html.php'))->with('text', $text !== null ? dump($text) : null)->with('contents', $contents)->get();
         exit;
     }
   }
@@ -266,3 +277,5 @@ if (!function_exists('dump')) {
 set_error_handler('errorHandler');
 set_exception_handler('exceptionHandler');
 register_shutdown_function('shutdownHandler');
+
+isPhpVersion('5.6') || gg('PHP 版本太舊，請大於等於 5.6 版本！');

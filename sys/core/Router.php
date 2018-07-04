@@ -99,7 +99,7 @@ class Router {
   public static function init() {
     self::$current = null;
     self::$routers = [];
-    Load::path(PATH_APP . 'Routers.php');
+    Load::app('Routers.php');
   }
 
   private static function setSegment($segment) {

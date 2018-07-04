@@ -18,7 +18,7 @@ if (extension_loaded('iconv')) {
 }
 
 ini_set('php.internal_encoding', 'UTF-8');
-Load::path(PATH_SYS . 'MbString.php') || gg('載入 MbString 失敗！');
+Load::sysCore('MbString.php') || gg('載入 MbString 失敗！');
 
 define('UTF8_ENABLED', defined('PREG_BAD_UTF8_ERROR') && (ICONV_ENABLED === true || MB_ENABLED === true));
 define('FUNC_OVERLOAD', extension_loaded('mbstring') && ini_get('mbstring.func_overload'));

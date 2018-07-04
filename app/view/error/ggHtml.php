@@ -349,6 +349,34 @@
       #main>div>div a{
         font-size:11px
       }
+      #main>div>ul{
+        display: inline-block;
+        width: 100%;
+        padding-left: 20px;
+        list-style-type: none;
+      }
+      #main>div>ul>li{
+        display: inline-block;
+        width: 100%;
+        line-height: 25px;
+        position: relative;
+        word-break: break-all;
+        color: rgba(100, 100, 100, 1.00);
+        font-size: 16px;
+      }
+      #main>div>ul>li:before{
+        content: '';
+        position: absolute;
+        left: -18px;
+        top: 8px;
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        -moz-border-radius: 50%;
+        -webkit-border-radius: 50%;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, .15);
+      }
     </style>
 
     <script type="text/javascript">function init () { document.querySelectorAll("a.p").forEach(function() { this.onclick = function(e) { e.srcElement.classList.toggle("s") }; }); }</script>
@@ -361,10 +389,19 @@
 
         <i></i>
 
-        <blockquote><pre><?php echo $text;?></pre></blockquote>
-
-  <?php if (!empty($contents['details'])) { ?>
+  <?php if ($text !== null) { ?>
+          <blockquote><pre><?php echo $text;?></pre></blockquote>
+  <?php }
+        if (!empty($contents['msgs'])) { ?>
           <h2>訊息</h2>
+          <ul>
+      <?php foreach ($contents['msgs'] as $i => $msg) { ?>
+              <li><?php echo $msg;?></li>
+      <?php } ?>
+          </ul>
+  <?php }
+        if (!empty($contents['details'])) { ?>
+          <h2>資訊</h2>
           <table>
             <tbody>
         <?php foreach ($contents['details'] as $detail) { ?>

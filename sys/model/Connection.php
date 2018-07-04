@@ -56,7 +56,7 @@ class Connection {
   }
 
   private function execute($sth, $sql, $vals) {
-    if (Config::noQueryLogerFunc())
+    if (Config::noQueryLogFunc())
       return $sth->execute($vals);
 
     $start = microtime(true);

@@ -19,51 +19,64 @@ define('MAZU', '1.0.0');
  *  定義路徑常數
  * ------------------------------------------------------ */
 
-define('PATH', dirname(__FILE__)        . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
-define('PATH_SYS',   PATH .     'sys'   . DIRECTORY_SEPARATOR); // sys 絕對位置
-define('PATH_LOG',   PATH .     'log'   . DIRECTORY_SEPARATOR); // log 絕對位置
-define('PATH_APP',   PATH .     'app'   . DIRECTORY_SEPARATOR); // app 絕對位置
-define('PATH_VIEW',  PATH_APP . 'view'  . DIRECTORY_SEPARATOR); // view 絕對位置
-define('PATH_MODEL', PATH_APP . 'model' . DIRECTORY_SEPARATOR); // model 絕對位置
+define('PATH', dirname(__FILE__)           . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
+define('PATH_SYS',       PATH .     'sys'   . DIRECTORY_SEPARATOR); // sys 絕對位置
+define('PATH_LOG',       PATH .     'log'   . DIRECTORY_SEPARATOR); // log 絕對位置
+define('PATH_APP',       PATH .     'app'   . DIRECTORY_SEPARATOR); // app 絕對位置
+define('PATH_VIEW',      PATH_APP . 'view'  . DIRECTORY_SEPARATOR); // view 絕對位置
+define('PATH_MODEL',     PATH_APP . 'model' . DIRECTORY_SEPARATOR); // model 絕對位置
 
+define('PATH_SYS_CORE',  PATH_SYS . 'core'  . DIRECTORY_SEPARATOR); // sys core 絕對位置
+define('PATH_SYS_MODEL', PATH_SYS . 'model' . DIRECTORY_SEPARATOR); // sys model 絕對位置
 
 
 /* ------------------------------------------------------
  *  載入初始函式
  * ------------------------------------------------------ */
 
-if (!@include_once PATH_SYS . 'CommonFunc.php')
-  exit('載入 CommonFunc 失敗！');
+if (!@include_once PATH_SYS_CORE . 'Common.php')
+  exit('載入 Common 失敗！');
 
 
 
 /* ------------------------------------------------------
- *  只允許包含 5.6 版本以上使用
+ *  載入環境常數 ENVIRONMENT
  * ------------------------------------------------------ */
 
-isPhpVersion('5.6')                    || gg('PHP 版本太舊，請大於等於 5.6 版本！');
+Load::path('Env.php') || gg('載入 Env 失敗！');
 
-Load::path(PATH_SYS . 'Benchmark.php') || gg('載入 Benchmark 失敗！');
+
+
+/* ------------------------------------------------------
+ *  載入相關物件
+ * ------------------------------------------------------ */
+
+Load::sysCore('Benchmark.php') || gg('載入 Benchmark 失敗！');
 Benchmark::markStar('整體');
 
-Load::path(PATH     . 'Env.php')       || gg('載入 Env 失敗！');
-Load::path(PATH_SYS . 'View.php')      || gg('載入 View 失敗！');
-Load::path(PATH_SYS . 'Charset.php')   || gg('載入 Charset 失敗！');
-Load::path(PATH_SYS . 'Log.php')       || gg('載入 Log 失敗！');
-Load::path(PATH_SYS . 'Url.php')       || gg('入載 Url 失敗！');
-Load::path(PATH_SYS . 'Router.php')    || gg('入載 Router 失敗！');
+Load::sysCore('View.php')      || gg('載入 View 失敗！');
+Load::sysCore('Charset.php')   || gg('載入 Charset 失敗！');
+Load::sysCore('Log.php')       || gg('載入 Log 失敗！');
+Load::sysCore('Url.php')       || gg('入載 Url 失敗！');
+Load::sysCore('Router.php')    || gg('入載 Router 失敗！');
+Load::sysCore('Output.php')    || gg('入載 Output 失敗！');
 
-Load::path(PATH_SYS . 'Output.php')    || gg('入載 Output 失敗！');
-// Load::path(PATH_SYS . 'Model.php')     || gg('入載 Model 失敗！');
-
-
-
-Output::router (Router::current());
+Load::sysCore('Model.php')     || gg('入載 Model 失敗！');
+        $obj = M\Article::one();
 
 
 
+/* ------------------------------------------------------
+ *  輸出結果
+ * ------------------------------------------------------ */
+
+Output::router(Router::current());
 
 
+
+/* ------------------------------------------------------
+ *  結束
+ * ------------------------------------------------------ */
 
 Log::closeAll();
 Benchmark::markEnd('整體');

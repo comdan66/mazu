@@ -1,7 +1,6 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class Where {
-  public static $errorFunc = null;
   private $where = [];
 
   protected function __construct($where = []) {
@@ -44,7 +43,7 @@ class Where {
         break;
 
       default:
-        ($error = 'Where 沒有「' . $name . '」方法。') && ($func = Where::$errorFunc) && is_callable($func) ? $func($error) : exit($error);
+        gg('Where 沒有「' . $name . '」方法。');
         break;
     }
     return $this;
@@ -67,7 +66,7 @@ class Where {
       $str = array_shift($args);
     }
 
-    count($args) < ($c = substr_count($str, '?')) && ($error = '參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。') && (($func = Where::$errorFunc) && is_callable($func) ? $func($error) : exit($error));
+    count($args) < (substr_count($str, '?')) && gg('參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。');
 
     $where[0] = $where ? '(' . $where[0] . ')' . ' AND(' . $str . ')' : $str;
 
@@ -76,6 +75,7 @@ class Where {
     
     return $where;
   }
+
   public static function _or() {
     if(!$args = func_get_args())
       return [];
@@ -92,7 +92,7 @@ class Where {
       $str = array_shift($args);
     }
 
-    count($args) < ($c = substr_count($str, '?')) && ($error = '參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。') && (($func = Where::$errorFunc) && is_callable($func) ? $func($error) : exit($error));
+    count($args) < (substr_count($str, '?')) && gg('參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。');
 
     $where[0] = $where ? '(' . $where[0] . ')' . ' OR(' . $str . ')' : '(' . $str . ')';
 
@@ -101,6 +101,7 @@ class Where {
     
     return $where;
   }
+
   public static function __callStatic($name, $arguments) {
     switch($name) {
       case 'and':
@@ -112,7 +113,7 @@ class Where {
         break;
       
       default:
-       ($error = 'Where 沒有「' . $name . '」方法。') && ($func = Where::$errorFunc) && is_callable($func) ? $func($error) : exit($error);
+        gg('Where 沒有「' . $name . '」方法。');
         break;
     }
   }

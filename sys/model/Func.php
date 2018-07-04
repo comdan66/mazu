@@ -2,11 +2,14 @@
 
 namespace M;
 
+defined('MAZU') || exit('此檔案不允許讀取！');
+
 if (!function_exists('getNamespaces')) {
   function getNamespaces($className) {
     return array_slice(explode('\\', $className), 0, -1);
   }
 }
+
 if (!function_exists('deNamespace')) {
   function deNamespace($className) {
     $className = array_slice(explode('\\', $className), -1);
@@ -36,42 +39,29 @@ if (!function_exists('transaction')) {
   }
 }
 
-if (!function_exists ('modelsColumn')) {
-  function modelsColumn ($arr, $key) {
-    return array_map (function ($t) use ($key) {
-      is_callable ($key) && $key = $key ();
+if (!function_exists('modelsColumn')) {
+  function modelsColumn($arr, $key) {
+    return array_map(function($t) use($key) {
+      is_callable($key) && $key = $key();
       return $t->$key;
     }, $arr);
   }
 }
 
-// if (!function_exists('arrayFlatten')) {
-//   function arrayFlatten(array $array) {
-//     $i = 0;
-
-//     while ($i < count($array))
-//       if (is_array($array[$i]))
-//         array_splice($array, $i, 1, $array[$i]);
-//       else
-//         ++$i;
-//     return $array;
-//   }
-// }
-
 if (!function_exists('umaskChmod')) {
-  function umaskChmod ($pathname, $mode = 0777) {
-    $oldmask = umask (0);
-    @chmod ($pathname, $mode);
-    umask ($oldmask);
+  function umaskChmod($pathname, $mode = 0777) {
+    $oldmask = umask(0);
+    @chmod($pathname, $mode);
+    umask($oldmask);
   }
 }
 
 
 if (!function_exists('umaskMkdir')) {
   function umaskMkdir($pathname, $mode = 0777, $recursive = false) {
-    $oldmask = umask (0);
-    @mkdir ($pathname, $mode, $recursive);
-    umask ($oldmask);
+    $oldmask = umask(0);
+    @mkdir($pathname, $mode, $recursive);
+    umask($oldmask);
   }
 }
 
@@ -125,6 +115,7 @@ if (!function_exists('downloadWebFile')) {
     return filesize($fileName) ? $fileName : null;
   }
 }
+
 if (!function_exists('reverseOrder')) {
   function reverseOrder($order) {
     return trim($order) ? implode(', ', array_map(function($part) {
