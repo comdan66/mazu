@@ -41,20 +41,20 @@ if (!@include_once PATH_SYS . 'CommonFunc.php')
  *  只允許包含 5.6 版本以上使用
  * ------------------------------------------------------ */
 
-isPhpVersion('5.6')              || gg('PHP 版本太舊，請大於等於 5.6 版本！');
+isPhpVersion('5.6')                    || gg('PHP 版本太舊，請大於等於 5.6 版本！');
 
-load(PATH_SYS . 'Benchmark.php') || gg('載入 Benchmark 失敗！');
+Load::path(PATH_SYS . 'Benchmark.php') || gg('載入 Benchmark 失敗！');
 Benchmark::markStar('整體');
 
-load(PATH     . 'Env.php')       || gg('載入 Env 失敗！');
-load(PATH_SYS . 'View.php')      || gg('載入 View 失敗！');
-load(PATH_SYS . 'Charset.php')   || gg('載入 Charset 失敗！');
-load(PATH_SYS . 'Log.php')       || gg('載入 Log 失敗！');
-load(PATH_SYS . 'Url.php')       || gg('入載 Url 失敗！');
-load(PATH_SYS . 'Router.php')    || gg('入載 Router 失敗！');
+Load::path(PATH     . 'Env.php')       || gg('載入 Env 失敗！');
+Load::path(PATH_SYS . 'View.php')      || gg('載入 View 失敗！');
+Load::path(PATH_SYS . 'Charset.php')   || gg('載入 Charset 失敗！');
+Load::path(PATH_SYS . 'Log.php')       || gg('載入 Log 失敗！');
+Load::path(PATH_SYS . 'Url.php')       || gg('入載 Url 失敗！');
+Load::path(PATH_SYS . 'Router.php')    || gg('入載 Router 失敗！');
 
-load(PATH_SYS . 'Output.php')    || gg('入載 Output 失敗！');
-// load(PATH_SYS . 'Model.php')     || gg('入載 Model 失敗！');
+Load::path(PATH_SYS . 'Output.php')    || gg('入載 Output 失敗！');
+// Load::path(PATH_SYS . 'Model.php')     || gg('入載 Model 失敗！');
 
 
 

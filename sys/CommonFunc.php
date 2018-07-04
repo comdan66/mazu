@@ -1,10 +1,11 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-if (!function_exists('load')) {
-  function load($path, $error = null) {
-    static $cache;
-    
-    if (isset($cache[$path]))
+
+class Load {
+  private static $cache = [];
+
+  public static function path($path, $error = null) {
+    if (isset(self::$cache[$path]))
       return true;
 
     $error || $error = '載入檔案「' . $path . '」失敗！';
@@ -14,7 +15,7 @@ if (!function_exists('load')) {
 
     require_once $path;
 
-    return $cache[$path] = true;
+    return self::$cache[$path] = true;
   }
 }
 
