@@ -1,4 +1,4 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class Output {
   static function text($str) {
@@ -8,10 +8,8 @@ class Output {
     echo json_encode($json);
   }
   static function router($router) {
-    if (!$router) {
-      responseStatusHeader(404);
-      return self::text(View::maybe('error/404.php')->get());
-    }
+    if (!$router)
+      return gg('迷路惹！', 404);
 
     responseStatusHeader($router->getStatus());
 

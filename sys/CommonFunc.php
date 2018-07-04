@@ -1,4 +1,4 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 if (!function_exists('load')) {
   function load($path, $error = null) {
@@ -106,38 +106,35 @@ if (!function_exists('implodeRecursive')) {
 if (!function_exists('gg')) {
   function gg($text, $code = 500, $contents = []) {
     static $api;
-    
 
     if ($text === null)
       return $api = $code;
 
-    isCli() || responseStatusHeader(500);
+    isCli() || responseStatusHeader($code);
     isCli() ? @system('clear') : @ob_end_clean();
 
-    $statusText = ($statusText = responseStatusText($code)) ? $code . ' ' . $statusText : '';
+    $type = !isCli() ? !class_exists('View') || $api === 'api' ? 'api' : 'html' : 'cli';
+    isset($contents['traces']) || $contents['traces'] = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
     
-    isset($contents['traces']) || $contents['traces'] = array_map(function($trace) {
-      return [
-        'path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''),
-        'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')
-      ];
-    }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
-    
-    if (!class_exists('View') || $api === 'api') {
-      $contents = array_merge(array ('text' => $text), $contents);
-      @header('Content-Type: application/json');
-      echo json_encode($contents);
-    } else if (isCli())
-      echo View::maybe('error' . DIRECTORY_SEPARATOR . 'ggCli.php')
-               ->with('text', dump($text, 1))
-               ->with('contents', $contents)
-               ->get();
-    else
-      echo View::maybe('error' . DIRECTORY_SEPARATOR . 'ggHtml.php')
-               ->with('text', dump($text))
-               ->with('contents', $contents)
-               ->get();
-    exit;
+    if ($code === 404)
+      $contents = [];
+
+    switch ($type) {
+      default:
+      case 'api':
+        $contents = array_merge(['text' => $text], $contents);
+        @header('Content-Type: application/json');
+        echo json_encode($contents);
+        exit;
+      
+      case 'cli':
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggCli.php' : '404Cli.php'))->with('text', dump($text, 1))->with('contents', $contents)->get();
+        exit;
+
+      case 'html':
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggHtml.php' : '404Html.php'))->with('text', dump($text))->with('contents', $contents)->get();
+        exit;
+    }
   }
 }
 
@@ -190,19 +187,19 @@ if (!function_exists('cliColor')) {
   }
 }
 
-// if (!function_exists('arr2dTo1d')) {
-//   function arr2dTo1d($arr) {
-//     $new = [];
+if (!function_exists('arrayFlatten')) {
+  function arrayFlatten($arr) {
+    $new = [];
 
-//     foreach ($arr as $key => $value)
-//       if (is_array($value))
-//         $new = array_merge($new, $value);
-//       else
-//         array_push($new, $value);
+    foreach ($arr as $key => $value)
+      if (is_array($value))
+        $new = array_merge($new, $value);
+      else
+        array_push($new, $value);
 
-//     return $new;
-//   }
-// }
+    return $new;
+  }
+}
 
 if (!function_exists('errorHandler')) {
   function errorHandler($severity, $message, $filepath, $line) {

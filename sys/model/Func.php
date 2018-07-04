@@ -45,18 +45,18 @@ if (!function_exists ('modelsColumn')) {
   }
 }
 
-if (!function_exists('arrayFlatten')) {
-  function arrayFlatten(array $array) {
-    $i = 0;
+// if (!function_exists('arrayFlatten')) {
+//   function arrayFlatten(array $array) {
+//     $i = 0;
 
-    while ($i < count($array))
-      if (is_array($array[$i]))
-        array_splice($array, $i, 1, $array[$i]);
-      else
-        ++$i;
-    return $array;
-  }
-}
+//     while ($i < count($array))
+//       if (is_array($array[$i]))
+//         array_splice($array, $i, 1, $array[$i]);
+//       else
+//         ++$i;
+//     return $array;
+//   }
+// }
 
 if (!function_exists('umaskChmod')) {
   function umaskChmod ($pathname, $mode = 0777) {

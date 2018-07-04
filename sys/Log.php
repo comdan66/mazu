@@ -1,4 +1,4 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class Log {
   private static $extension = '.log';
@@ -28,20 +28,18 @@ class Log {
   }
 
   public static function info($msg) {
-    echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    var_dump (debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
-    exit ();
-    $traces = ($traces = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)) && ($traces = array_pop($traces)) && isset($traces['file'], $traces['line']) ? ' | ' . $traces['file'] . '(' . $traces['line'] . ')' : '';
-
-    return self::msg('═ ' . date(self::$dateFormat) . $traces . ' ' . str_repeat('═', ($traces = 80 - 11 - strlen($traces)) < 0 ? 0 : $traces) . "\n" . dump($msg) . "\n" . ' ' . "\n\n", 'log-info-');
+    $traces = ($traces = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)) && ($traces = array_shift($traces)) && isset($traces['file'], $traces['line']) ? ' - ' . $traces['file'] . '(' . $traces['line'] . ')' : '';
+    return self::msg(date(self::$dateFormat) . $traces . "\n" . str_repeat('—', 80) . "\n" . dump($msg) . "\n\n", 'log-info-');
   }
 
   public static function error($msg) {
-    return self::msg('═ ' . date(self::$dateFormat) . ' ' . str_repeat('═', 80 - 11) . "\n" . dump($msg) . "\n\n", 'log-error-');
+    $traces = ($traces = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)) && ($traces = array_shift($traces)) && isset($traces['file'], $traces['line']) ? ' - ' . $traces['file'] . '(' . $traces['line'] . ')' : '';
+    return self::msg(date(self::$dateFormat) . $traces . "\n" . str_repeat('—', 80) . "\n" . dump($msg) . "\n\n", 'log-error-');
   }
 
   public static function warning($msg) {
-    return self::msg('═ ' . date(self::$dateFormat) . ' ' . str_repeat('═', 80 - 11) . "\n" . dump($msg) . "\n\n", 'log-warning-');
+    $traces = ($traces = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)) && ($traces = array_shift($traces)) && isset($traces['file'], $traces['line']) ? ' - ' . $traces['file'] . '(' . $traces['line'] . ')' : '';
+    return self::msg(date(self::$dateFormat) . $traces . "\n" . str_repeat('—', 80) . "\n" . dump($msg) . "\n\n", 'log-warning-');
   }
 
   public static function closeAll() {

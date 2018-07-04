@@ -49,7 +49,7 @@ class SqlBuilder {
         $value = $value ? $value : 'null';
       }
 
-    $where = \M\arrayFlatten($where);
+    $where = \arrayFlatten($where);
     substr_count($whereStr, '?') == count($where) || Config::error('Where 格式有誤！', '條件：' . $whereStr, '參數：' . implode(',', $where));
 
     $this->where = $whereStr;
@@ -145,7 +145,7 @@ class SqlBuilder {
     if ($this->values)
       $ret = array_merge($ret, $this->values);
 
-    $this->values = \M\arrayFlatten($ret);
+    $this->values = \arrayFlatten($ret);
     
     return $this;
   }

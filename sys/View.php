@@ -47,7 +47,7 @@ class View {
       
       // 將 include output 存起來
       ob_start();
-      var_dump($___params___);
+      echo dump($___params___);
       $buffer = ob_get_contents();
       @ob_end_clean();
     } else {

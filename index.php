@@ -43,35 +43,22 @@ if (!@include_once PATH_SYS . 'CommonFunc.php')
 
 isPhpVersion('5.6')              || gg('PHP 版本太舊，請大於等於 5.6 版本！');
 
-load(PATH_SYS . 'View.php')      || gg('載入 View 失敗！');
-load(PATH     . 'Env.php')       || gg('載入 Env 失敗！');
 load(PATH_SYS . 'Benchmark.php') || gg('載入 Benchmark 失敗！');
 Benchmark::markStar('整體');
 
+load(PATH     . 'Env.php')       || gg('載入 Env 失敗！');
+load(PATH_SYS . 'View.php')      || gg('載入 View 失敗！');
 load(PATH_SYS . 'Charset.php')   || gg('載入 Charset 失敗！');
 load(PATH_SYS . 'Log.php')       || gg('載入 Log 失敗！');
+load(PATH_SYS . 'Url.php')       || gg('入載 Url 失敗！');
+load(PATH_SYS . 'Router.php')    || gg('入載 Router 失敗！');
 
-function FunctionName($value='')
-{
-Log::info('123');
-}
-FunctionName();
-
-// // 載入 Url
-// load(PATH_SYS . 'Url.php');
-
-// // 載入 Router
-// load(PATH_SYS . 'Router.php');
-
-// // 載入 Output
-// load(PATH_SYS . 'Output.php');
-
-// // 載入 Model
-// load(PATH_SYS . 'Model.php');
+load(PATH_SYS . 'Output.php')    || gg('入載 Output 失敗！');
+// load(PATH_SYS . 'Model.php')     || gg('入載 Model 失敗！');
 
 
-// $router = Router::getMatchRouter();
-// Output::router ($router);
+
+Output::router (Router::current());
 
 
 

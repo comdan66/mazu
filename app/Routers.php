@@ -1,4 +1,4 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 // $f1 = function () {
 //   return '1a';
@@ -27,17 +27,16 @@ Router::get('/')
 
         // $obj = M\BookArticle::one('id = ?', 2);
         // $obj = M\BookArticle::one('id = ?', 2);
-// gg(null, 'api');
         
         // throw new Exception('dd');
 
         // gg('asd');
 
-        $obj = M\Article::one();
-        // // $b = function (){};
-        $a = [1,2,3,['a', '', ['a1' => 1, 'b2' => $obj, new Book()]]];
-        // gg($a);
-        Log::info($a);
+        // $obj = M\Article::one();
+        // // // $b = function (){};
+        // $a = [1,2,3,['a', '', ['a1' => 1, 'b2' => $obj, new Book()]]];
+        // // gg($a);
+        // Log::info($a);
 
         // gg($a);
         // 1/0;

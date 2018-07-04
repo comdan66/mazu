@@ -20,7 +20,7 @@ class Benchmark {
     self::$memories[$key]['e'] = memory_get_usage();
   }
 
-  public static function elapsedTime($key = null, $decimals = 4) {
+  public static function elapsedTime($key = null, $decimals = 6) {
     if ($key === null) {
       $arr = [];
       foreach (self::$times as $key => $time)
@@ -37,12 +37,12 @@ class Benchmark {
     return number_format(self::$times[$key]['e'] - self::$times[$key]['s'], $decimals);
   }
 
-  public static function elapsedMemory($key = null, $decimals = 4) {
+  public static function elapsedMemory($key = null, $decimals = 6) {
     if ($key === null) {
       $arr = [];
       foreach (self::$memories as $key => $memory)
         if (isset($memory['s']))
-          $arr[$key] = round(((isset($memory['e']) ? $memory['e'] : memory_get_usage()) - $memory['s']) / pow(1024, 2), $decimals) . 'MB';
+          $arr[$key] = round(((isset($memory['e']) ? $memory['e'] : memory_get_usage()) - $memory['s']) / pow(1024, 2), $decimals) . ' MB';
       return $arr;
     }
 
@@ -51,7 +51,7 @@ class Benchmark {
 
     isset(self::$memories[$key]['e']) || self::$memories[$key]['e'] = memory_get_usage();
 
-    return round((self::$memories[$key]['e'] - self::$memories[$key]['s']) / pow(1024, 2), $decimals) . 'MB';
+    return round((self::$memories[$key]['e'] - self::$memories[$key]['s']) / pow(1024, 2), $decimals) . ' MB';
   }
 
   public static function memoryUsage($decimals = 4) {
