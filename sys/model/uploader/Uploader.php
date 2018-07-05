@@ -5,19 +5,13 @@ namespace M;
 defined('MAZU') || exit('此檔案不允許讀取！');
 
 abstract class Uploader {
-  const DRIVER_S3    = 's3';
-  const DRIVER_LOCAL = 'local';
-
-  protected static $tmpDir = null;
   protected static $baseUrl = '/';
-  
-  protected static $driver = null;
   protected static $baseDirs = [];
-  protected static $s3Bucket = null;
+  private static $tmpDir = null;
 
   private static $errorFunc = null;
   private static $logFunc = null;
-
+  private static $saveTool = null;
 
   public static function setLogFunc($logFunc) {
     is_callable($logFunc) && self::$logFunc = $logFunc;
@@ -45,27 +39,23 @@ abstract class Uploader {
     is_string($baseUrl) && self::$baseUrl = rtrim($baseUrl, '/') . '/';
   }
 
-  private static function setDriver($driver) {
-    in_array($driver, [self::DRIVER_S3, self::DRIVER_LOCAL]) && self::$driver = $driver;
-  }
-
   public static function setBaseDirs($baseDirs) {
     is_array($baseDirs) && $baseDirs && self::$baseDirs = $baseDirs;
   }
+  
+  public static function saveTool() {
+    self::$saveTool !== null || Uploader::error('尚未設定儲存工具！');
 
-  public static function useDriverLocal($baseDirs) {
-    self::setDriver(self::DRIVER_LOCAL);
-    self::setBaseDirs($baseDirs);
+    if (is_callable(self::$saveTool) && ($saveTool = self::$saveTool))
+      if (!self::$saveTool = $saveTool())
+        Uploader::error('尚未設定儲存工具！');
+
+    if (is_object(self::$saveTool))
+      return self::$saveTool;
   }
 
-  public static function setS3Bucket($s3Bucket) {
-    is_string($s3Bucket) && $s3Bucket && self::$s3Bucket = trim($s3Bucket, '/');
-  }
-
-  public static function useDriverS3($s3Bucket, $baseDirs) {
-    self::setDriver(self::DRIVER_S3);
-    self::setS3Bucket($s3Bucket);
-    self::setBaseDirs($baseDirs);
+  public static function initSaveTool($saveTool) {
+    is_callable($saveTool) && self::$saveTool = $saveTool;
   }
 
   public static function bind($orm, $column) {
@@ -73,19 +63,15 @@ abstract class Uploader {
     return new $class($orm, $column);
   }
 
-  protected static function tmpDirNotWritable() {
-    return self::$tmpDir === null || !\isReallyWritable(self::$tmpDir);
+  protected static function tmpDir() {
+    self::$tmpDir !== null && \isReallyWritable(self::$tmpDir) || Uploader::error('Uploader 尚未設定 tmp 目錄或無法寫入！');
+    return self::$tmpDir;
   }
 
-
-
-
-
-
-
-
-
-
+  protected static function baseDirs() {
+    self::$baseDirs || Uploader::error('Uploader 未指定 baseDirs！');
+    return self::$baseDirs;
+  }
 
   protected $orm = null;
   protected $column = null;
@@ -94,16 +80,9 @@ abstract class Uploader {
   public function __construct($orm, $column) {
     $attrs = $orm->attrs();
 
-    self::$driver !== null                                              || Uploader::error('尚未設定 Uploader Driver 類型！');
-    self::$driver == Uploader::DRIVER_LOCAL || class_exists('S3')       || Uploader::error('Uploader Driver 為 S3，未先初始 S3 物件！');
-    self::$driver == Uploader::DRIVER_LOCAL || self::$s3Bucket !== null || Uploader::error('Uploader Driver 為 S3，未指定 Bucket！');
-    
-    self::$baseDirs || Uploader::error('Uploader 未指定 baseDirs！');
-    // ===============
-
     $this->orm = $orm;
     $this->column = $column;
-    $this->value = $orm->$column;
+    $this->value  = $orm->$column;
     $orm->$column = $this;
   }
 
@@ -120,18 +99,17 @@ abstract class Uploader {
   }
 
   public function pathDirs($fileName = '') {
-    return $fileName ? array_merge(self::$baseDirs, $this->getSaveDirs(), [$fileName]) : [];
+    return $fileName ? array_merge(self::baseDirs(), $this->getSaveDirs(), [$fileName]) : [];
   }
 
   public function getSaveDirs() {
-    array_key_exists($this->uniqueColumn(), $attrs) || Uploader::error('此物件 「' . get_class($orm) . '」 沒有 「' . $this->uniqueColumn() . '」 欄位！');
+    array_key_exists($this->uniqueColumn(), $this->orm->attrs()) || Uploader::error('此物件 「' . get_class($orm) . '」 沒有 「' . $this->uniqueColumn() . '」 欄位！');
     return is_numeric($id = $this->orm->attrs($this->uniqueColumn(), 0)) ? array_merge([$this->orm->getTableName(), $this->column], str_split(sprintf('%08s', dechex($id)), 2)) : [$this->orm->getTableName(), $this->column];
   }
 
   protected function d4Url() {
     return '';
   }
-
 
   public function put($fileInfo) {
     if (!($fileInfo && (is_array($fileInfo) || (is_string($fileInfo) && file_exists($fileInfo)))))
@@ -152,80 +130,52 @@ abstract class Uploader {
     $format = ($format = pathinfo($name, PATHINFO_EXTENSION)) ? '.' . $format : '';
     $name = ($name = pathinfo($name, PATHINFO_FILENAME)) ? $name . $format : getRandomName() . $format;
 
-    if (!$temp = $this->moveOriFile($fileInfo, $isUseMoveUploadedFile))
+    if (!$tmp = $this->moveOriFile($fileInfo, $isUseMoveUploadedFile))
       return self::log('[Uploader] put 搬移至暫存資料夾時發生錯誤。');
 
     if (!$saveDirs = $this->verifySaveDirs())
       return self::log('[Uploader] put 確認儲存路徑發生錯誤。');
 
-    if (!$result = $this->moveFileAndUploadColumn($temp, $saveDirs, $name))
+    if (!$result = $this->moveFileAndUploadColumn($tmp, $saveDirs, $name))
       return self::log('[Uploader] put 搬移預設位置時發生錯誤。');
 
     return true;
   }
 
   private function moveOriFile($fileInfo, $isUseMoveUploadedFile) {
-    if (self::tmpDirNotWritable())
-      return self::log('Tmp 資料夾無法寫入！');
+    $tmpDir = self::tmpDir();
 
-    $temp = self::$tmpDir . 'uploader_' . getRandomName();
+    $tmp = $tmpDir . 'uploader_' . getRandomName();
 
     if ($isUseMoveUploadedFile)
-      @move_uploaded_file($fileInfo['tmp_name'], $temp);
+      @move_uploaded_file($fileInfo['tmp_name'], $tmp);
     else
-      @rename($fileInfo['tmp_name'], $temp);
+      @rename($fileInfo['tmp_name'], $tmp);
 
-    umaskChmod($temp, 0777);
+    \umaskChmod($tmp, 0777);
 
-    if (!file_exists($temp))
-      return self::log('[Uploader] moveOriFile 移動檔案失敗。Path：' . $temp);
+    if (!file_exists($tmp))
+      return self::log('[Uploader] moveOriFile 移動檔案失敗。Path：' . $tmp);
 
-    return $temp;
+    return $tmp;
   }
 
   private function verifySaveDirs() {
-    switch (self::$driver) {
-      case 'local':
-
-        if (!is_writable($path = implode(DIRECTORY_SEPARATOR, self::$baseDirs)))
-          return self::log('[Uploader] verifySaveDirs 資料夾不能儲存。Path：' . $path);
-
-        file_exists($tmp = implode(DIRECTORY_SEPARATOR, $path = array_merge(self::$baseDirs, $this->getSaveDirs()))) || umaskMkdir($tmp, 0777, true);
-
-        if (!is_writable($tmp))
-          return self::log('[Uploader] verifySaveDirs 資料夾不能儲存。Path：' . $tmp);
-
-        return $path;
-        break;
-
-      case 's3':
-        return array_merge(self::$baseDirs, $this->getSaveDirs());
-        break;
-    }
-    return false;
+    $baseDirs = self::baseDirs();
+    return array_merge($baseDirs, $this->getSaveDirs());
   }
   
-  protected function moveFileAndUploadColumn($temp, $saveDirs, $oriName) {
-    switch (self::$driver) {
-      case 'local':
-        if (!@rename($temp, $path = implode(DIRECTORY_SEPARATOR, $saveDirs) . DIRECTORY_SEPARATOR . $oriName))
-          return self::log('[Uploader] moveFileAndUploadColumn local rename 搬移預設位置時發生錯誤。Path：' . $path);
-        break;
+  protected function moveFileAndUploadColumn($tmp, $saveDirs, $oriName) {
+    if (!self::saveTool()->put($tmp, $uri = implode ('/', $saveDirs) . '/' . $oriName))
+      return self::log('moveFileAndUploadColumn putObject 發生錯誤！', 'Temp：' . $tmp, 'Uri：' . $uri);
 
-      case 's3':
-        if (!\S3::putObject($temp, self::$s3Bucket, $uri = implode ('/', $saveDirs) . '/' . $oriName))
-          return self::log('[Uploader] moveFileAndUploadColumn s3 putObject 丟至 S3 發生錯誤。Bucket：' . self::$s3Bucket . '，uri：' . $uri);
-
-        @unlink($temp) || self::log('[Uploader] moveFileAndUploadColumn s3 移除舊資料錯誤。');
-        break;
-
-    }
+    @unlink($tmp) || self::log('moveFileAndUploadColumn 移除舊資料錯誤！');
 
     if (!$this->uploadColumnAndUpload(''))
-      return self::log('[Uploader] moveFileAndUploadColumn uploadColumnAndUpload = "" 錯誤。');
+      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = "" 錯誤！');
 
     if (!$this->uploadColumnAndUpload($oriName))
-      return self::log('[Uploader] moveFileAndUploadColumn uploadColumnAndUpload = ' . $oriName . ' 錯誤。');
+      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = ' . $oriName . ' 錯誤！');
 
     return true;
   }
@@ -236,21 +186,10 @@ abstract class Uploader {
   }
 
   protected function cleanOldFile() {
-    switch (self::$driver) {
-      case 'local':
-        if ($PathsDirs = $this->getPathsDirs())
-          foreach ($PathsDirs as $pathDirs)
-            if (is_writable($pathDir = implode(DIRECTORY_SEPARATOR, $pathDirs)))
-              @unlink($pathDir) || self::log('[Uploader] cleanOldFile 清除檔案發生錯誤。Path：' . $pathDir);
-        break;
-
-      case 's3':
-        if ($PathsDirs = $this->getPathsDirs())
-          foreach ($PathsDirs as $pathDirs)
-            \S3::deleteObject(self::$s3Bucket, $pathDir = implode('/', $pathDirs)) || self::log('[Uploader] cleanOldFile 清除檔案發生錯誤。Path：' . $pathDir);
-        break;
-    }
-
+    if ($PathsDirs = $this->getPathsDirs())
+      foreach ($PathsDirs as $pathDirs)
+        self::saveTool()->delete($pathDir = implode('/', $pathDirs)) || self::log('cleanOldFile 清除檔案發生錯誤！', 'Path：' . $pathDir);
+    
     return true;
   }
 
@@ -258,7 +197,7 @@ abstract class Uploader {
     if (!(string)$this->value)
       return [];
 
-    return [array_merge(self::$baseDirs, $this->getSaveDirs(), [(string)$this->value])];
+    return [array_merge(self::baseDirs(), $this->getSaveDirs(), [(string)$this->value])];
   }
 
   protected function uploadColumn($value) {
@@ -278,11 +217,9 @@ abstract class Uploader {
   }
 
   public function putUrl($url) {
-    if (self::tmpDirNotWritable())
-      return self::log('Tmp 資料夾無法寫入！');
-
+    $tmpDir = self::tmpDir();
     $format = strtolower(pathinfo($url, PATHINFO_EXTENSION));
-    $temp = downloadWebFile($url, self::$tmpDir . getRandomName() . ($format ? '.' . $format : ''));
-    return $temp && $this->put($temp, false) ? file_exists($temp) ? @unlink($temp) : true : false;
+    $tmp = downloadWebFile($url, $tmpDir . getRandomName() . ($format ? '.' . $format : ''));
+    return $tmp && $this->put($tmp, false) ? file_exists($tmp) ? @unlink($tmp) : true : false;
   }
 }

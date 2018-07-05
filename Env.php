@@ -5,14 +5,14 @@
  *  定義環境常數
  * ------------------------------------------------------ */
 
-define('ENVIRONMENT', 'testing');
-// define('ENVIRONMENT', 'development');
+define('ENVIRONMENT', 'development');
+// define('ENVIRONMENT', 'testing');
 // define('ENVIRONMENT', 'production');
 
 
 switch (ENVIRONMENT) {
-  case 'testing':
   case 'development':
+  case 'testing':
     ini_set('display_errors', 1);
     error_reporting(-1);
     break;

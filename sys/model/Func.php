@@ -48,23 +48,6 @@ if (!function_exists('modelsColumn')) {
   }
 }
 
-if (!function_exists('umaskChmod')) {
-  function umaskChmod($pathname, $mode = 0777) {
-    $oldmask = umask(0);
-    @chmod($pathname, $mode);
-    umask($oldmask);
-  }
-}
-
-
-if (!function_exists('umaskMkdir')) {
-  function umaskMkdir($pathname, $mode = 0777, $recursive = false) {
-    $oldmask = umask(0);
-    @mkdir($pathname, $mode, $recursive);
-    umask($oldmask);
-  }
-}
-
 if (!function_exists('getRandomName')) {
   function getRandomName() {
     return md5(uniqid(mt_rand(), true));

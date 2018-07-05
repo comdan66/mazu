@@ -19,7 +19,7 @@ define('MAZU', '1.0.0');
  *  定義路徑常數
  * ------------------------------------------------------ */
 
-define('PATH', dirname(__FILE__)           . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
+define('PATH', dirname(__FILE__)            . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
 define('PATH_SYS',       PATH .     'sys'   . DIRECTORY_SEPARATOR); // sys 絕對位置
 define('PATH_LOG',       PATH .     'log'   . DIRECTORY_SEPARATOR); // log 絕對位置
 define('PATH_TMP',       PATH .     'tmp'   . DIRECTORY_SEPARATOR); // tmp 絕對位置
@@ -28,6 +28,7 @@ define('PATH_VIEW',      PATH_APP . 'view'  . DIRECTORY_SEPARATOR); // view 絕�
 define('PATH_MODEL',     PATH_APP . 'model' . DIRECTORY_SEPARATOR); // model 絕對位置
 
 define('PATH_SYS_CORE',  PATH_SYS . 'core'  . DIRECTORY_SEPARATOR); // sys core 絕對位置
+define('PATH_SYS_LIB',   PATH_SYS . 'lib'   . DIRECTORY_SEPARATOR); // sys lib 絕對位置
 define('PATH_SYS_MODEL', PATH_SYS . 'model' . DIRECTORY_SEPARATOR); // sys model 絕對位置
 
 

@@ -452,10 +452,26 @@ abstract class Model {
 \_M\Config::setErrorFunc('gg');
 \_M\Config::setConnection(config('database'));
 
-\M\Uploader::setTmpDir(PATH_TMP);
+\M\Uploader::setTmpDir(config('uploader', 'tmpDir'));
+\M\Uploader::setBaseDirs(config('uploader', 'baseDirs'));
+\M\Uploader::setBaseUrl(config('uploader', 'baseUrl'));
 \M\Uploader::setLogFunc('Log::uploader');
 \M\Uploader::setErrorFunc('gg');
-\M\Uploader::useDriverLocal(['upload']);
+
+\M\Uploader::initSaveTool(function () {
+  $driver = config('uploader', 'driver');
+
+  return \Load::sysLib('SaveTool' . DIRECTORY_SEPARATOR . $driver . '.php') && class_exists($driver = "\\" . $driver)
+            ? call_user_func_array([$driver, 'create'], config('uploader', 'params'))
+            : null;
+});
+
+
+
+
+
+  // \M\Uploader::useDriverLocal(['upload']);
+
 // \M\Uploader::useDriverS3('test.ioa.tw', ['upload']);
 
 

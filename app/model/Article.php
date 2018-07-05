@@ -24,31 +24,30 @@ class Article extends Model {
   ];
 
   static $uploaders = [
-    'cover'  => 'ArticleCoverFileUploader',
-    // 'cover' => 'ArticleCoverImageUploader',
+    // 'cover'  => 'ArticleCoverFileUploader',
+    'cover' => 'ArticleCoverImageUploader',
   ];
 }
 
-// class ArticleCoverImageUploader extends ImageUploader {
-//   public function versions() {
-//     return [
-//       '' => [],
+class ArticleCoverImageUploader extends ImageUploader {
+  public function versions() {
+    return [
+      '' => [],
 
-//       'w100' => [
-//         'resize' => [100, 100, 'width']],
+      'w100' => [
+        'resize' => [100, 100, 'width']],
 
-//       // 'w1440' => [
-//       //   'resize' => [1440, 1440, 'width']],
+      // 'w1440' => [
+      //   'resize' => [1440, 1440, 'width']],
 
-//       // 'c1200x630' => [
-//       //   'adaptiveResizeQuadrant' => [1200, 630, 't'],
-//       //   'resize' => [100, 100]],
-//     ];
-//   }
+      // 'c1200x630' => [
+      //   'adaptiveResizeQuadrant' => [1200, 630, 't'],
+      //   'resize' => [100, 100]],
+    ];
+  }
+}
+
+// class ArticleCoverFileUploader extends FileUploader {
 
 // }
-
-class ArticleCoverFileUploader extends FileUploader {
-
-}
-// // 1/0
+// // // 1/0

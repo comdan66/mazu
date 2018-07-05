@@ -54,6 +54,10 @@ class Log {
     return self::msg(self::logFormat(func_get_args()), 'log-uploader-');
   }
 
+  public static function saveTool($msg) {
+    return self::msg(self::logFormat(func_get_args()), 'log-saveTool-');
+  }
+
   public static function closeAll() {
     foreach(self::$fopens as $fopen)
       fclose($fopen);

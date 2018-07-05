@@ -24,6 +24,9 @@ class Load {
   public static function sysModel($path) {
     return self::file(PATH_SYS_MODEL . $path);
   }
+  public static function sysLib($path) {
+    return self::file(PATH_SYS_LIB . $path);
+  }
   public static function app($path) {
     return self::file(PATH_APP . $path);
   }
@@ -39,8 +42,8 @@ if (!function_exists('config')) {
     $fileName = array_shift($args);
     $argsStr  = implode('', $args);
 
-    if (isset($keys[$argsStr]))
-      return $keys[$argsStr];
+    if (isset($keys[$fileName . $argsStr]))
+      return $keys[$fileName . $argsStr];
     
     if (!isset($files[$fileName])) {
       if (!file_exists($path = PATH_APP . 'config' . DIRECTORY_SEPARATOR . ENVIRONMENT . DIRECTORY_SEPARATOR . $fileName . '.php') && !file_exists($path = PATH_APP . 'config' . DIRECTORY_SEPARATOR . $fileName . '.php'))
@@ -55,7 +58,7 @@ if (!function_exists('config')) {
       if (($tmp = isset($tmp[$arg]) ? $tmp[$arg] : null) === null)
         break;
 
-    return $keys[$argsStr] = $tmp;
+    return $keys[$fileName . $argsStr] = $tmp;
   }
 }
 
@@ -282,6 +285,22 @@ if (!function_exists('dump')) {
   }
 }
 
+if (!function_exists('umaskChmod')) {
+  function umaskChmod($pathname, $mode = 0777) {
+    $oldmask = umask(0);
+    @chmod($pathname, $mode);
+    umask($oldmask);
+  }
+}
+
+
+if (!function_exists('umaskMkdir')) {
+  function umaskMkdir($pathname, $mode = 0777, $recursive = false) {
+    $oldmask = umask(0);
+    @mkdir($pathname, $mode, $recursive);
+    umask($oldmask);
+  }
+}
 /* ------------------------------------------------------
  *  定義自己的 Error Handler
  * ------------------------------------------------------ */

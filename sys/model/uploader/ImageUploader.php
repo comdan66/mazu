@@ -7,11 +7,16 @@ defined('MAZU') || exit('此檔案不允許讀取！');
 abstract class ImageUploader extends Uploader {
   const SYMBOL = '_';
   const AUTO_FORMAT = true;
+  private static $thumbnail = null;
+
+// require_once 'thumbnail/Thumbnail.php';
+// Thumbnail::setDriver('Gd');
 
   abstract public function versions();
 
   private function getVersions() {
-    return ($versions = $this->versions()) && is_array($versions) ? array_merge(['' => []], $versions) : ['' => []];
+    $versions = $this->versions();
+    return $versions && is_array($versions) ? array_merge(['' => []], $versions) : ['' => []];
   }
 
   public function pathDirs($key = '') {
@@ -20,23 +25,22 @@ abstract class ImageUploader extends Uploader {
   }
 
   public function getPathsDirs() {
+    $baseDirs = self::baseDirs();
     $versions = $this->getVersions();
-
     $paths = [];
+
     foreach ($versions as $key => $version)
-      array_push($paths, array_merge(self::$baseDirs, $this->getSaveDirs(), [$key . ImageUploader::SYMBOL . $this->value]));
+      array_push($paths, array_merge($baseDirs, $this->getSaveDirs(), [$key . ImageUploader::SYMBOL . $this->value]));
 
     return $paths;
   }
 
   protected function moveFileAndUploadColumn($temp, $saveDirs, $oriName) {
-    if (self::tmpDirNotWritable())
-      return self::log('Tmp 資料夾無法寫入！');
-    
+    $tmpDir = self::tmpDir();
     $versions = $this->getVersions();
 
     if (!class_exists('Thumbnail'))
-      return self::log('[ImageUploader] 找不到 Thumbnail 縮圖物件');
+      return self::log('找不到 Thumbnail 縮圖物件');
 
     $news = [];
     $info = @exif_read_data($temp);
@@ -51,10 +55,10 @@ abstract class ImageUploader extends Uploader {
         $name = !isset($name) ? getRandomName() . (ImageUploader::AUTO_FORMAT ? '.' . $image->getFormat() : '') : $name;
         $newName = $key . ImageUploader::SYMBOL . $name;
 
-        $newPath = self::$tmpDir . $newName;
+        $newPath = $tmpDir . $newName;
 
         if (!$this->utility($image, $newPath, $key, $methods))
-          return self::log('[ImageUploader] moveFileAndUploadColumn 圖像處理失敗。');
+          return self::log('moveFileAndUploadColumn 圖像處理失敗。');
 
         array_push($news, ['name' => $newName, 'path' => $newPath]);
       }
@@ -64,6 +68,15 @@ abstract class ImageUploader extends Uploader {
 
     if (count($news) != count($versions))
       return self::log('[ImageUploader] moveFileAndUploadColumn 不明原因錯誤。');
+
+
+
+  foreach ($news as $new)
+    if (!self::saveTool()->put($new['path'], $uri = implode ('/', $saveDirs) . '/' . $new['name']))
+      return self::log('moveFileAndUploadColumn putObject 發生錯誤！', 'Temp：' . $new['path'], 'Uri：' . $uri);
+
+  @unlink($new['path']) || self::log('moveFileAndUploadColumn 移除舊資料錯誤！');
+
 
     switch (self::$driver) {
       case 'local':

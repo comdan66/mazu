@@ -66,7 +66,8 @@ class Where {
       $str = array_shift($args);
     }
 
-    count($args) < (substr_count($str, '?')) && gg('參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。');
+    $c = substr_count ($str, '?');
+    count($args) < $c && gg('參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。');
 
     $where[0] = $where ? '(' . $where[0] . ')' . ' AND(' . $str . ')' : $str;
 
@@ -92,7 +93,8 @@ class Where {
       $str = array_shift($args);
     }
 
-    count($args) < (substr_count($str, '?')) && gg('參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。');
+    $c = substr_count ($str, '?');
+    count($args) < $c && gg('參數錯誤。「' . $str . '」 有 ' . $c . ' 個參數，目前只給 ' . count($args) . ' 個。');
 
     $where[0] = $where ? '(' . $where[0] . ')' . ' OR(' . $str . ')' : '(' . $str . ')';
 
