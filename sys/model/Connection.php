@@ -21,7 +21,7 @@ class Connection {
     $config = Config::getConnection();
     $config || Config::error('沒有設定 MySQL 連線資訊！');
     
-    foreach (['hostname', 'username', 'password', 'database', 'char_set'] as $key)
+    foreach (['hostname', 'username', 'password', 'database', 'encoding'] as $key)
       isset($config[$key]) || Config::error('MySQL 連線資訊缺少「' . $key . '」！');
 
     try {
@@ -30,7 +30,7 @@ class Connection {
       Config::error('PDO 連線錯誤！', $e);
     }
 
-    $this->setEncoding($config['char_set']);
+    $this->setEncoding($config['encoding']);
   }
 
   public static function instance() {
@@ -44,8 +44,8 @@ class Connection {
     $this->connection = null;
   }
 
-  public function setEncoding($charset) {
-    $this->query('SET NAMES ?', [$charset]);
+  public function setEncoding($encoding) {
+    $this->query('SET NAMES ?', [$encoding]);
     return $this;
   }
   

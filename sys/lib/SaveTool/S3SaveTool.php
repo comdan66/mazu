@@ -6,14 +6,14 @@ Load::sysLib('S3.php');
 class S3SaveTool extends SaveTool {
   private $s3 = null;
 
-  public function __construct($bucket, $accessKey, $secretKey, $logFunc = null) {
-    parent::__construct($bucket, $logFunc);
+  public function __construct($bucket, $accessKey, $secretKey) {
+    parent::__construct($bucket);
 
     $this->s3 = new S3($accessKey, $secretKey);
   }
 
-  public static function create($bucket, $accessKey, $secretKey, $logFunc = null) {
-    return new static($bucket, $accessKey, $secretKey, $logFunc);
+  public static function create($bucket, $accessKey, $secretKey) {
+    return new static($bucket, $accessKey, $secretKey);
   }
 
   public function put($filePath, $localPath) {

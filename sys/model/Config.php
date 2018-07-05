@@ -5,10 +5,9 @@ namespace _M;
 defined('MAZU') || exit('此檔案不允許讀取！');
 
 class Config {
-
-  const DATE_FORMAT = 'Y-m-d';
-  const DATETIME_FORMAT = 'Y-m-d H:i:s';
-  const QUOTE_CHART = '`';
+  const FORMAT_DATE = 'Y-m-d';
+  const FORMAT_DATETIME = 'Y-m-d H:i:s';
+  const QUOTE = '`';
   
   private static $modelsDir = null;
   private static $queryLogFunc = null;
@@ -17,7 +16,7 @@ class Config {
   private static $connection = null;
 
   public static function quoteName($string) {
-    return $string[0] === Config::QUOTE_CHART || $string[strlen($string) - 1] === Config::QUOTE_CHART ? $string : Config::QUOTE_CHART . $string . Config::QUOTE_CHART;
+    return $string[0] === Config::QUOTE || $string[strlen($string) - 1] === Config::QUOTE ? $string : Config::QUOTE . $string . Config::QUOTE;
   }
 
   public static function setModelsDir($modelsDir) {
@@ -64,24 +63,4 @@ class Config {
     $args = func_get_args();
     ($func = self::$errorFunc) && call_user_func_array($func, [array_shift($args), 500, ['msgs' => $args]]) || exit(implode(', ', $args));
   }
-}
-
-
-if (!function_exists('autoloadModel')) {
-  function autoloadModel($className) {
-    if (!(($namespaces = \M\getNamespaces($className)) && in_array($namespace = array_shift($namespaces), ['M', '_M']) && ($modelName = \M\deNamespace($className))))
-      return false;
-
-    $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'Uploader' . DIRECTORY_SEPARATOR : '';
-    $path = ($namespace == '_M' || $uploader ? PATH_SYS_MODEL . $uploader : \_M\Config::getModelsDir()) . $modelName . '.php';
-
-    if (!(is_file($path) && is_readable($path)))
-      return false;
-
-    include_once $path;
-
-    class_exists($className) || \_M\Config::error('找不到名稱為「' . $className . '」的 Model 物件！');
-  }
-
-  spl_autoload_register('\_M\autoloadModel', false, true);
 }

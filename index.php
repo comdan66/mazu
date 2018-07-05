@@ -79,7 +79,9 @@ Output::router(Router::current());
  *  結束
  * ------------------------------------------------------ */
 
+defined('MODEL_LOADED') && \_M\Connection::instance()->close();
 Log::closeAll();
+
 Benchmark::markEnd('整體');
 
 echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';

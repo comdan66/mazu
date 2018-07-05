@@ -4,13 +4,13 @@ abstract class SaveTool {
   protected $bucket = null;
   private $logFunc = null;
 
-  protected function __construct($bucket, $logFunc = null) {
+  protected function __construct($bucket) {
     $this->bucket = $bucket;
-    $this->setLogFunc($logFunc);
   }
 
-  protected function setLogFunc($logFunc) {
+  public function setLogFunc($logFunc) {
     is_callable($logFunc) && $this->logFunc = $logFunc;
+    return $this;
   }
 
   protected function log() {

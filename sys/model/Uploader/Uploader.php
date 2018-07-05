@@ -12,6 +12,17 @@ abstract class Uploader {
   private static $errorFunc = null;
   private static $logFunc = null;
   private static $saveTool = null;
+  private static $thumbnail = null;
+
+  protected static function thumbnail($file) {
+    is_callable(self::$thumbnail) && ($thumbnail = self::$thumbnail) && self::$thumbnail = $thumbnail($file);
+    self::$thumbnail || Uploader::error('尚未設定縮圖工具！');
+    return self::$thumbnail;
+  }
+
+  public static function initThumbnail($thumbnail) {
+    is_callable($thumbnail) && self::$thumbnail = $thumbnail;
+  }
 
   public static function setLogFunc($logFunc) {
     is_callable($logFunc) && self::$logFunc = $logFunc;
@@ -43,7 +54,7 @@ abstract class Uploader {
     is_array($baseDirs) && $baseDirs && self::$baseDirs = $baseDirs;
   }
   
-  public static function saveTool() {
+  protected static function saveTool() {
     self::$saveTool !== null || Uploader::error('尚未設定儲存工具！');
 
     if (is_callable(self::$saveTool) && ($saveTool = self::$saveTool))

@@ -5,5 +5,5 @@ return [
   'database' => 'gps.kerker',
   'username' => 'root',
   'password' => '1234',
-  'char_set' => 'utf8mb4',
+  'encoding'  => 'utf8mb4',
 ];

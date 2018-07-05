@@ -9,7 +9,7 @@ class DateTime {
   private $datetime;
 
   public function __construct($str, $type) {
-    $this->format = $type == 'datetime' ? Config::DATETIME_FORMAT : Config::DATE_FORMAT;
+    $this->format = $type == 'datetime' ? Config::FORMAT_DATETIME : Config::FORMAT_DATE;
     $this->datetime = \DateTime::createFromFormat($this->format, $str);
   }
 

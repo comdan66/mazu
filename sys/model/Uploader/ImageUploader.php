@@ -7,10 +7,6 @@ defined('MAZU') || exit('此檔案不允許讀取！');
 abstract class ImageUploader extends Uploader {
   const SYMBOL = '_';
   const AUTO_FORMAT = true;
-  private static $thumbnail = null;
-
-// require_once 'thumbnail/Thumbnail.php';
-// Thumbnail::setDriver('Gd');
 
   abstract public function versions();
 
@@ -39,16 +35,13 @@ abstract class ImageUploader extends Uploader {
     $tmpDir = self::tmpDir();
     $versions = $this->getVersions();
 
-    if (!class_exists('Thumbnail'))
-      return self::log('找不到 Thumbnail 縮圖物件');
-
     $news = [];
     $info = @exif_read_data($temp);
     $orientation = $info && isset($info['Orientation']) ? $info['Orientation'] : 0;
 
     try {
       foreach ($versions as $key => $methods) {
-        $image = \Thumbnail::create($temp);
+        $image = self::thumbnail($temp);
 
         $image->rotate($orientation == 6 ? 90 : ($orientation == 8 ? -90 : ($orientation == 3 ? 180 : 0)));
 
@@ -63,44 +56,24 @@ abstract class ImageUploader extends Uploader {
         array_push($news, ['name' => $newName, 'path' => $newPath]);
       }
     } catch (\Exception $e) {
-      return self::log('[ImageUploader] moveFileAndUploadColumn 圖像處理失敗', 'Message：' . $e->getMessage());
+      return self::log('moveFileAndUploadColumn 圖像處理失敗', 'Message：' . $e->getMessage());
     }
 
     if (count($news) != count($versions))
-      return self::log('[ImageUploader] moveFileAndUploadColumn 不明原因錯誤。');
+      return self::log('moveFileAndUploadColumn 不明原因錯誤。');
 
+    foreach ($news as $new)
+      if (!self::saveTool()->put($new['path'], $uri = implode ('/', $saveDirs) . '/' . $new['name']))
+        return self::log('moveFileAndUploadColumn putObject 發生錯誤！', 'Temp：' . $new['path'], 'Uri：' . $uri);
 
-
-  foreach ($news as $new)
-    if (!self::saveTool()->put($new['path'], $uri = implode ('/', $saveDirs) . '/' . $new['name']))
-      return self::log('moveFileAndUploadColumn putObject 發生錯誤！', 'Temp：' . $new['path'], 'Uri：' . $uri);
-
-  @unlink($new['path']) || self::log('moveFileAndUploadColumn 移除舊資料錯誤！');
-
-
-    switch (self::$driver) {
-      case 'local':
-        foreach ($news as $new)
-          if (!@rename($new['path'], $path = implode(DIRECTORY_SEPARATOR, $saveDirs) . DIRECTORY_SEPARATOR . $new['name']))
-            return self::log('[ImageUploader] moveFileAndUploadColumn local rename 搬移預設位置時發生錯誤。Path：' . $path);
-        break;
-
-      case 's3':
-        foreach ($news as $new) {
-          if (!\S3::putObject($new['path'], self::$s3Bucket, $uri = implode ('/', $saveDirs) . '/' . $new['name']))
-            return self::log('[ImageUploader] moveFileAndUploadColumn s3 putObject 丟至 S3 發生錯誤。Bucket：' . self::$s3Bucket . '，uri：' . $uri);
-          @unlink($new['path']) || self::log('[ImageUploader] moveFileAndUploadColumn s3 移除舊資料錯誤。');
-        }
-        break;
-    }
-
-    @unlink($temp) || self::log('[ImageUploader] moveFileAndUploadColumn 移除舊資料錯誤。');
+    @unlink($new['path']) || self::log('moveFileAndUploadColumn 移除舊資料錯誤！');
+    @unlink($temp) || self::log('moveFileAndUploadColumn 移除舊資料錯誤。');
 
     if (!$this->uploadColumnAndUpload(''))
-      return self::log('[ImageUploader] moveFileAndUploadColumn uploadColumnAndUpload = "" 錯誤。');
+      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = "" 錯誤。');
 
     if (!$this->uploadColumnAndUpload($name))
-      return self::log('[ImageUploader] moveFileAndUploadColumn uploadColumnAndUpload = ' . $name . ' 錯誤。');
+      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = ' . $name . ' 錯誤。');
 
     return true;
   }
@@ -111,7 +84,7 @@ abstract class ImageUploader extends Uploader {
 
     foreach ($methods as $method => $params)
       if (!is_callable([$image, $method]))
-        return self::log('[ImageUploader] 無法呼叫的 Method 錯誤，Method：' . $method);
+        return self::log('無法呼叫的 Method 錯誤，Method：' . $method);
       else
         call_user_func_array([$image, $method], $params);
 

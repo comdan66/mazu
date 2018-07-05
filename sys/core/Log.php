@@ -1,18 +1,18 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class Log {
-  const EXT         = '.log';
+  const EXT = '.log';
   const DATE_FORMAT = 'H:i:s';
   const PERMISSIONS = 0777;
 
   private static $type = null;
   private static $fopens = [];
 
-  public static function msg($text, $prefix = 'log-') {
+  public static function msg($text, $prefix) {
     if (!is_dir(PATH_LOG)|| !isReallyWritable(PATH_LOG))
       return false;
 
-    $newfile = !file_exists($path = PATH_LOG . $prefix . date('Y-m-d') . Log::EXT);
+    $newfile = !file_exists($path = PATH_LOG . date('Y-m-d') . '-' . $prefix . Log::EXT);
 
     if (!isset(self::$fopens[$path]))
       if (!$fopen = @fopen($path, 'ab'))
@@ -35,27 +35,31 @@ class Log {
   }
 
   public static function info($msg) {
-    return self::msg(self::logFormat(func_get_args()), 'log-info-');
+    return self::msg(self::logFormat(func_get_args()), 'info');
   }
 
   public static function error($msg) {
-    return self::msg(self::logFormat(func_get_args()), 'log-error-');
+    return self::msg(self::logFormat(func_get_args()), 'error');
   }
 
   public static function warning($msg) {
-    return self::msg(self::logFormat(func_get_args()), 'log-warning-');
+    return self::msg(self::logFormat(func_get_args()), 'warning');
   }
 
   public static function model($msg) {
-    return self::msg(self::logFormat(func_get_args()), 'log-model-');
+    return self::msg(self::logFormat(func_get_args()), 'model');
   }
 
   public static function uploader($msg) {
-    return self::msg(self::logFormat(func_get_args()), 'log-uploader-');
+    return self::msg(self::logFormat(func_get_args()), 'uploader');
   }
 
   public static function saveTool($msg) {
-    return self::msg(self::logFormat(func_get_args()), 'log-saveTool-');
+    return self::msg(self::logFormat(func_get_args()), 'saveTool');
+  }
+
+  public static function thumbnail($msg) {
+    return self::msg(self::logFormat(func_get_args()), 'thumbnail');
   }
 
   public static function closeAll() {
@@ -66,7 +70,7 @@ class Log {
 
   // public static function queryLine() {
   //   self::$type || self::$type = ENVIRONMENT !== 'cmd' ? request_is_cli() ? cliColor('cli', 'c') . cliColor(' ➜ ', 'N') . cliColor(URL::uriString(), 'C') : cliColor('web', 'p') . cliColor(' ➜ ', 'N') . cliColor(URL::uriString(), 'P') : cliColor('cmd', 'y') . cliColor(' ➜ ', 'N') . cliColor(CMD_FILE, 'Y');
-  //   @self::msg("\n" . self::$type . cliColor(' ╞' . str_repeat('═', CLI_LEN -(strlen(self::$type) - 31)) . "\n", 'N'), 'query-');
+  //   @self::msg("\n" . self::$type . cliColor(' ╞' . str_repeat('═', CLI_LEN -(strlen(self::$type) - 31)) . "\n", 'N'), 'query');
   //   return true;
   // }
   
@@ -76,7 +80,9 @@ class Log {
     $time = $args[1];
     $sql = $args[2];
     $vals = $args[3];
+
     $new = '';
+
     if (!self::$type) {
       $new = "\n" . cliColor(str_repeat('─', 80), 'N') . "\n";
       self::$type = ENVIRONMENT !== 'cmd' ? isCli() ? cliColor('cli', 'c') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'C') : cliColor('web', 'p') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'P') : cliColor('cmd', 'y') . cliColor(' ➜ ', 'N') . cliColor(CMD_FILE, 'Y');
@@ -84,7 +90,7 @@ class Log {
     return $new . self::$type . cliColor('│', 'N') . cliColor(date(Log::DATE_FORMAT), 'w') . cliColor(' ➜ ', 'N') . cliColor($time, $time < 999 ? $time < 99 ? $time < 9 ? 'w' : 'W' : 'Y' : 'R') . '' . cliColor('ms', $time < 999 ? $time < 99 ? $time < 9 ? 'N' : 'w' : 'y' : 'r') . cliColor('│', 'N') . ($valid ? cliColor('OK', 'g') : cliColor('GG', 'r')) . cliColor(' ➜ ', 'N') . call_user_func_array('sprintf', array_merge(array(preg_replace_callback('/\?/', function($matches) { return cliColor('%s', 'W'); }, $sql)), $vals)) . "\n";
   }
   public static function query($valid, $time, $sql, $vals) {
-    @self::msg(self::queryFormat(func_get_args()), 'log-query-');
+    @self::msg(self::queryFormat(func_get_args()), 'query');
     return true;
   }
 
