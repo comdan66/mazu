@@ -72,7 +72,7 @@ if (!function_exists('autoloadModel')) {
     if (!(($namespaces = \M\getNamespaces($className)) && in_array($namespace = array_shift($namespaces), ['M', '_M']) && ($modelName = \M\deNamespace($className))))
       return false;
 
-    $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'uploader' . DIRECTORY_SEPARATOR : '';
+    $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'Uploader' . DIRECTORY_SEPARATOR : '';
     $path = ($namespace == '_M' || $uploader ? PATH_SYS_MODEL . $uploader : \_M\Config::getModelsDir()) . $modelName . '.php';
 
     if (!(is_file($path) && is_readable($path)))
