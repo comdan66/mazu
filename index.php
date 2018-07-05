@@ -13,93 +13,75 @@ date_default_timezone_set('Asia/Taipei');
 // 定義版號
 define('MAZU', '1.0.0');
 
-//取得此專案資料夾之絕對位置
-define('PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 
-// sys 的絕對位置
-define('PATH_SYS', PATH . 'sys' . DIRECTORY_SEPARATOR);
 
-// log 的絕對位置
-define('PATH_LOG', PATH . 'log' . DIRECTORY_SEPARATOR);
+/* ------------------------------------------------------
+ *  定義路徑常數
+ * ------------------------------------------------------ */
 
-// app 的絕對位置
-define('PATH_APP', PATH . 'app' . DIRECTORY_SEPARATOR);
+define('PATH', dirname(__FILE__)            . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
+define('PATH_SYS',       PATH .     'sys'   . DIRECTORY_SEPARATOR); // sys 絕對位置
+define('PATH_LOG',       PATH .     'log'   . DIRECTORY_SEPARATOR); // log 絕對位置
+define('PATH_TMP',       PATH .     'tmp'   . DIRECTORY_SEPARATOR); // tmp 絕對位置
+define('PATH_APP',       PATH .     'app'   . DIRECTORY_SEPARATOR); // app 絕對位置
+define('PATH_VIEW',      PATH_APP . 'view'  . DIRECTORY_SEPARATOR); // view 絕對位置
+define('PATH_MODEL',     PATH_APP . 'model' . DIRECTORY_SEPARATOR); // model 絕對位置
 
-// view 的絕對位置
-define('PATH_VIEW', PATH_APP . 'view' . DIRECTORY_SEPARATOR);
+define('PATH_SYS_CORE',  PATH_SYS . 'core'  . DIRECTORY_SEPARATOR); // sys core 絕對位置
+define('PATH_SYS_LIB',   PATH_SYS . 'lib'   . DIRECTORY_SEPARATOR); // sys lib 絕對位置
+define('PATH_SYS_MODEL', PATH_SYS . 'model' . DIRECTORY_SEPARATOR); // sys model 絕對位置
 
-if (!@include_once PATH_SYS . 'Load.php')
-  exit('初始化失敗，載入 Load.php 失敗！');
 
-if (!@include_once PATH_SYS . 'View.php')
-  exit('初始化失敗，載入 View.php 失敗！');
+/* ------------------------------------------------------
+ *  載入初始函式
+ * ------------------------------------------------------ */
 
-if (!@include_once PATH_SYS . 'Common.php')
-  exit('初始化失敗，載入 Common.php 失敗！');
+if (!@include_once PATH_SYS_CORE . 'Common.php')
+  exit('載入 Common 失敗！');
 
-if (!isPhpVersion('5.6'))
-  exit('PHP 版本太舊，請大於等於 5.6');
 
-// 載入基準
-Load::path(PATH_SYS . 'Benchmark.php');
+
+/* ------------------------------------------------------
+ *  載入環境常數 ENVIRONMENT
+ * ------------------------------------------------------ */
+
+Load::path('Env.php') || gg('載入 Env 失敗！');
+
+
+
+/* ------------------------------------------------------
+ *  載入相關物件
+ * ------------------------------------------------------ */
+
+Load::sysCore('Benchmark.php') || gg('載入 Benchmark 失敗！');
 Benchmark::markStar('整體');
 
-// 載入編碼
-Load::path(PATH_SYS . 'Charset.php');
-Charset::init();
+Load::sysCore('View.php')      || gg('載入 View 失敗！');
+Load::sysCore('Charset.php')   || gg('載入 Charset 失敗！');
+Load::sysCore('Log.php')       || gg('載入 Log 失敗！');
+Load::sysCore('Url.php')       || gg('入載 Url 失敗！');
+Load::sysCore('Router.php')    || gg('入載 Router 失敗！');
+Load::sysCore('Output.php')    || gg('入載 Output 失敗！');
 
-// 載入 Log
-Load::path(PATH_SYS . 'Log.php');
-
-// 載入 Url
-Load::path(PATH_SYS . 'Url.php');
-Url::init();
-
-// 載入 Model
-// Load::path(PATH_SYS . 'Model.php');
-
-// 載入 Router
-Load::path(PATH_SYS . 'Router.php');
-Router::init();
-
-class Output {
-  static function text ($str) {
-    echo $str;
-  }
-  static function json ($json) {
-    echo json_encode($json);
-  }
-  static function router ($router) {
-    if (!$router) {
-      responseStatusHeader(404);
-      return self::text(View::maybe('error/404.php')->get());
-    }
-
-    responseStatusHeader($router->getStatus());
-
-    if (($exec = $router->exec()) === null)
-      return self::text('');
-
-    if (is_string($exec))
-      return self::text($exec);
-
-    if (is_array($exec))
-      return self::json($exec);
-
-    if ($exec instanceOf View)
-      return self::text($exec->get());
-  }
-}
-
-$router = Router::getMatchRouter();
-Output::router ($router);
+Load::sysCore('Model.php')     || gg('入載 Model 失敗！');
 
 
 
+/* ------------------------------------------------------
+ *  輸出結果
+ * ------------------------------------------------------ */
+
+Output::router(Router::current());
 
 
 
+/* ------------------------------------------------------
+ *  結束
+ * ------------------------------------------------------ */
+
+defined('MODEL_LOADED') && \_M\Connection::instance()->close();
 Log::closeAll();
+
 Benchmark::markEnd('整體');
 
 echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';

@@ -1,13 +1,34 @@
 <?php
 
-class Load {
-  private static $cache = array ();
+// if (!function_exists('load')) {
+//   function load($path, $error = null) {
+//     static $cache;
+    
+//     if (isset($cache[$path]))
+//       return true;
 
-  public static function path($path) {
-    if (!empty(self::$cache[$path]))
+//     $error || $error = '載入檔案「' . $path . '」失敗！';
+
+//     if (!(is_file($path) && is_readable($path)))
+//       return false;
+
+//     require_once $path;
+
+//     return $cache[$path] = true;
+//   }
+// }
+
+class Load {
+  private static $cache = [];
+
+  public static function path($path, $error = null) {
+    if (isset(self::$cache[$path]))
       return true;
 
-    is_file($path) && is_readable($path) || gg('載入檔案失敗。');
+    $error || $error = '載入檔案「' . $path . '」失敗！';
+
+    if (!(is_file($path) && is_readable($path)))
+      return false;
 
     require_once $path;
 
