@@ -3,7 +3,7 @@
 Load::sysLib('SaveTool' . DIRECTORY_SEPARATOR . 'SaveTool.php');
 Load::sysLib('S3.php');
 
-class S3SaveTool extends SaveTool {
+class SaveToolS3 extends SaveTool {
   private $s3 = null;
 
   public function __construct($bucket, $accessKey, $secretKey) {

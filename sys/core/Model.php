@@ -377,7 +377,7 @@ if (!function_exists('useModel')) {
       public function update() {
         $this->isReadonly && \_M\Config::error('此資料為不可寫入(readonly)型態！');
 
-        isset(static::table()->columns['updatedAt']) && array_key_exists('updatedAt', $this->attrs) && !array_key_exists('updatedAt', $this->dirty) && $this->setAttr ('updatedAt', \date(\_M\Config::DATETIME_FORMAT));
+        isset(static::table()->columns['updateAt']) && array_key_exists('updateAt', $this->attrs) && !array_key_exists('updateAt', $this->dirty) && $this->setAttr ('updateAt', \date(\_M\Config::FORMAT_DATETIME));
 
         if ($dirty = array_intersect_key($this->attrs, $this->dirty)) {
 
@@ -393,8 +393,8 @@ if (!function_exists('useModel')) {
       public function insert() {
         $this->isReadonly && \_M\Config::error('此資料為不可寫入(readonly)型態！');
 
-        isset(static::table()->columns['createdAt']) && !array_key_exists('createdAt', $this->attrs) && $this->setAttr ('createdAt', \date(\_M\Config::DATETIME_FORMAT));
-        isset(static::table()->columns['updatedAt']) && !array_key_exists('updatedAt', $this->attrs) && $this->setAttr ('updatedAt', \date(\_M\Config::DATETIME_FORMAT));
+        isset(static::table()->columns['createAt']) && !array_key_exists('createAt', $this->attrs) && $this->setAttr ('createAt', \date(\_M\Config::FORMAT_DATETIME));
+        isset(static::table()->columns['updateAt']) && !array_key_exists('updateAt', $this->attrs) && $this->setAttr ('updateAt', \date(\_M\Config::FORMAT_DATETIME));
       
         $this->attrs = array_intersect_key($this->attrs, static::table()->columns);
 

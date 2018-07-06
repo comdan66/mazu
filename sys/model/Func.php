@@ -134,7 +134,7 @@ if (!function_exists('cast')) {
           return null;
 
         $val = \_M\DateTime::createByString($val, $type);
-        $checkFormat && !$val->isFormat() && \_M\Config::error($checkFormat);
+        $checkFormat && !$val->isFormat() && \_M\Config::error('cast 轉換失敗！', 'Type：' . $type, 'CheckFormat：' . $checkFormat);
         return $val;
 
       default:

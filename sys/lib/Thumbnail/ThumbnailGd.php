@@ -3,8 +3,6 @@
 Load::sysLib('Thumbnail' . DIRECTORY_SEPARATOR . 'Thumbnail.php');
 
 class ThumbnailGd extends Thumbnail {
-  protected static $allows = ['gif', 'jpg', 'png'];
-
   private $options = [
     'resizeUp' => true,
     'interlace' => null,
@@ -21,12 +19,16 @@ class ThumbnailGd extends Thumbnail {
     $this->options = array_merge($this->options, array_intersect_key($options, $this->options));
   }
 
+  protected function allows() {
+    return ['gif', 'jpg', 'png'];
+  }
+
   protected function getOldImage($format) {
     switch ($format) {
       case 'gif': return imagecreatefromgif($this->filePath);
       case 'jpg': return imagecreatefromjpeg($this->filePath);
       case 'png': return imagecreatefrompng($this->filePath);
-      default: Thumbnail::error('找尋不到符合的格式，或者不支援此檔案格式', 'Format：' . $format);
+      default: Thumbnail::error('找尋不到符合的格式，或者不支援此檔案格式！', '格式：' . $format);
     }
   }
 
@@ -61,13 +63,13 @@ class ThumbnailGd extends Thumbnail {
     return $this;
   }
 
-  public function save($save) {
+  public function save($savePath) {
     imageinterlace($this->image, $this->options['interlace'] ? 1 : 0);
 
     switch ($this->format) {
-      case 'jpg': return @imagejpeg($this->image, $save, $this->options['jpegQuality']);
-      case 'gif': return @imagegif($this->image, $save);
-      case 'png': return @imagepng($this->image, $save);
+      case 'jpg': return @imagejpeg($this->image, $savePath, $this->options['jpegQuality']);
+      case 'gif': return @imagegif($this->image, $savePath);
+      case 'png': return @imagepng($this->image, $savePath);
       default: return false;
     }
   }
@@ -82,13 +84,13 @@ class ThumbnailGd extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
 
     if (!ThumbnailGd::verifyColor($color))
-      return $this->log('色碼格式錯誤，目前只支援字串 HEX、RGB 陣列格式', '色碼：' . (is_string($color) ? $color : json_encode($color)));
+      return $this->log('色碼格式錯誤，目前只支援字串 HEX、RGB 陣列格式！', '色碼：' . (is_string($color) ? $color : json_encode($color)));
       
     if ($width < $this->dimension[0] || $height < $this->dimension[1])
       $this->resize($width, $height);
@@ -116,7 +118,7 @@ class ThumbnailGd extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
       
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -149,11 +151,11 @@ class ThumbnailGd extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
     
 
     if ($percent < 0 || $percent > 100)
-      return $this->log('百分比例錯誤', '百分比要在 0 ~ 100 之間', 'Percent：' . $percent);
+      return $this->log('百分比例錯誤！', '百分比要在 0 ~ 100 之間！', '百分比：' . $percent);
     
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
@@ -183,7 +185,7 @@ class ThumbnailGd extends Thumbnail {
 
   public function resizePercent($percent = 0) {
     if ($percent < 1)
-      return $this->log('縮圖比例錯誤', '百分比要大於 1', 'Percent：' . $percent);
+      return $this->log('縮圖比例錯誤！', '百分比要大於 1', '百分比：' . $percent);
 
     if ($percent == 100)
       return $this;
@@ -198,10 +200,10 @@ class ThumbnailGd extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($startX < 0 || $startY < 0)
-      return $this->log('起始點錯誤', '水平、垂直的起始點一定要大於 0', '水平點：' . $startX, '垂直點：' . $startY);
+      return $this->log('起始點錯誤！', '水平、垂直的起始點一定要大於 0', '水平點：' . $startX, '垂直點：' . $startY);
 
     if ($startX == 0 && $startY == 0 && $width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -222,7 +224,7 @@ class ThumbnailGd extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -241,13 +243,13 @@ class ThumbnailGd extends Thumbnail {
 
   public function rotate($degree, $color = [255, 255, 255]) {
     if (!function_exists('imagerotate'))
-      return $this->log('沒有載入 imagerotate 函式');
+      return $this->log('沒有載入 imagerotate 函式！');
 
     if (!is_numeric($degree))
-      return $this->log('角度一定要是數字', 'Degree：' . $degree);
+      return $this->log('角度一定要是數字！', '角度：' . $degree);
 
     if (!ThumbnailGd::verifyColor($color))
-      return $this->log('色碼格式錯誤，目前只支援字串 HEX、RGB 陣列格式', '色碼：' . (is_string($color) ? $color : json_encode($color)));
+      return $this->log('色碼格式錯誤，目前只支援字串 HEX、RGB 陣列格式！', '色碼：' . (is_string($color) ? $color : json_encode($color)));
 
     if (!($degree % 360))
       return $this;
@@ -263,7 +265,7 @@ class ThumbnailGd extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -317,8 +319,8 @@ class ThumbnailGd extends Thumbnail {
   }
 
   public static function block9($files, $savePath, $interlace = null, $jpegQuality = 100) {
-    count($files) >= 9 || Thumbnail::error('參數錯誤', '檔案數量要大於等於 9', '數量：' . count($files));
-    $savePath          || Thumbnail::error('錯誤的儲存路徑', '路徑：' . $savePath);
+    count($files) >= 9 || Thumbnail::error('參數錯誤！', '檔案數量要大於等於 9', '數量：' . count($files));
+    $savePath          || Thumbnail::error('錯誤的儲存路徑！', '儲存路徑：' . $savePath);
 
     $positions = [
       ['left' =>   2, 'top' =>   2, 'width' => 130, 'height' => 130], ['left' => 134, 'top' =>   2, 'width' =>  64, 'height' =>  64], ['left' => 200, 'top' =>   2, 'width' =>  64, 'height' =>  64],
@@ -342,8 +344,8 @@ class ThumbnailGd extends Thumbnail {
   }
 
   public static function photos($files, $savePath, $interlace = null, $jpegQuality = 100) {
-    $files    || Thumbnail::error ('參數錯誤', '檔案數量要大於等於 1', '數量：' . count($files));
-    $savePath || Thumbnail::error('錯誤的儲存路徑', '路徑：' . $savePath);
+    $files    || Thumbnail::error('參數錯誤！', '檔案數量要大於等於 1', '數量：' . count($files));
+    $savePath || Thumbnail::error('錯誤的儲存路徑！', '儲存路徑：' . $savePath);
 
     $w = 1200;
     $h = 630;

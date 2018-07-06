@@ -18,7 +18,6 @@ final class S3Request {
 
   public $response = null;
 
-
   public function __construct($verb, $s3, $bucket = '', $uri = '') {
     $this->s3 = $s3;
 
@@ -250,8 +249,6 @@ class S3 {
   const ACL_PUBLIC_READ_WRITE = 'public-read-write';
   const ACL_AUTHENTICATED_READ = 'authenticated-read';
 
-  private static $exts = ['jpg' => ['image/jpeg', 'image/pjpeg'], 'gif' => 'image/gif', 'png' => ['image/png', 'image/x-png'], 'tif' => 'image/tiff', 'tiff' => 'image/tiff', 'ico' => 'image/x-icon', 'swf' => 'application/x-shockwave-flash', 'pdf' => ['application/pdf', 'application/x-download'], 'zip' => ['application/x-zip', 'application/zip', 'application/x-zip-compressed'], 'gz' => 'application/x-gzip', 'tar' => 'application/x-tar', 'bz' => 'application/x-bzip', 'bz2' => 'application/x-bzip2', 'txt' => 'text/plain', 'asc' => 'text/plain', 'htm' => 'text/html', 'html' => 'text/html', 'css' => 'text/css', 'js' => 'application/x-javascript', 'xml' => 'text/xml', 'xsl' => 'text/xml', 'ogg' => 'application/ogg', 'mp3' => ['audio/mpeg', 'audio/mpg', 'audio/mpeg3', 'audio/mp3'], 'wav' => ['audio/x-wav', 'audio/wave', 'audio/wav'], 'avi' => 'video/x-msvideo', 'mpg' => 'video/mpeg', 'mpeg' => 'video/mpeg', 'mov' => 'video/quicktime', 'flv' => 'video/x-flv', 'php' => 'application/x-httpd-php', 'hqx' => 'application/mac-binhex40', 'cpt' => 'application/mac-compactpro', 'csv' => ['text/x-comma-separated-values', 'text/comma-separated-values', 'application/octet-stream', 'application/vnd.ms-excel', 'application/x-csv', 'text/x-csv', 'text/csv', 'application/csv', 'application/excel', 'application/vnd.msexcel'], 'bin' => 'application/macbinary', 'dms' => 'application/octet-stream', 'lha' => 'application/octet-stream', 'lzh' => 'application/octet-stream', 'exe' => ['application/octet-stream', 'application/x-msdownload'], 'class' => 'application/octet-stream', 'psd' => 'application/x-photoshop', 'so' => 'application/octet-stream', 'sea' => 'application/octet-stream', 'dll' => 'application/octet-stream', 'oda' => 'application/oda', 'ai' => 'application/postscript', 'eps' => 'application/postscript', 'ps' => 'application/postscript', 'smi' => 'application/smil', 'smil' => 'application/smil', 'mif' => 'application/vnd.mif', 'xls' => ['application/excel', 'application/vnd.ms-excel', 'application/msexcel'], 'ppt' => ['application/powerpoint', 'application/vnd.ms-powerpoint'], 'wbxml' => 'application/wbxml', 'wmlc' => 'application/wmlc', 'dcr' => 'application/x-director', 'dir' => 'application/x-director', 'dxr' => 'application/x-director', 'dvi' => 'application/x-dvi', 'gtar' => 'application/x-gtar', 'php4' => 'application/x-httpd-php', 'php3' => 'application/x-httpd-php', 'phtml' => 'application/x-httpd-php', 'phps' => 'application/x-httpd-php-source', 'sit' => 'application/x-stuffit', 'tgz' => ['application/x-tar', 'application/x-gzip-compressed'], 'xhtml' => 'application/xhtml+xml', 'xht' => 'application/xhtml+xml', 'mid' => 'audio/midi', 'midi' => 'audio/midi', 'mpga' => 'audio/mpeg', 'mp2' => 'audio/mpeg', 'aif' => 'audio/x-aiff', 'aiff' => 'audio/x-aiff', 'aifc' => 'audio/x-aiff', 'ram' => 'audio/x-pn-realaudio', 'rm' => 'audio/x-pn-realaudio', 'rpm' => 'audio/x-pn-realaudio-plugin', 'ra' => 'audio/x-realaudio', 'rv' => 'video/vnd.rn-realvideo', 'bmp' => ['image/bmp', 'image/x-windows-bmp'], 'jpeg' => ['image/jpeg', 'image/pjpeg'], 'jpe' => ['image/jpeg', 'image/pjpeg'], 'shtml' => 'text/html', 'text' => 'text/plain', 'log' => ['text/plain', 'text/x-log'], 'rtx' => 'text/richtext', 'rtf' => 'text/rtf', 'mpe' => 'video/mpeg', 'qt' => 'video/quicktime', 'movie' => 'video/x-sgi-movie', 'doc' => 'application/msword', 'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip'], 'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/zip'], 'word' => ['application/msword', 'application/octet-stream'], 'xl' => 'application/excel', 'eml' => 'message/rfc822', 'json' => ['application/json', 'text/json'], 'svg' => 'image/svg+xml'];
-  
   private $accessKey = null;
   private $secretKey = null;
   private $isUseSsl = false;
@@ -287,7 +284,6 @@ class S3 {
   public function buckets() {
     if (S3Request::create('GET', $this)->isFailResponse($rest))
       return false;
-      // return $this->log('buckets 異常的 HTTP 狀態', 'Code：' . $rest->code);
 
     $buckets = [];
 
@@ -302,7 +298,6 @@ class S3 {
   public function bucketsWithDetail() {
     if (S3Request::create('GET', $this)->isFailResponse($rest))
       return false;
-      // return $this->log('bucketsWithDetail 異常的 HTTP 狀態', 'Code：' . $rest->code);
 
     $results = [];
 
@@ -322,7 +317,6 @@ class S3 {
   public function bucket($bucket, $prefix = null, $marker = null, $maxKeys = null, $delimiter = null, $returnCommonPrefixes = false) {
     if (S3Request::create('GET', $this, $bucket)->setParameter('prefix', $prefix)->setParameter('marker', $marker)->setParameter('max-keys', $maxKeys)->setParameter('delimiter', $delimiter)->isFailResponse($rest))
       return false;
-      // return $this->log('bucket 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['bucket' => $bucket, 'prefix' => $prefix, 'marker' => $marker, 'maxKeys' => $maxKeys, 'delimiter' => $delimiter, 'returnCommonPrefixes' => $returnCommonPrefixes]));
 
     $nextMarker = null;
     $results = [];
@@ -378,21 +372,23 @@ class S3 {
     }
 
     return $request->isSuccessResponse($rest) ? true : false;
-    // return $request->isSuccessResponse($rest) ? true : $this->log('createBucket 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['bucket' => $bucket, 'acl' => $acl, 'location' => $location]));
   }
 
   public function deleteBucket($bucket) {
     return S3Request::create('DELETE', $this, $bucket)->isSuccessResponse($rest, [200, 204]) ? true : false;
-    // return S3Request::create('DELETE', $this, $bucket)->isSuccessResponse($rest, [200, 204]) ? true : $this->log('deleteBucket 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['bucket' => $bucket]));
   }
 
   private static function getMimeByExtension($file) {
-    $extension = strtolower(substr(strrchr($file, '.'), 1));
-    return isset(self::$exts[$extension]) ? is_array(self::$exts[$extension]) ? current(self::$exts[$extension]) : self::$exts[$extension] : false;
-  }
+    static $extensions, $exts;
 
-  private static function getMimeType(&$file) {
-    return ($extension = self::getMimeByExtension($file)) ? $extension : 'text/plain';//'application/octet-stream';
+    $extension = strtolower(substr(strrchr($file, '.'), 1));
+
+    if (isset($extensions[$extension]))
+      return $extensions[$extension];
+    
+    $mime = config('exts', $extension, 0);
+
+    return $extensions[$extension] = $mime !== null ? $mime : 'text/plain'; //'application/octet-stream';
   }
   
   public static function fileMD5($filePath) {
@@ -403,19 +399,16 @@ class S3 {
   public function putObject($filePath, $bucket, $s3Path, $acl = self::ACL_PUBLIC_READ, $amzHeaders = [], $headers = []) {
     if (!(is_file($filePath) && is_readable($filePath)))
       return false;
-      // return $this->log('putObject 無法開啟檔案', '路徑：' . $filePath, '參數：' . json_encode(['filePath' => $filePath, 'bucket' => $bucket, 's3Path' => $s3Path, 'acl' => $acl, 'amzHeaders' => $amzHeaders, 'headers' => $headers]));
 
     $request = S3Request::create('PUT', $this, $bucket, $s3Path)
-                        ->setHeaders(array_merge(['Content-Type' => self::getMimeType($filePath), 'Content-MD5' => self::fileMD5($filePath)], $headers))
+                        ->setHeaders(array_merge(['Content-Type' => self::getMimeByExtension($filePath), 'Content-MD5' => self::fileMD5($filePath)], $headers))
                         ->setAmzHeaders(array_merge(['x-amz-acl' => $acl], $amzHeaders))
                         ->setFile($filePath);
 
     if ($request->getSize() < 0 || $request->getFile() === null)
       return false;
-      // return $this->log('putObject 參數錯誤', 'Code：' . $request->code, '參數：' . json_encode(['filePath' => $filePath, 'bucket' => $bucket, 's3Path' => $s3Path, 'acl' => $acl, 'amzHeaders' => $amzHeaders, 'headers' => $headers]));
 
     return $request->isSuccessResponse($rest) ? true : false;
-    // return $request->isSuccessResponse($rest) ? true : $this->log('putObject 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['filePath' => $filePath, 'bucket' => $bucket, 's3Path' => $s3Path, 'acl' => $acl, 'amzHeaders' => $amzHeaders, 'headers' => $headers]));
   }
 
   public function getObject($bucket, $uri, $saveTo = null) {
@@ -423,14 +416,11 @@ class S3 {
 
     if ($saveTo && ($request->setFile($saveTo, 'wb', false)->getFile() === null || !($request->file = realpath($saveTo))))
       return false;
-      // return $this->log('getObject 無法寫入', '位置：' . $saveTo, '參數：' . json_encode(['bucket' => $bucket, 'uri' => $uri, 'saveTo' => $saveTo]));
 
     return $request->isSuccessResponse($rest) ? true : false;
-    // return $request->isSuccessResponse($rest) ? true : $this->log('getObject 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['bucket' => $bucket, 'uri' => $uri, 'saveTo' => $saveTo]));
   }
   public function getObjectInfo($bucket, $uri) {
     return S3Request::create('HEAD', $this, $bucket, $uri)->isSuccessResponse($rest, [200, 404]) ? $rest->code == 200 ? $rest->headers : false : false;
-    // return S3Request::create('HEAD', $this, $bucket, $uri)->isSuccessResponse($rest, [200, 404]) ? $rest->code == 200 ? $rest->headers : false : $this->log('getObjectInfo 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['bucket' => $bucket, 'uri' => $uri]));
   }
   public function copyObject($srcBucket, $srcUri, $bucket, $uri, $acl = self::ACL_PUBLIC_READ, $amzHeaders = [], $headers = []) {
     $request = S3Request::create('PUT', $this, $bucket, $uri)
@@ -440,11 +430,9 @@ class S3 {
                         ->isSuccessResponse($rest);
 
     return $request && isset($rest->body->LastModified, $rest->body->ETag) ? ['time' => date('Y-m-d H:i:s', strtotime((string)$rest->body->LastModified)), 'hash' => substr((string)$rest->body->ETag, 1, -1)] : false;
-    // return $request && isset($rest->body->LastModified, $rest->body->ETag) ? ['time' => date('Y-m-d H:i:s', strtotime((string)$rest->body->LastModified)), 'hash' => substr((string)$rest->body->ETag, 1, -1)] : $this->log('copyObject 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['srcBucket' => $srcBucket, 'srcUri' => $srcUri, 'bucket' => $bucket, 'uri' => $uri, 'acl' => $acl, 'amzHeaders' => $amzHeaders, 'headers' => $headers]));
   }
 
   public function deleteObject($bucket, $uri) {
     return $rest = S3Request::create('DELETE', $this, $bucket, $uri)->isSuccessResponse($rest, [200, 204]) ? true : false;
-    // return $rest = S3Request::create('DELETE', $this, $bucket, $uri)->isSuccessResponse($rest, [200, 204]) ? true : $this->log('deleteObject 異常的 HTTP 狀態', 'Code：' . $rest->code, '參數：' . json_encode(['bucket' => $bucket, 'uri' => $uri]));
   }
 }

@@ -14,30 +14,21 @@ abstract class Uploader {
   private static $saveTool = null;
   private static $thumbnail = null;
 
-  protected static function thumbnail($file) {
-    is_callable(self::$thumbnail) && ($thumbnail = self::$thumbnail) && self::$thumbnail = $thumbnail($file);
-    self::$thumbnail || Uploader::error('尚未設定縮圖工具！');
-    return self::$thumbnail;
-  }
-
-  public static function initThumbnail($thumbnail) {
-    is_callable($thumbnail) && self::$thumbnail = $thumbnail;
-  }
 
   public static function setLogFunc($logFunc) {
     is_callable($logFunc) && self::$logFunc = $logFunc;
-  }
-  
-  public static function log() {
-    ($func = self::$logFunc) && call_user_func_array($func, func_get_args());
-    return false;
   }
 
   public static function setErrorFunc($errorFunc) {
     is_callable($errorFunc) && self::$errorFunc = self::$errorFunc = $errorFunc;
   }
+  
+  protected static function log() {
+    ($func = self::$logFunc) && call_user_func_array($func, func_get_args());
+    return false;
+  }
 
-  public static function error($error) {
+  protected static function error($error) {
     $args = func_get_args();
     ($func = self::$errorFunc) && call_user_func_array($func, [array_shift($args), 500, ['msgs' => $args]]) || exit(implode(', ', $args));
   }
@@ -54,12 +45,22 @@ abstract class Uploader {
     is_array($baseDirs) && $baseDirs && self::$baseDirs = $baseDirs;
   }
   
+  protected static function thumbnail($file) {
+    is_callable(self::$thumbnail) && ($thumbnail = self::$thumbnail) && self::$thumbnail = $thumbnail($file);
+    self::$thumbnail || self::error('尚未設定縮圖工具！');
+    return self::$thumbnail;
+  }
+
+  public static function initThumbnail($thumbnail) {
+    is_callable($thumbnail) && self::$thumbnail = $thumbnail;
+  }
+
   protected static function saveTool() {
-    self::$saveTool !== null || Uploader::error('尚未設定儲存工具！');
+    self::$saveTool !== null || self::error('尚未設定儲存工具！');
 
     if (is_callable(self::$saveTool) && ($saveTool = self::$saveTool))
       if (!self::$saveTool = $saveTool())
-        Uploader::error('尚未設定儲存工具！');
+        self::error('尚未設定儲存工具！');
 
     if (is_object(self::$saveTool))
       return self::$saveTool;
@@ -75,12 +76,12 @@ abstract class Uploader {
   }
 
   protected static function tmpDir() {
-    self::$tmpDir !== null && \isReallyWritable(self::$tmpDir) || Uploader::error('Uploader 尚未設定 tmp 目錄或無法寫入！');
+    self::$tmpDir !== null && \isReallyWritable(self::$tmpDir) || self::error('Uploader 尚未設定 tmp 目錄或無法寫入！');
     return self::$tmpDir;
   }
 
   protected static function baseDirs() {
-    self::$baseDirs || Uploader::error('Uploader 未指定 baseDirs！');
+    self::$baseDirs || self::error('Uploader 未指定 baseDirs！');
     return self::$baseDirs;
   }
 
@@ -114,7 +115,7 @@ abstract class Uploader {
   }
 
   public function getSaveDirs() {
-    array_key_exists($this->uniqueColumn(), $this->orm->attrs()) || Uploader::error('此物件 「' . get_class($orm) . '」 沒有 「' . $this->uniqueColumn() . '」 欄位！');
+    array_key_exists($this->uniqueColumn(), $this->orm->attrs()) || self::error('此物件 「' . get_class($orm) . '」 沒有 「' . $this->uniqueColumn() . '」 欄位！');
     return is_numeric($id = $this->orm->attrs($this->uniqueColumn(), 0)) ? array_merge([$this->orm->getTableName(), $this->column], str_split(sprintf('%08s', dechex($id)), 2)) : [$this->orm->getTableName(), $this->column];
   }
 
@@ -124,12 +125,12 @@ abstract class Uploader {
 
   public function put($fileInfo) {
     if (!($fileInfo && (is_array($fileInfo) || (is_string($fileInfo) && file_exists($fileInfo)))))
-      return self::log('[Uploader] put 格式有誤(1)。');
+      return self::log('上傳檔案格式有誤(1)！', '檔案：' . \dump($fileInfo));
 
     if ($isUseMoveUploadedFile = is_array($fileInfo)) {
       foreach (['name', 'tmp_name', 'type', 'error', 'size'] as $key)
         if (!array_key_exists($key, $fileInfo))
-          return self::log('[Uploader] put 格式有誤(2)。');
+          return self::log('上傳檔案格式有誤(2)！', '檔案：' . \dump($fileInfo), '缺少 key：' . $key);
 
       $name = $fileInfo['name'];
     } else {
@@ -142,13 +143,10 @@ abstract class Uploader {
     $name = ($name = pathinfo($name, PATHINFO_FILENAME)) ? $name . $format : getRandomName() . $format;
 
     if (!$tmp = $this->moveOriFile($fileInfo, $isUseMoveUploadedFile))
-      return self::log('[Uploader] put 搬移至暫存資料夾時發生錯誤。');
+      return self::log('put 搬移至暫存資料夾時發生錯誤！', 'moveOriFile 失敗！');
 
-    if (!$saveDirs = $this->verifySaveDirs())
-      return self::log('[Uploader] put 確認儲存路徑發生錯誤。');
-
-    if (!$result = $this->moveFileAndUploadColumn($tmp, $saveDirs, $name))
-      return self::log('[Uploader] put 搬移預設位置時發生錯誤。');
+    if (!$result = $this->moveFileAndUploadColumn($tmp, array_merge(self::baseDirs(), $this->getSaveDirs()), $name))
+      return self::log('put 搬移預設位置時發生錯誤！', 'moveFileAndUploadColumn 失敗！');
 
     return true;
   }
@@ -165,41 +163,34 @@ abstract class Uploader {
 
     \umaskChmod($tmp, 0777);
 
-    if (!file_exists($tmp))
-      return self::log('[Uploader] moveOriFile 移動檔案失敗。Path：' . $tmp);
-
-    return $tmp;
+    return file_exists($tmp) ? $tmp : self::log('moveOriFile 移動檔案失敗！', '檔案路徑：' . $tmp);
   }
 
-  private function verifySaveDirs() {
-    $baseDirs = self::baseDirs();
-    return array_merge($baseDirs, $this->getSaveDirs());
-  }
-  
   protected function moveFileAndUploadColumn($tmp, $saveDirs, $oriName) {
     if (!self::saveTool()->put($tmp, $uri = implode ('/', $saveDirs) . '/' . $oriName))
-      return self::log('moveFileAndUploadColumn putObject 發生錯誤！', 'Temp：' . $tmp, 'Uri：' . $uri);
+      return self::log('Save Tool put 發生錯誤！', '檔案路徑：' . $tmp, '儲存路徑：' . $uri);
 
-    @unlink($tmp) || self::log('moveFileAndUploadColumn 移除舊資料錯誤！');
+    @unlink($tmp) || self::log('移除舊資料錯誤！');
 
     if (!$this->uploadColumnAndUpload(''))
-      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = "" 錯誤！');
+      return self::log('清空欄位值失敗！');
 
     if (!$this->uploadColumnAndUpload($oriName))
-      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = ' . $oriName . ' 錯誤！');
+      return self::log('設定欄位值失敗！');
 
     return true;
   }
 
   protected function uploadColumnAndUpload($value, $isSave = true) {
-    $this->cleanOldFile ();
+    $this->cleanOldFile();
     return $isSave ? $this->uploadColumn($value) : true;
   }
 
   protected function cleanOldFile() {
     if ($PathsDirs = $this->getPathsDirs())
       foreach ($PathsDirs as $pathDirs)
-        self::saveTool()->delete($pathDir = implode('/', $pathDirs)) || self::log('cleanOldFile 清除檔案發生錯誤！', 'Path：' . $pathDir);
+        if (!self::saveTool()->delete($pathDir = implode('/', $pathDirs)))
+          self::log('清除檔案發生錯誤！', '檔案路徑：' . $pathDir);
     
     return true;
   }

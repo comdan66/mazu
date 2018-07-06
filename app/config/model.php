@@ -1,4 +1,4 @@
-<?php
+<?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 return [
   'autoLoad' => true,
@@ -6,18 +6,19 @@ return [
   'uploader' => [
     'tmpDir' => PATH_TMP,
     'baseDirs' => ['storage'],
-    'baseUrl' => '',
-    'thumbnail' => 'ThumbnailGd',
+    'baseUrl' => '/',
+    'thumbnail' => 'ThumbnailImagick', // Imagick 、 Gd
 
-    'saveTool' => 'LocalSaveTool', // local s3
-    
+    'saveTool' => 'SaveToolLocal',
     'params' => [
       PATH,
     ],
-    // 'S3SaveTool' => [
-    //   'test.ioa.tw',
-    //   '',
-    //   '',
-    // ]
+    
+    // 'saveTool' => 'SaveToolS3',
+    // 'params' => [
+    //   'bucket',
+    //   'accessKey',
+    //   'secretKey',
+    // ],
   ]
 ];

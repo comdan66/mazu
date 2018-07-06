@@ -3,7 +3,6 @@
 Load::sysLib('Thumbnail' . DIRECTORY_SEPARATOR . 'Thumbnail.php');
 
 class ThumbnailImagick extends Thumbnail {
-  protected static $allows = ['gif', 'jpg', 'png'];
 
   private $options = [
     'resizeUp' => true,
@@ -15,9 +14,21 @@ class ThumbnailImagick extends Thumbnail {
     $this->options = array_merge($this->options, array_intersect_key($options, $this->options));
   }
 
+  protected function allows() {
+    return ['gif', 'jpg', 'png'];
+  }
+
   public function getDimension($image = null) {
     $image || $image = clone $this->image;
-    (($imagePage = $image->getImagePage()) && isset($imagePage['width'], $imagePage['height']) && $imagePage['width'] > 0 && $imagePage['height'] > 0) || (($imagePage = $image->getImageGeometry()) && isset($imagePage['width'], $imagePage['height']) && $imagePage['width'] > 0 && $imagePage['height'] > 0) || Thumbnail::error('無法取得尺寸');
+    $imagePage = $image->getImagePage();
+
+    if (!($imagePage && isset($imagePage['width'], $imagePage['height']) && $imagePage['width'] > 0 && $imagePage['height'] > 0)) {
+      $imagePage = $image->getImageGeometry();
+
+      if (!(($imagePage && isset($imagePage['width'], $imagePage['height']) && $imagePage['width'] > 0 && $imagePage['height'] > 0)))
+        Thumbnail::error('無法圖片取得尺寸！');
+    }
+
     return [$imagePage['width'], $imagePage['height']];
   }
 
@@ -118,7 +129,7 @@ class ThumbnailImagick extends Thumbnail {
   }
 
   public function save($savePath, $rawData = true) {
-    return $savePath ? $this->image->writeImages($savePath, $rawData) : Thumbnail::error ('錯誤的儲存路徑', '路徑：' . $savePath);
+    return $this->image->writeImages($savePath, $rawData);
   }
 
   public function pad($width, $height, $color = 'transparent') {
@@ -126,13 +137,13 @@ class ThumbnailImagick extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
 
     if (!is_string($color))
-      return $this->log('色碼格式錯誤，目前只支援字串 HEX 格式', '色碼：' . json_encode($color));
+      return $this->log('色碼格式錯誤，目前只支援字串 HEX 格式！', '色碼：' . json_encode($color));
 
     if ($width < $this->dimension[0] || $height < $this->dimension[1])
       $this->resize($width, $height);
@@ -176,7 +187,7 @@ class ThumbnailImagick extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -208,10 +219,10 @@ class ThumbnailImagick extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($percent < 0 || $percent > 100)
-      return $this->log('百分比例錯誤', '百分比要在 0 ~ 100 之間', 'Percent：' . $percent);
+      return $this->log('百分比例錯誤！', '百分比要在 0 ~ 100 之間！', '百分比：' . $percent);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -238,7 +249,7 @@ class ThumbnailImagick extends Thumbnail {
 
   public function resizePercent($percent = 0) {
     if ($percent < 1)
-      return $this->log('縮圖比例錯誤', '百分比要大於 1', 'Percent：' . $percent);
+      return $this->log('縮圖比例錯誤！', '百分比要大於 1', '百分比：' . $percent);
 
     if ($percent == 100)
       return $this;
@@ -252,10 +263,10 @@ class ThumbnailImagick extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($startX < 0 || $startY < 0)
-      return $this->log('起始點錯誤', '水平、垂直的起始點一定要大於 0', '水平點：' . $startX, '垂直點：' . $startY);
+      return $this->log('起始點錯誤！', '水平、垂直的起始點一定要大於 0', '水平點：' . $startX, '垂直點：' . $startY);
 
     if ($startX == 0 && $startY == 0 && $width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -275,7 +286,7 @@ class ThumbnailImagick extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -293,10 +304,10 @@ class ThumbnailImagick extends Thumbnail {
 
   public function rotate($degree, $color = 'transparent') {
     if (!is_numeric($degree))
-      return $this->log('角度一定要是數字', 'Degree：' . $degree);
+      return $this->log('角度一定要是數字！', '角度：' . $degree);
 
     if (!is_string($color))
-      return $this->log('色碼格式錯誤，目前只支援字串 HEX 格式', '色碼：' . json_encode($color));
+      return $this->log('色碼格式錯誤，目前只支援字串 HEX 格式！', '色碼：' . json_encode($color));
 
     if (!($degree % 360))
       return $this;
@@ -311,7 +322,7 @@ class ThumbnailImagick extends Thumbnail {
     $height = intval($height);
 
     if ($width <= 0 || $height <= 0)
-      return $this->log('新尺寸錯誤', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
+      return $this->log('新尺寸錯誤！', '尺寸寬高一定要大於 0', '寬：' . $width, '高：' . $height);
 
     if ($width == $this->dimension[0] && $height == $this->dimension[1])
       return $this;
@@ -360,8 +371,8 @@ class ThumbnailImagick extends Thumbnail {
   }
 
   public static function block9($files, $savePath = null, $rawData = true) {
-    count($files) >= 9 || Thumbnail::error('參數錯誤', '檔案數量要大於等於 9', '數量：' . count($files));
-    $savePath          || Thumbnail::error('錯誤的儲存路徑', '路徑：' . $savePath);
+    count($files) >= 9 || Thumbnail::error('參數錯誤！', '檔案數量要大於等於 9', '數量：' . count($files));
+    $savePath          || Thumbnail::error('錯誤的儲存路徑！', '儲存路徑：' . $savePath);
 
     $newImage = new Imagick();
     $newImage->newImage(266, 200, new ImagickPixel('white'));
@@ -380,8 +391,8 @@ class ThumbnailImagick extends Thumbnail {
   }
 
   public static function photos($files, $savePath = null, $rawData = true) {
-    $files    || Thumbnail::error ('參數錯誤', '檔案數量要大於等於 1', '數量：' . count($files));
-    $savePath || Thumbnail::error('錯誤的儲存路徑', '路徑：' . $savePath);
+    $files    || Thumbnail::error('參數錯誤！', '檔案數量要大於等於 1', '數量：' . count($files));
+    $savePath || Thumbnail::error('錯誤的儲存路徑！', '儲存路徑：' . $savePath);
     
     $w = 1200;
     $h = 630;
@@ -421,13 +432,13 @@ class ThumbnailImagick extends Thumbnail {
               Imagick::CHANNEL_INDEX,     Imagick::CHANNEL_ALL,     Imagick::CHANNEL_DEFAULT];
 
     if (!is_numeric($radius))
-      return $this->log('參數錯誤', '參數 Radius 要為數字', 'Radius：' . $radius);
+      return $this->log('參數錯誤！', '參數 Radius 要為數字！', 'Radius：' . $radius);
 
     if (!is_numeric($sigma))
-      return $this->log('參數錯誤', '參數 Sigma 要為數字', 'Sigma：' . $sigma);
+      return $this->log('參數錯誤！', '參數 Sigma 要為數字！', 'Sigma：' . $sigma);
 
     if (!in_array($channel, $items))
-      return $this->log('參數錯誤', '參數 Channel 格式不正確', 'Channel：' . $channel);
+      return $this->log('參數錯誤！', '參數 Channel 格式不正確！', 'Channel：' . $channel);
 
     $workingImage = $this->_machiningImageFilter($radius, $sigma, $channel);
 
@@ -462,24 +473,24 @@ class ThumbnailImagick extends Thumbnail {
     return $this->_updateImage($newImage);
   }
 
-  public function getAnalysisDatas($maxCount = 10) {
-    if ($maxCount <= 0) {
-      $this->log('參數錯誤', '參數 Max Count 一定要大於 0', 'Max Count：' . $maxCount);
+  public function getAnalysisDatas($limit = 10) {
+    if ($limit <= 0) {
+      $this->log('參數錯誤！', '分析數量一定要大於 0', '分析數量：' . $limit);
       return [];
     }
 
     $temp = clone $this->image;
 
-    $temp->quantizeImage($maxCount, Imagick::COLORSPACE_RGB, 0, false, false );
+    $temp->quantizeImage($limit, Imagick::COLORSPACE_RGB, 0, false, false );
     $pixels = $temp->getImageHistogram();
 
     $datas = [];
     $index = 0;
     $pixelCount = $this->dimension[0] * $this->dimension[1];
 
-    if ($pixels && $maxCount)
+    if ($pixels && $limit)
       foreach ($pixels as $pixel)
-        if ($index++ < $maxCount)
+        if ($index++ < $limit)
           array_push($datas, array ('color' => $pixel->getColor(), 'count' => $pixel->getColorCount(), 'percent' => round($pixel->getColorCount() / $pixelCount * 100)));
         else
           break;
@@ -487,25 +498,25 @@ class ThumbnailImagick extends Thumbnail {
     return Thumbnail::sort2DArr('count', $datas);
   }
 
-  public function saveAnalysisChart($savePath, $font, $maxCount = 10, $fontSize = 14, $rawData = true) {
+  public function saveAnalysisChart($savePath, $font, $limit = 10, $fontSize = 14, $rawData = true) {
     if (!$savePath)
-      return $this->log('錯誤的儲存路徑', '路徑：' . $savePath);
+      return $this->log('錯誤的儲存路徑！', '儲存路徑：' . $savePath);
 
     if (!is_readable($font))
-      return $this->log('參數錯誤', '字型檔案不存在或不可讀', 'Font：' . $font);
+      return $this->log('參數錯誤！', '字型檔案不存在或不可讀！', '字型：' . $font);
 
-    if ($maxCount <= 0)
-      return $this->log('參數錯誤', '參數 MaxCount 一定要大於 0', 'MaxCount：' . $maxCount);
+    if ($limit <= 0)
+        $this->log('參數錯誤！', '分析數量一定要大於 0', '分析數量：' . $limit);
 
     if ($fontSize <= 0)
-      return $this->log('參數錯誤', '參數 FontSize 大小一定要大於 0', 'FontSize：' . $fontSize);
+      return $this->log('參數錯誤！', '字體大小一定要大於 0', '字體大小：' . $fontSize);
 
     $format = pathinfo($savePath, PATHINFO_EXTENSION);
-    if (!$format || !in_array($format, static::$allows))
-      return $this->log('不支援此檔案格式', 'Format：' . $format);
+    if (!$format || !in_array($format, self::allows()))
+      return $this->log('不支援此檔案格式！', '格式：' . $format);
 
-    if (!$datas = $this->getAnalysisDatas($maxCount))
-      return $this->log('圖像分析錯誤');
+    if (!$datas = $this->getAnalysisDatas($limit))
+      return $this->log('圖像分析錯誤！');
 
     $newImage = new Imagick();
 
@@ -533,31 +544,31 @@ class ThumbnailImagick extends Thumbnail {
 
   public function addFont($text, $font, $startX = 0, $startY = 12, $color = 'black', $fontSize = 12, $alpha = 1, $degree = 0) {
     if (!$text)
-      return $this->log('沒有文字', '內容：' . $text);
+      return $this->log('沒有文字！', '內容：' . $text);
 
     if (!is_readable($font))
-      return $this->log('參數錯誤', '字型檔案不存在或不可讀', 'Font：' . $font);
+      return $this->log('參數錯誤！', '字型檔案不存在或不可讀！', '字型：' . $font);
 
     if ($startX < 0 || $startY < 0)
-      return $this->log('起始點錯誤', '水平、垂直的起始點一定要大於 0', '水平點：' . $startX, '垂直點：' . $startY);
+      return $this->log('起始點錯誤！', '水平、垂直的起始點一定要大於 0', '水平點：' . $startX, '垂直點：' . $startY);
 
     if (!is_string($color))
-      return $this->log('色碼格式錯誤，目前只支援字串 HEX 格式', '色碼：' . json_encode($color));
+      return $this->log('色碼格式錯誤，目前只支援字串 HEX 格式！', '色碼：' . json_encode($color));
 
     if ($fontSize <= 0)
-      return $this->log('參數錯誤', '參數 FontSize 大小一定要大於 0', 'FontSize：' . $fontSize);
+      return $this->log('參數錯誤！', '字體大小一定要大於 0', '字體大小：' . $fontSize);
     
     if ($alpha < 0 || $alpha > 1)
-      return $this->log('參數錯誤', '參數 Alpha 一定要是 0 ~ 1', 'Alpha：' . $alpha);
+      return $this->log('參數錯誤！', '參數 Alpha 一定要是 0 ~ 1', 'Alpha：' . $alpha);
 
     if (!is_numeric($degree))
-      return $this->log('角度一定要是數字', 'Degree：' . $degree);
+      return $this->log('角度一定要是數字！', '角度：' . $degree);
 
     $degree = $degree % 360;
 
 
     if (!$draw = $this->_createFont($font, $fontSize, $color, $alpha))
-      return $this->log('Create 文字物件失敗');
+      return $this->log('產生文字物件失敗！');
 
     if ($this->format == 'gif') {
       $newImage = new Imagick();

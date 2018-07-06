@@ -22,8 +22,8 @@ Router::get('/')
         $obj = M\Article::one('id = 1');
         
 // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-// var_dump ($obj->cover->putUrl('https://danwoog.files.wordpress.com/2018/02/pic-saugatuck-river-mark-molesworth.jpg'));
-//         echo $obj->cover->url();
+var_dump ($obj->cover->putUrl('https://danwoog.files.wordpress.com/2018/02/pic-saugatuck-river-mark-molesworth.jpg'));
+        echo $obj->cover->url();
         
         // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
         // var_dump ($obj->cover->put(PATH_TMP . 'README.md'));

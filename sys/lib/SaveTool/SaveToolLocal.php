@@ -2,7 +2,7 @@
 
 Load::sysLib('SaveTool' . DIRECTORY_SEPARATOR . 'SaveTool.php');
 
-class LocalSaveTool extends SaveTool {
+class SaveToolLocal extends SaveTool {
   
   public static function create($bucket) {
     return new static($bucket);

@@ -25,23 +25,26 @@ abstract class ImageUploader extends Uploader {
     $versions = $this->getVersions();
     $paths = [];
 
+    if (!(string)$this->value)
+      return [];
+
     foreach ($versions as $key => $version)
       array_push($paths, array_merge($baseDirs, $this->getSaveDirs(), [$key . ImageUploader::SYMBOL . $this->value]));
 
     return $paths;
   }
 
-  protected function moveFileAndUploadColumn($temp, $saveDirs, $oriName) {
+  protected function moveFileAndUploadColumn($tmp, $saveDirs, $oriName) {
     $tmpDir = self::tmpDir();
     $versions = $this->getVersions();
 
     $news = [];
-    $info = @exif_read_data($temp);
+    $info = @exif_read_data($tmp);
     $orientation = $info && isset($info['Orientation']) ? $info['Orientation'] : 0;
 
     try {
       foreach ($versions as $key => $methods) {
-        $image = self::thumbnail($temp);
+        $image = self::thumbnail($tmp);
 
         $image->rotate($orientation == 6 ? 90 : ($orientation == 8 ? -90 : ($orientation == 3 ? 180 : 0)));
 
@@ -51,29 +54,33 @@ abstract class ImageUploader extends Uploader {
         $newPath = $tmpDir . $newName;
 
         if (!$this->utility($image, $newPath, $key, $methods))
-          return self::log('moveFileAndUploadColumn 圖像處理失敗。');
+          return self::log('圖像處理失敗！', 'utility 發生錯誤！', '儲存路徑：' . $newPath, '版本' . $key);
 
         array_push($news, ['name' => $newName, 'path' => $newPath]);
       }
     } catch (\Exception $e) {
-      return self::log('moveFileAndUploadColumn 圖像處理失敗', 'Message：' . $e->getMessage());
+      if (!method_exists($e, 'getMessages'))
+        return self::log('圖像處理，發生意外錯誤！', '錯誤訊息：' . $e->getMessage());
+      else
+        return call_user_func_array(['self', 'log'], array_merge(['圖像處理，發生意外錯誤！'], $e->getMessages()));
     }
 
     if (count($news) != count($versions))
-      return self::log('moveFileAndUploadColumn 不明原因錯誤。');
+      return self::log('縮圖未完成，有些圖片未完成縮圖！', '成功數量：' . count($news), '版本數量：' . count($versions));
 
     foreach ($news as $new)
       if (!self::saveTool()->put($new['path'], $uri = implode ('/', $saveDirs) . '/' . $new['name']))
-        return self::log('moveFileAndUploadColumn putObject 發生錯誤！', 'Temp：' . $new['path'], 'Uri：' . $uri);
+        return self::log('Save Tool put 發生錯誤！', '檔案路徑：' . $new['path'], '儲存路徑：' . $uri);
+      else
+        @unlink($new['path']) || self::log('移除暫存資料錯誤！');
 
-    @unlink($new['path']) || self::log('moveFileAndUploadColumn 移除舊資料錯誤！');
-    @unlink($temp) || self::log('moveFileAndUploadColumn 移除舊資料錯誤。');
+    @unlink($tmp) || self::log('移除舊資料錯誤！');
 
     if (!$this->uploadColumnAndUpload(''))
-      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = "" 錯誤。');
+      return self::log('清空欄位值失敗！');
 
     if (!$this->uploadColumnAndUpload($name))
-      return self::log('moveFileAndUploadColumn uploadColumnAndUpload = ' . $name . ' 錯誤。');
+      return self::log('設定欄位值失敗！');
 
     return true;
   }
@@ -83,8 +90,8 @@ abstract class ImageUploader extends Uploader {
       return $image->save($savePath, true);
 
     foreach ($methods as $method => $params)
-      if (!is_callable([$image, $method]))
-        return self::log('無法呼叫的 Method 錯誤，Method：' . $method);
+      if (!method_exists($image, $method))
+        return self::log('縮圖函式沒有此方法！', '縮圖函式：' . $method);
       else
         call_user_func_array([$image, $method], $params);
 
