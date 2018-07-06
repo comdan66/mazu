@@ -45,7 +45,7 @@ if (!@include_once PATH_SYS_CORE . 'Common.php')
  *  載入環境常數 ENVIRONMENT
  * ------------------------------------------------------ */
 
-Load::path('Env.php') || gg('載入 Env 失敗！');
+Load::path('env.php') || gg('載入環境常數失敗！');
 
 
 

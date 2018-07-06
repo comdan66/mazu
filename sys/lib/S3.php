@@ -386,7 +386,7 @@ class S3 {
     if (isset($extensions[$extension]))
       return $extensions[$extension];
     
-    $mime = config('exts', $extension, 0);
+    $mime = config('extension', $extension, 0);
 
     return $extensions[$extension] = $mime !== null ? $mime : 'text/plain'; //'application/octet-stream';
   }

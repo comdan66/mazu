@@ -131,7 +131,7 @@ abstract class Thumbnail {
     if (isset($extensions[$m]))
       return $extensions[$m];
 
-    foreach (config('exts') as $ext => $mime)
+    foreach (config('extension') as $ext => $mime)
       if (in_array($m, $mime))
         return $extensions[$m] = $ext;
 
