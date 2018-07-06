@@ -6,7 +6,7 @@ defined('MAZU') || exit('此檔案不允許讀取！');
 
 abstract class Uploader {
   protected static $baseUrl = '/';
-  protected static $baseDirs = [];
+  protected static $dir = null;
   private static $tmpDir = null;
 
   private static $errorFunc = null;
@@ -41,8 +41,8 @@ abstract class Uploader {
     is_string($baseUrl) && self::$baseUrl = rtrim($baseUrl, '/') . '/';
   }
 
-  public static function setBaseDirs($baseDirs) {
-    is_array($baseDirs) && $baseDirs && self::$baseDirs = $baseDirs;
+  public static function setDir($dir) {
+    is_string($dir) && ($dir = trim($dir, '/')) && self::$dir = $dir;
   }
   
   protected static function thumbnail($file) {
@@ -80,9 +80,9 @@ abstract class Uploader {
     return self::$tmpDir;
   }
 
-  protected static function baseDirs() {
-    self::$baseDirs || self::error('Uploader 未指定 baseDirs！');
-    return self::$baseDirs;
+  protected static function dir() {
+    self::$dir || self::error('Uploader 未指定 dir！');
+    return self::$dir . '/';
   }
 
   protected $orm = null;
@@ -107,16 +107,20 @@ abstract class Uploader {
   }
 
   public function url($key = '') {
-    return ($path = $this->pathDirs($key)) ? self::$baseUrl . implode('/', $path) : $this->d4Url();
+    return ($path = $this->path($key)) ? self::$baseUrl . $path : $this->d4Url();
   }
 
-  public function pathDirs($fileName = '') {
-    return $fileName ? array_merge(self::baseDirs(), $this->getSaveDirs(), [$fileName]) : [];
+  public function path($fileName = '') {
+    return $fileName ? self::dir() . $this->savePath() . $fileName : '';
   }
 
-  public function getSaveDirs() {
+  public function savePath() {
     array_key_exists($this->uniqueColumn(), $this->orm->attrs()) || self::error('此物件 「' . get_class($orm) . '」 沒有 「' . $this->uniqueColumn() . '」 欄位！');
-    return is_numeric($id = $this->orm->attrs($this->uniqueColumn(), 0)) ? array_merge([$this->orm->getTableName(), $this->column], str_split(sprintf('%08s', dechex($id)), 2)) : [$this->orm->getTableName(), $this->column];
+    $id = $this->orm->attrs($this->uniqueColumn(), 0);
+    $tmp = $this->orm->getTableName() . '/' . $this->column . '/';
+    return $tmp . (is_numeric($id)
+                  ? implode('/', str_split(sprintf('%08s', dechex($id)), 2)) . '/'
+                  : '');
   }
 
   protected function d4Url() {
@@ -145,7 +149,7 @@ abstract class Uploader {
     if (!$tmp = $this->moveOriFile($fileInfo, $isUseMoveUploadedFile))
       return self::log('put 搬移至暫存資料夾時發生錯誤！', 'moveOriFile 失敗！');
 
-    if (!$result = $this->moveFileAndUploadColumn($tmp, array_merge(self::baseDirs(), $this->getSaveDirs()), $name))
+    if (!$result = $this->moveFileAndUploadColumn($tmp, self::dir() . $this->savePath(), $name))
       return self::log('put 搬移預設位置時發生錯誤！', 'moveFileAndUploadColumn 失敗！');
 
     return true;
@@ -166,9 +170,9 @@ abstract class Uploader {
     return file_exists($tmp) ? $tmp : self::log('moveOriFile 移動檔案失敗！', '檔案路徑：' . $tmp);
   }
 
-  protected function moveFileAndUploadColumn($tmp, $saveDirs, $oriName) {
-    if (!self::saveTool()->put($tmp, $uri = implode ('/', $saveDirs) . '/' . $oriName))
-      return self::log('Save Tool put 發生錯誤！', '檔案路徑：' . $tmp, '儲存路徑：' . $uri);
+  protected function moveFileAndUploadColumn($tmp, $path, $oriName) {
+    if (!self::saveTool()->put($tmp, $path . $oriName))
+      return self::log('Save Tool put 發生錯誤！', '檔案路徑：' . $tmp, '儲存路徑：' . $path . $oriName);
 
     @unlink($tmp) || self::log('移除舊資料錯誤！');
 
@@ -187,19 +191,19 @@ abstract class Uploader {
   }
 
   protected function cleanOldFile() {
-    if ($PathsDirs = $this->getPathsDirs())
-      foreach ($PathsDirs as $pathDirs)
-        if (!self::saveTool()->delete($pathDir = implode('/', $pathDirs)))
-          self::log('清除檔案發生錯誤！', '檔案路徑：' . $pathDir);
+    if ($paths = $this->paths())
+      foreach ($paths as $path)
+        if (!self::saveTool()->delete($path))
+          self::log('清除檔案發生錯誤！', '檔案路徑：' . $path);
     
     return true;
   }
 
-  public function getPathsDirs() {
+  public function paths() {
     if (!(string)$this->value)
       return [];
 
-    return [array_merge(self::baseDirs(), $this->getSaveDirs(), [(string)$this->value])];
+    return [self::dir() . $this->savePath() . $this->value];
   }
 
   protected function uploadColumn($value) {

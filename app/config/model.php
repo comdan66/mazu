@@ -4,8 +4,8 @@ return [
   'autoLoad' => true,
 
   'uploader' => [
+    'dir' => 'storage',
     'tmpDir' => PATH_TMP,
-    'baseDirs' => ['storage'],
     'baseUrl' => '/',
     'thumbnail' => 'ThumbnailImagick', // Imagick 、 Gd
 
@@ -13,7 +13,7 @@ return [
     'params' => [
       PATH,
     ],
-    
+
     // 'saveTool' => 'SaveToolS3',
     // 'params' => [
     //   'bucket',

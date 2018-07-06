@@ -15,26 +15,27 @@ abstract class ImageUploader extends Uploader {
     return $versions && is_array($versions) ? array_merge(['' => []], $versions) : ['' => []];
   }
 
-  public function pathDirs($key = '') {
+  public function path($key = '') {
     $versions = $this->getVersions();
-    return array_key_exists($key, $versions) && ($value = (string)$this->value) && ($fileName = $key . ImageUploader::SYMBOL . $value) ? parent::pathDirs($fileName) : [];
+    $fileName = array_key_exists($key, $versions) && ($value = (string)$this->value) ? $key . ImageUploader::SYMBOL . $value : '';
+    return parent::path($fileName);
   }
 
-  public function getPathsDirs() {
-    $baseDirs = self::baseDirs();
-    $versions = $this->getVersions();
+  public function paths() {
     $paths = [];
 
     if (!(string)$this->value)
-      return [];
+      return $paths;
 
-    foreach ($versions as $key => $version)
-      array_push($paths, array_merge($baseDirs, $this->getSaveDirs(), [$key . ImageUploader::SYMBOL . $this->value]));
+    $dir = self::dir();
+
+    foreach ($this->getVersions() as $key => $version)
+      array_push($paths, $dir . $this->savePath() . $key . ImageUploader::SYMBOL . $this->value);
 
     return $paths;
   }
 
-  protected function moveFileAndUploadColumn($tmp, $saveDirs, $oriName) {
+  protected function moveFileAndUploadColumn($tmp, $path, $oriName) {
     $tmpDir = self::tmpDir();
     $versions = $this->getVersions();
 
@@ -69,8 +70,8 @@ abstract class ImageUploader extends Uploader {
       return self::log('縮圖未完成，有些圖片未完成縮圖！', '成功數量：' . count($news), '版本數量：' . count($versions));
 
     foreach ($news as $new)
-      if (!self::saveTool()->put($new['path'], $uri = implode ('/', $saveDirs) . '/' . $new['name']))
-        return self::log('Save Tool put 發生錯誤！', '檔案路徑：' . $new['path'], '儲存路徑：' . $uri);
+      if (!self::saveTool()->put($new['path'], $path . $new['name']))
+        return self::log('Save Tool put 發生錯誤！', '檔案路徑：' . $new['path'], '儲存路徑：' . $path . $new['name']);
       else
         @unlink($new['path']) || self::log('移除暫存資料錯誤！');
 

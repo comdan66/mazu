@@ -454,8 +454,8 @@ if (!function_exists('useModel')) {
 
     $config = config('model', 'uploader');
 
+    Uploader::setDir($config['dir']);
     Uploader::setTmpDir($config['tmpDir']);
-    Uploader::setBaseDirs($config['baseDirs']);
     Uploader::setBaseUrl($config['baseUrl']);
 
     Uploader::setErrorFunc('gg');

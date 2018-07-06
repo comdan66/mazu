@@ -9,8 +9,8 @@ abstract class FileUploader extends Uploader {
     return parent::url('');
   }
 
-  public function pathDirs($fileName = '') {
-    return parent::pathDirs((string)$this->value);
+  public function path($fileName = '') {
+    return parent::path((string)$this->value);
   }
 
   public function link($text, $attrs = []) { // $attrs = array ('class' => 'i')
