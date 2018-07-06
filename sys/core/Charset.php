@@ -39,8 +39,8 @@ if (!function_exists('charsetSubstr')) {
     return isset($length) ? substr($str, $start, $length) : substr($str, $start);
   }
 }
-if (!function_exists('charsetCleanStr')) {
-  function charsetCleanStr($str) {
+if (!function_exists('cleanStr')) {
+  function cleanStr($str) {
     return (preg_match('/[^\x00-\x7F]/S', $str) === 0) === false ? !MB_ENABLED ? ICONV_ENABLED ? @iconv('UTF-8', 'UTF-8//IGNORE', $str) : $str : mb_convert_encoding($str, 'UTF-8', 'UTF-8') : $str;
   }
 }

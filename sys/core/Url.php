@@ -8,7 +8,7 @@ class Url {
   private static $baseUrl;
 
   public static function init () {
-    self::$baseUrl = config('other', 'base_url');
+    self::$baseUrl = config('other', 'baseUrl');
     self::$segments = array_map(function ($t) { return urldecode($t); }, isCli() ? self::parseArgv() : self::parseRequestUri());
   }
 
@@ -44,7 +44,7 @@ class Url {
       $baseUrl = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off' ? 'https' : 'http') . '://'. $_SERVER['HTTP_HOST'] . '/';
     
     $baseUrl = rtrim($baseUrl, '/') . '/';
-    $baseUrl || gg('尚未設定 base_url！');
+    $baseUrl || gg('尚未設定 baseUrl！');
 
     return $baseUrl . trim(preg_replace('/\/+/', '/', implode('/', arrayFlatten(func_get_args()))), '/');
   }

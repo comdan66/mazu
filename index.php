@@ -59,11 +59,12 @@ Benchmark::markStar('整體');
 Load::sysCore('View.php')      || gg('載入 View 失敗！');
 Load::sysCore('Charset.php')   || gg('載入 Charset 失敗！');
 Load::sysCore('Log.php')       || gg('載入 Log 失敗！');
-Load::sysCore('Url.php')       || gg('入載 Url 失敗！');
-Load::sysCore('Router.php')    || gg('入載 Router 失敗！');
-Load::sysCore('Output.php')    || gg('入載 Output 失敗！');
-
-Load::sysCore('Model.php')     || gg('入載 Model 失敗！');
+Load::sysCore('Url.php')       || gg('載入 Url 失敗！');
+Load::sysCore('Router.php')    || gg('載入 Router 失敗！');
+Load::sysCore('Output.php')    || gg('載入 Output 失敗！');
+Load::sysCore('Model.php')     || gg('載入 Model 失敗！');
+Load::sysCore('Security.php')  || gg('載入 Security 失敗！');
+Load::sysCore('Input.php')     || gg('載入 Input 失敗！');
 
 
 
