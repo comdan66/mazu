@@ -19,17 +19,18 @@ define('MAZU', '1.0.0');
  *  定義路徑常數
  * ------------------------------------------------------ */
 
-define('PATH', dirname(__FILE__)            . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
-define('PATH_SYS',       PATH .     'sys'   . DIRECTORY_SEPARATOR); // sys 絕對位置
-define('PATH_LOG',       PATH .     'log'   . DIRECTORY_SEPARATOR); // log 絕對位置
-define('PATH_TMP',       PATH .     'tmp'   . DIRECTORY_SEPARATOR); // tmp 絕對位置
-define('PATH_APP',       PATH .     'app'   . DIRECTORY_SEPARATOR); // app 絕對位置
-define('PATH_VIEW',      PATH_APP . 'view'  . DIRECTORY_SEPARATOR); // view 絕對位置
-define('PATH_MODEL',     PATH_APP . 'model' . DIRECTORY_SEPARATOR); // model 絕對位置
+define('PATH', dirname(__FILE__)              . DIRECTORY_SEPARATOR); // 此專案資料夾絕對位置
+define('PATH_SYS',       PATH .     'sys'     . DIRECTORY_SEPARATOR); // sys 絕對位置
+define('PATH_LOG',       PATH .     'log'     . DIRECTORY_SEPARATOR); // log 絕對位置
+define('PATH_TMP',       PATH .     'tmp'     . DIRECTORY_SEPARATOR); // tmp 絕對位置
+define('PATH_SESSION',   PATH .     'session' . DIRECTORY_SEPARATOR); // session 絕對位置
+define('PATH_APP',       PATH .     'app'     . DIRECTORY_SEPARATOR); // app 絕對位置
+define('PATH_VIEW',      PATH_APP . 'view'    . DIRECTORY_SEPARATOR); // view 絕對位置
+define('PATH_MODEL',     PATH_APP . 'model'   . DIRECTORY_SEPARATOR); // model 絕對位置
 
-define('PATH_SYS_CORE',  PATH_SYS . 'core'  . DIRECTORY_SEPARATOR); // sys core 絕對位置
-define('PATH_SYS_LIB',   PATH_SYS . 'lib'   . DIRECTORY_SEPARATOR); // sys lib 絕對位置
-define('PATH_SYS_MODEL', PATH_SYS . 'model' . DIRECTORY_SEPARATOR); // sys model 絕對位置
+define('PATH_SYS_CORE',  PATH_SYS . 'core'    . DIRECTORY_SEPARATOR); // sys core 絕對位置
+define('PATH_SYS_LIB',   PATH_SYS . 'lib'     . DIRECTORY_SEPARATOR); // sys lib 絕對位置
+define('PATH_SYS_MODEL', PATH_SYS . 'model'   . DIRECTORY_SEPARATOR); // sys model 絕對位置
 
 
 /* ------------------------------------------------------
@@ -65,6 +66,9 @@ Load::sysCore('Output.php')    || gg('載入 Output 失敗！');
 Load::sysCore('Model.php')     || gg('載入 Model 失敗！');
 Load::sysCore('Security.php')  || gg('載入 Security 失敗！');
 Load::sysCore('Input.php')     || gg('載入 Input 失敗！');
+
+if (config('other', 'autoLoadComposer'))
+  Load::path('vendor' . DIRECTORY_SEPARATOR . 'autoload.php') || gg('載入 Composer 失敗！');
 
 
 

@@ -3,4 +3,5 @@
 return [
   'baseUrl' => '',
   'globalXssFiltering' => true,
+  'autoLoadComposer' => false,
 ];

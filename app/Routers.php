@@ -16,6 +16,18 @@ Router::cli('/')
       });
 Router::get('/')
       ->work(function() {
+
+        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // var_dump (Input::ip());
+        Load::sysLib('Session.php');
+        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // var_dump (Session::setTmpData('a', 'b', 5));
+        // var_dump (Session::getTmpData('a'));
+        // var_dump (Session::setFlashData('a', 'b'));
+        // var_dump (Session::getData('a'));
+        // exit ();;
+
+
         // $obj = M\Article::one('id = 1');
         
 // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';

@@ -7,3 +7,6 @@ composer.lock
 
 /vendor/*
 /log/*
+/tmp/*
+/storage/*
+/session/*

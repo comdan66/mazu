@@ -301,6 +301,14 @@ if (!function_exists('umaskMkdir')) {
     umask($oldmask);
   }
 }
+
+if (!function_exists('isJson')) {
+  function isJson(&$string, $array = false) {
+   $string = json_decode($string, $array);
+   return (json_last_error() === JSON_ERROR_NONE);
+  }
+}
+
 /* ------------------------------------------------------
  *  定義自己的 Error Handler
  * ------------------------------------------------------ */
