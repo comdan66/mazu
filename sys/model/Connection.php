@@ -34,10 +34,7 @@ class Connection {
   }
 
   public static function instance() {
-    if (self::$instance)
-      return self::$instance;
-
-    return self::$instance = new Connection();
+    return self::$instance ? self::$instance : self::$instance = new Connection();
   }
 
   public function close() {
@@ -50,6 +47,7 @@ class Connection {
   }
   
   public function query($sql, $vals = [], $fetchModel = PDO::FETCH_ASSOC) {
+
     try {
       $sth = $this->connection->prepare((string)$sql);
       $sth || Config::error('執行 Connection prepare 失敗！');

@@ -139,7 +139,9 @@ class SqlBuilder {
     $set = implode('=?, ', array_map(function ($t) { return Config::quoteName($t); }, array_keys($this->data))) . '=?';
     $sql = "UPDATE " . $this->quoteTableName . " SET " . $set;
     $this->where && $sql .= " WHERE " . $this->where;
-
+    $this->order && $sql .= ' ORDER BY ' . $this->order;
+    $this->limit && $sql .= ' LIMIT ' . intval($this->limit);
+    
     return $sql;
   }
 
@@ -159,15 +161,17 @@ class SqlBuilder {
     return $this;
   }
 
-  public function delete($data = []) {
+  public function delete($data = null) {
     $this->toStringFunc = 'buildDelete';
-    $this->data = $data;
+    $data === null || $this->data = $data;
     return $this;
   }
 
   public function buildDelete() {
     $sql = "DELETE FROM " . $this->quoteTableName;
     $this->where && $sql .= " WHERE " . $this->where;
+    $this->order && $sql .= ' ORDER BY ' . $this->order;
+    $this->limit && $sql .= ' LIMIT ' . intval($this->limit);
 
     return $sql;
   }

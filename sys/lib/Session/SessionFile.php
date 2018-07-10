@@ -7,19 +7,22 @@ class SessionFile extends Session implements SessionHandlerInterface {
   private $handle;
   private $fileNew;
 
-  public function __construct () {
-    parent::__construct ();
-    ini_set('session.save_path', config('session', 'params', 'path'));
+  public function __construct() {
+    parent::__construct();
+    $this->path = config('session', 'params', 'path');
+    $this->handle = null;
+    $this->fileNew = true;
+
+    ini_set('session.save_path', $this->path);
   }
 
   public function open($path, $name) {
     isset($path) && is_dir($path) && isReallyWritable($path) || gg('SessionFile 錯誤，路徑不存在或無法寫入！儲存路徑：' . $path);
     $this->path = $path . $name . '_' . (self::matchIp() ? md5($_SERVER['REMOTE_ADDR']) . '_' : '');
-    
-    return $this->succ ();
+    return $this->succ();
   }
 
-  public function read ($sessionId) {
+  public function read($sessionId) {
     if ($this->handle === null) {
       $this->fileNew = !file_exists($this->path . $sessionId);
 
@@ -40,7 +43,7 @@ class SessionFile extends Session implements SessionHandlerInterface {
     } else if ($this->handle === false) {
       return $this->fail();
     } else {
-      rewind ($this->handle);
+      rewind($this->handle);
     }
 
     $data = '';
@@ -79,7 +82,7 @@ class SessionFile extends Session implements SessionHandlerInterface {
     }
 
     $this->fingerPrint = md5($sessionData);
-    return $this->succ ();
+    return $this->succ();
   }
 
   public function close() {
@@ -109,7 +112,7 @@ class SessionFile extends Session implements SessionHandlerInterface {
 
       if (file_exists($this->path . $sessionId)) {
         $this->cookieDestroy();
-        return unlink($this->path . $sessionId) ? $this->succ () : $this->fail ();
+        return unlink($this->path . $sessionId) ? $this->succ() : $this->fail();
       }
 
       return $this->succ();
@@ -118,11 +121,11 @@ class SessionFile extends Session implements SessionHandlerInterface {
     return $this->fail();
   }
 
-  public function gc ($maxlifetime) {
+  public function gc($maxLifeTime) {
     if (($directory = opendir($this->path)) === false)
       return $this->fail();
 
-    $ts = time() - $maxlifetime;
+    $ts = time() - $maxLifeTime;
 
     $pattern = (self::matchIp() === true) ? '[0-9a-f]{32}' : '';
     $pattern = sprintf('#\A%s' . $pattern . self::sessionIdRegexp() . '\z#', preg_quote(self::cookieName()));

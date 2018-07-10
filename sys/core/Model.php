@@ -43,6 +43,62 @@ if (!function_exists('useModel')) {
         return intval($obj);
       }
 
+      public static function deleteAll($options = []) {
+        $args = func_get_args();
+        $options = array_shift($args);
+
+        is_string($options) && $options = ['where' => array_merge([$options], $args)];
+
+        isset($options[0]) && $options[0] instanceof \Where && $options[0] = ['where' => $options[0]->toArray()];
+        isset($options[0]) && is_string($options[0]) && $options[0] = ['where' => $options];
+        isset($options['where']) && is_string($options['where']) && $options['where'] = [$options['where']];
+        isset($options['where']) && $options['where'] instanceof \Where && $options['where'] = $options['where']->toArray();
+
+        $sql = \_M\SqlBuilder::create(Config::quoteName(static::table()->tableName))->delete();
+
+        if (isset($options['where']))
+          $sql->where($options['where']);
+
+        if (isset($options['limit']))
+          $sql->limit($options['limit']);
+
+        if (isset($options['order']))
+          $sql->order((string)$options['order']);
+
+        $sql->bindValues();
+
+        $sth = \_M\Connection::instance()->query($sql, $sql->getValues());
+        return $sth->rowCount();
+      }
+
+      public static function updateAll($options = []) {
+        $args = func_get_args();
+        $options = array_shift($args);
+
+        is_string($options) && $options = ['where' => array_merge([$options], $args)];
+
+        isset($options[0]) && $options[0] instanceof \Where && $options[0] = ['where' => $options[0]->toArray()];
+        isset($options[0]) && is_string($options[0]) && $options[0] = ['where' => $options];
+        isset($options['where']) && is_string($options['where']) && $options['where'] = [$options['where']];
+        isset($options['where']) && $options['where'] instanceof \Where && $options['where'] = $options['where']->toArray();
+
+        $sql = \_M\SqlBuilder::create(Config::quoteName(static::table()->tableName))->update($options['set']);
+
+        if (isset($options['where']))
+          $sql->where($options['where']);
+
+        if (isset($options['limit']))
+          $sql->limit($options['limit']);
+
+        if (isset($options['order']))
+          $sql->order((string)$options['order']);
+
+        $sql->bindValues();
+      
+        $sth = \_M\Connection::instance()->query($sql, $sql->getValues());
+        return $sth->rowCount();
+      }
+
       public static function find() {
         $className = get_called_class();
         

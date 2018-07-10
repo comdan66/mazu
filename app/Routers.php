@@ -19,12 +19,38 @@ Router::get('/')
 
         // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
         // var_dump (Input::ip());
-        Load::sysLib('Session.php');
+        // Load::sysLib('Session.php');
         // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // // var_dump (Session::sessDestroy());
+        // var_dump (Session::sessRegenerate());
+        // var_dump (Session::allData());
+
+        // var_dump (Session::setData('a', M\User::one('id = 1')));
+
+        // var_dump (Session::getData('a'));
+        // var_dump (Session::getData('a')->title = 'def');
+        // var_dump (Session::getData('a')->save());
+        // var_dump (Session::getData('a'));
+
+        // var_dump (Session::unsetData('a'));
+
+        // var_dump (Session::getFlashDataKeys());
+        // var_dump (Session::getFlashDatas());
+        // var_dump (Session::setFlashData('a', 'b'));
+        // var_dump (Session::getFlashData('a'));
+        // var_dump (Session::markAsFlash('a'));
+        // var_dump (Session::keepFlashData('a'));
+        // var_dump (Session::unmarkFlashData('a'));
+        // var_dump (Session::unsetFlashData('a'));
+
+
+        // var_dump (Session::getTmpKeys());
+        // var_dump (Session::getTmpDatas());
         // var_dump (Session::setTmpData('a', 'b', 5));
         // var_dump (Session::getTmpData('a'));
-        // var_dump (Session::setFlashData('a', 'b'));
-        // var_dump (Session::getData('a'));
+        // var_dump (Session::markAsTmp('a'));
+        // var_dump (Session::unmarkTmp('a'));
+        // var_dump (Session::unsetTempData('a'));
         // exit ();;
 
 

@@ -13,7 +13,7 @@ if (!interface_exists ('SessionHandlerInterface', false)) {
 
 abstract class Session {
   
-  // protected $sessionId = '';
+  protected $sessionId = null;
   protected $fingerPrint = '';
   protected $lock = false;
   protected $success, $failure;
@@ -28,8 +28,8 @@ abstract class Session {
     }
   }
 
-  // protected function getLock($sessionId) { return $this->lock = true; }
-  // protected function releaseLock() { return !($this->lock && $this->lock = false); }
+  protected function getLock($sessionId) { return $this->lock = true; }
+  protected function releaseLock() { return !($this->lock && $this->lock = false); }
   protected function cookieDestroy() { return setcookie(self::$cookie['name'], null, 1, self::$cookie['path'], self::$cookie['domain'], self::$cookie['secure'], true); }
   protected function succ() { return $this->success; }
   protected function fail() { return $this->failure; }
@@ -59,6 +59,13 @@ abstract class Session {
   private static $lastRegenerateKey;
   private static $varsKey;
 
+  protected static function lastRegenerateKey() {
+    return self::$lastRegenerateKey;
+  }
+  
+  protected static function expiration() {
+    return self::$expiration;
+  }
 
   protected static function matchIp() {
     return self::$matchIp;
@@ -69,18 +76,15 @@ abstract class Session {
   }
 
   public static function init() {
-    if (isCli ())
+    if (isCli() || (bool)ini_get('session.auto_start'))
       return null;
 
-    if ((bool)ini_get('session.auto_start'))
-      return null;
-
-    self::$matchIp           = config('session', 'matchIp');
+    self::$matchIp           = false;
     self::$expiration        = 60 * 60 * 24 * 30 * 3; // 存活週期 // 單位秒 // 三個月
     self::$time2Update       = 60 * 60 * 24; // 更新 session ID 週期 // 每天更新
     self::$regenerateDestroy = true; // 重置 key 是否刪除舊的
-    self::$lastRegenerateKey = '__mazu_last_regenerate';
-    self::$varsKey           = '__mazu_vars';
+    self::$lastRegenerateKey = '__mazu__last__regenerate';
+    self::$varsKey           = '__mazu__vars';
 
     $cookie = config('cookie');
     self::$cookie['name'] = 'mazu_session';
@@ -201,9 +205,9 @@ abstract class Session {
     return session_destroy();
   }
 
-  public static function sessRegenerate($destroy = false) {
+  public static function sessRegenerate($destroy = null) {
     $_SESSION[self::$lastRegenerateKey] = time();
-    return session_regenerate_id($destroy);
+    return session_regenerate_id(is_bool($destroy) ? $destroy : self::lastRegenerateKey());
   }
 
   public static function allData() {
@@ -259,12 +263,12 @@ abstract class Session {
     return $flashdata;
   }
 
-  public static function getFlashData($key) {
-    return isset($_SESSION[self::$varsKey], $_SESSION[self::$varsKey][$key], $_SESSION[$key]) && !is_int($_SESSION[self::$varsKey][$key]) ? $_SESSION[$key] : null;
-  }
-
   public static function setFlashData($data, $value) {
     return self::setData($data, $value) && self::markAsFlash($data);
+  }
+
+  public static function getFlashData($key) {
+    return isset($_SESSION[self::$varsKey], $_SESSION[self::$varsKey][$key], $_SESSION[$key]) && !is_int($_SESSION[self::$varsKey][$key]) ? $_SESSION[$key] : null;
   }
 
   public static function markAsFlash($key) {

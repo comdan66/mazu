@@ -84,7 +84,7 @@ Output::router(Router::current());
  *  結束
  * ------------------------------------------------------ */
 
-defined('MODEL_LOADED') && \_M\Connection::instance()->close();
+// defined('MODEL_LOADED') && \_M\Connection::instance()->close();
 Log::closeAll();
 
 Benchmark::markEnd('整體');
