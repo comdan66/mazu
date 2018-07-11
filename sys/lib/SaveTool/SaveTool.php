@@ -2,19 +2,14 @@
 
 abstract class SaveTool {
   protected $bucket = null;
-  private $logFunc = null;
 
   protected function __construct($bucket) {
     $this->bucket = $bucket;
   }
 
-  public function setLogFunc($logFunc) {
-    is_callable($logFunc) && $this->logFunc = $logFunc;
-    return $this;
-  }
 
   protected function log() {
-    ($func = $this->logFunc) && call_user_func_array($func, func_get_args());
+    call_user_func_array('Log::saveTool', func_get_args());
     return false;
   }
 

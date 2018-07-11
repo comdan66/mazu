@@ -4,50 +4,50 @@ namespace M;
 
 defined('MAZU') || exit('此檔案不允許讀取！');
 
+$config = \config('model', 'uploader');
+
+Uploader::init($config);
+
+Uploader::initThumbnail(function ($file) use($config) {
+  $thumbnail = $config['thumbnail'];
+  if (!(\Load::sysLib('Thumbnail' . DIRECTORY_SEPARATOR . $thumbnail . '.php') && class_exists($thumbnail = "\\" . $thumbnail)))
+    return null;
+
+  return $thumbnail::create($file);
+});
+
+Uploader::initSaveTool(function () use($config) {
+  $saveTool = $config['saveTool'];
+  if (!(\Load::sysLib('SaveTool' . DIRECTORY_SEPARATOR . $saveTool . '.php') && class_exists($saveTool = "\\" . $saveTool)))
+    return null;
+
+  return call_user_func_array([$saveTool, 'create'], $config['params']);
+});
+
 abstract class Uploader {
   protected static $baseUrl = '/';
   protected static $dir = null;
   private static $tmpDir = null;
 
-  private static $errorFunc = null;
-  private static $logFunc = null;
   private static $saveTool = null;
   private static $thumbnail = null;
 
-
-  public static function setLogFunc($logFunc) {
-    is_callable($logFunc) && self::$logFunc = $logFunc;
-  }
-
-  public static function setErrorFunc($errorFunc) {
-    is_callable($errorFunc) && self::$errorFunc = self::$errorFunc = $errorFunc;
-  }
-  
   protected static function log() {
-    ($func = self::$logFunc) && call_user_func_array($func, func_get_args());
+    call_user_func_array('Log::uploader', func_get_args());
     return false;
   }
-
-  protected static function error($error) {
-    $args = func_get_args();
-    ($func = self::$errorFunc) && call_user_func_array($func, [array_shift($args), 500, ['msgs' => $args]]) || exit(implode(', ', $args));
-  }
-
-  public static function setTmpDir($tmpDir) {
-    \isReallyWritable($tmpDir) && self::$tmpDir = rtrim($tmpDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-  }
   
-  public static function setBaseUrl($baseUrl) {
-    is_string($baseUrl) && self::$baseUrl = rtrim($baseUrl, '/') . '/';
-  }
+  public static function init($config) {
+    isset($config['dir'], $config['tmpDir'], $config['baseUrl']) || \gg('Model Uploader Config 有誤，請設定 dir、tmpDir、baseUrl 值！');
 
-  public static function setDir($dir) {
-    is_string($dir) && ($dir = trim($dir, '/')) && self::$dir = $dir;
+    is_string($config['dir']) && ($config['dir'] = trim($config['dir'], '/')) && self::$dir = $config['dir'];
+    \isReallyWritable($config['tmpDir']) && self::$tmpDir = rtrim($config['tmpDir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    is_string($config['baseUrl']) && self::$baseUrl = rtrim($config['baseUrl'], '/') . '/';
   }
   
   protected static function thumbnail($file) {
     is_callable(self::$thumbnail) && ($thumbnail = self::$thumbnail) && self::$thumbnail = $thumbnail($file);
-    self::$thumbnail || self::error('尚未設定縮圖工具！');
+    self::$thumbnail || \gg('尚未設定縮圖工具！');
     return self::$thumbnail;
   }
 
@@ -56,11 +56,11 @@ abstract class Uploader {
   }
 
   protected static function saveTool() {
-    self::$saveTool !== null || self::error('尚未設定儲存工具！');
+    self::$saveTool !== null || \gg('尚未設定儲存工具！');
 
     if (is_callable(self::$saveTool) && ($saveTool = self::$saveTool))
       if (!self::$saveTool = $saveTool())
-        self::error('尚未設定儲存工具！');
+        \gg('尚未設定儲存工具！');
 
     if (is_object(self::$saveTool))
       return self::$saveTool;
@@ -76,12 +76,12 @@ abstract class Uploader {
   }
 
   protected static function tmpDir() {
-    self::$tmpDir !== null && \isReallyWritable(self::$tmpDir) || self::error('Uploader 尚未設定 tmp 目錄或無法寫入！');
+    self::$tmpDir !== null && \isReallyWritable(self::$tmpDir) || \gg('Uploader 尚未設定 tmp 目錄或無法寫入！');
     return self::$tmpDir;
   }
 
   protected static function dir() {
-    self::$dir || self::error('Uploader 未指定 dir！');
+    self::$dir || \gg('Uploader 未指定 dir！');
     return self::$dir . '/';
   }
 
@@ -115,7 +115,7 @@ abstract class Uploader {
   }
 
   public function savePath() {
-    array_key_exists($this->uniqueColumn(), $this->orm->attrs()) || self::error('此物件 「' . get_class($orm) . '」 沒有 「' . $this->uniqueColumn() . '」 欄位！');
+    array_key_exists($this->uniqueColumn(), $this->orm->attrs()) || \gg('此物件 「' . get_class($orm) . '」 沒有 「' . $this->uniqueColumn() . '」 欄位！');
     $id = $this->orm->attrs($this->uniqueColumn(), 0);
     $tmp = $this->orm->getTableName() . '/' . $this->column . '/';
     return $tmp . (is_numeric($id)
@@ -156,9 +156,7 @@ abstract class Uploader {
   }
 
   private function moveOriFile($fileInfo, $isUseMoveUploadedFile) {
-    $tmpDir = self::tmpDir();
-
-    $tmp = $tmpDir . 'uploader_' . getRandomName();
+    $tmp = self::tmpDir() . 'uploader_' . getRandomName();
 
     if ($isUseMoveUploadedFile)
       @move_uploaded_file($fileInfo['tmp_name'], $tmp);
@@ -223,9 +221,8 @@ abstract class Uploader {
   }
 
   public function putUrl($url) {
-    $tmpDir = self::tmpDir();
     $format = strtolower(pathinfo($url, PATHINFO_EXTENSION));
-    $tmp = downloadWebFile($url, $tmpDir . getRandomName() . ($format ? '.' . $format : ''));
+    $tmp = downloadWebFile($url, self::tmpDir() . getRandomName() . ($format ? '.' . $format : ''));
     return $tmp && $this->put($tmp, false) ? file_exists($tmp) ? @unlink($tmp) : true : false;
   }
 }

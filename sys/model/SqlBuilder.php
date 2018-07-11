@@ -54,14 +54,14 @@ class SqlBuilder {
     foreach ($where as &$value)
       if (is_array($value)) {
         $i = strpos($whereStr, '(?)', $i);
-        $i !== false || Config::error('Where 格式有誤！', '條件：' . $whereStr, '參數：' . implode(',', $value));
+        $i !== false || \gg('Where 格式有誤！', '條件：' . $whereStr, '參數：' . implode(',', $value));
 
         $whereStr = substr($whereStr, 0, $i) . '(' . ($value ? implode(',', array_map(function () { return '?'; }, $value)) : '?') . ')' . substr($whereStr, $i += 3);
         $value = $value ? $value : 'null';
       }
 
     $where = \arrayFlatten($where);
-    substr_count($whereStr, '?') == count($where) || Config::error('Where 格式有誤！', '條件：' . $whereStr, '參數：' . implode(',', $where));
+    substr_count($whereStr, '?') == count($where) || \gg('Where 格式有誤！', '條件：' . $whereStr, '參數：' . implode(',', $where));
 
     $this->where = $whereStr;
     $this->values = $where;

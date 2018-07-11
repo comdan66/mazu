@@ -13,8 +13,6 @@ class ThumbnailException extends Exception {
 }
 
 abstract class Thumbnail {
-  private $logFunc = null;
-
   private $class = null;
   protected $filePath = null;
 
@@ -34,13 +32,8 @@ abstract class Thumbnail {
 
   abstract protected function allows();
 
-  public function setLogFunc($logFunc) {
-    is_callable($logFunc) && $this->logFunc = $logFunc;
-    return $this;
-  }
-
   protected function log() {
-    ($func = $this->logFunc) && call_user_func_array($func, func_get_args());
+    call_user_func_array('Log::thumbnail', func_get_args());
     return $this;
   }
 

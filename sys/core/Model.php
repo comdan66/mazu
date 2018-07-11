@@ -10,9 +10,9 @@ if (!function_exists('useModel')) {
   function useModel() {
     define('MODEL_LOADED', true);
 
-    \Load::sysModel('Func.php')   || gg('載入 Model Func 失敗！');
-    \Load::sysModel('Where.php')  || gg('載入 Where 失敗！');
-    \Load::sysModel('Config.php') || gg('載入 Model Config 失敗！');
+    \Load::sysModel('Func.php')   || \gg('載入 Model Func 失敗！');
+    \Load::sysModel('Where.php')  || \gg('載入 Where 失敗！');
+    \Load::sysModel('Config.php') || \gg('載入 Model Config 失敗！');
 
     abstract class Model {
       private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'group', 'having', 'include', 'readonly'];
@@ -103,11 +103,11 @@ if (!function_exists('useModel')) {
         $className = get_called_class();
         
         $options = func_get_args();
-        $options || \_M\Config::error('請給予 ' . $className . ' 查詢條件！');
+        $options || \gg('請給予 ' . $className . ' 查詢條件！');
 
         // 過濾 method
-        is_string($method = array_shift($options)) || \_M\Config::error('請給予 Find 查詢類型！');
-        in_array($method, $tmp = ['one', 'first', 'last', 'all']) || \_M\Config::error('Find 僅能使用 ' . implode('、', $tmp) . ' ' . $tmp .'種查詢條件！');
+        is_string($method = array_shift($options)) || \gg('請給予 Find 查詢類型！');
+        in_array($method, $tmp = ['one', 'first', 'last', 'all']) || \gg('Find 僅能使用 ' . implode('、', $tmp) . ' ' . $tmp .'種查詢條件！');
         
         // Model::find('one', Where::create('id = ?', 2));
         isset($options[0]) && $options[0] instanceof \Where && $options[0] = ['where' => $options[0]->toArray()];
@@ -193,7 +193,7 @@ if (!function_exists('useModel')) {
           if (array_key_exists($primaryKey, $this->attrs))
             $tmp[$primaryKey] = $this->$primaryKey;
           else
-            \_M\Config::error('找不到 Primary Key 的值，請注意是否未 SELECT Primary Key！');
+            \gg('找不到 Primary Key 的值，請注意是否未 SELECT Primary Key！');
         return $tmp;
       }
 
@@ -386,12 +386,12 @@ if (!function_exists('useModel')) {
             return $this->relations[$name];
           }
 
-        \_M\Config::error($this->className . ' 找不到名稱為「' . $name . '」此物件變數！');
+        \gg($this->className . ' 找不到名稱為「' . $name . '」此物件變數！');
       }
 
       public function __set($name, $value) {
         if ($this->isReadonly)
-          \_M\Config::error('此物件是唯讀的狀態！');
+          \gg('此物件是唯讀的狀態！');
 
         if (array_key_exists($name, $this->attrs))
           if (isset(static::table()->columns[$name]))
@@ -399,7 +399,7 @@ if (!function_exists('useModel')) {
           else
             return $this->attrs[$name] = $value;
 
-        \_M\Config::error($this->className . ' 找不到名稱為「' . $name . '」此物件變數！');
+        \gg($this->className . ' 找不到名稱為「' . $name . '」此物件變數！');
       }
 
 
@@ -421,24 +421,24 @@ if (!function_exists('useModel')) {
       }
 
       public function delete() {
-        $this->isReadonly && \_M\Config::error('此資料為不可寫入(readonly)型態！');
+        $this->isReadonly && \gg('此資料為不可寫入(readonly)型態！');
 
         $primaryKeys = $this->primaryKeysWithValues();
-        $primaryKeys || \_M\Config::error('不能夠更新，因為 ' . $this->tableName . ' 尚未設定 Primary Key！');
+        $primaryKeys || \gg('不能夠更新，因為 ' . $this->tableName . ' 尚未設定 Primary Key！');
 
         static::table()->delete($primaryKeys);
         return true;
       }
 
       public function update() {
-        $this->isReadonly && \_M\Config::error('此資料為不可寫入(readonly)型態！');
+        $this->isReadonly && \gg('此資料為不可寫入(readonly)型態！');
 
         isset(static::table()->columns['updateAt']) && array_key_exists('updateAt', $this->attrs) && !array_key_exists('updateAt', $this->dirty) && $this->setAttr ('updateAt', \date(\_M\Config::FORMAT_DATETIME));
 
         if ($dirty = array_intersect_key($this->attrs, $this->dirty)) {
 
           $primaryKeys = $this->primaryKeysWithValues();
-          $primaryKeys || \_M\Config::error('不能夠更新，因為 ' . $this->tableName . ' 尚未設定 Primary Key！');
+          $primaryKeys || \gg('不能夠更新，因為 ' . $this->tableName . ' 尚未設定 Primary Key！');
 
           static::table()->update($dirty, $primaryKeys);
         }
@@ -447,7 +447,7 @@ if (!function_exists('useModel')) {
       }
 
       public function insert() {
-        $this->isReadonly && \_M\Config::error('此資料為不可寫入(readonly)型態！');
+        $this->isReadonly && \gg('此資料為不可寫入(readonly)型態！');
 
         isset(static::table()->columns['createAt']) && !array_key_exists('createAt', $this->attrs) && $this->setAttr ('createAt', \date(\_M\Config::FORMAT_DATETIME));
         isset(static::table()->columns['updateAt']) && !array_key_exists('updateAt', $this->attrs) && $this->setAttr ('updateAt', \date(\_M\Config::FORMAT_DATETIME));
@@ -501,39 +501,7 @@ if (!function_exists('useModel')) {
       }
     }
 
-    Config::setModelsDir(PATH_MODEL);
-    Config::setConnection(config('database'));
-
-    Config::setErrorFunc('gg');
-    Config::setLogFunc('Log::model');
-    Config::setQueryLogFunc('Log::query');
-
-    $config = config('model', 'uploader');
-
-    Uploader::setDir($config['dir']);
-    Uploader::setTmpDir($config['tmpDir']);
-    Uploader::setBaseUrl($config['baseUrl']);
-
-    Uploader::setErrorFunc('gg');
-    Uploader::setLogFunc('Log::uploader');
-
-    Uploader::initThumbnail(function ($file) use($config) {
-      $thumbnail = $config['thumbnail'];
-      if (!(\Load::sysLib('Thumbnail' . DIRECTORY_SEPARATOR . $thumbnail . '.php') && class_exists($thumbnail = "\\" . $thumbnail)))
-        return null;
-
-      $thumbnail = $thumbnail::create($file);
-      return $thumbnail->setLogFunc('Log::thumbnail');
-    });
-
-    Uploader::initSaveTool(function () use($config) {
-      $saveTool = $config['saveTool'];
-      if (!(\Load::sysLib('SaveTool' . DIRECTORY_SEPARATOR . $saveTool . '.php') && class_exists($saveTool = "\\" . $saveTool)))
-        return null;
-
-      $saveTool = call_user_func_array([$saveTool, 'create'], $config['params']);
-      return $saveTool->setLogFunc('Log::saveTool');
-    });
+    Config::setConnection(\config('database'));
   }
 }
 
@@ -547,14 +515,14 @@ if (!function_exists('autoloadModel')) {
       return false;
 
     $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'Uploader' . DIRECTORY_SEPARATOR : '';
-    $path = ($namespace == '_M' || $uploader ? PATH_SYS_MODEL . $uploader : \_M\Config::getModelsDir()) . $modelName . '.php';
+    $path = ($namespace == '_M' || $uploader ? PATH_SYS_MODEL . $uploader : PATH_MODEL) . $modelName . '.php';
 
     if (!(is_file($path) && is_readable($path)))
       return false;
 
     include_once $path;
 
-    class_exists($className) || \_M\Config::error('找不到名稱為「' . $className . '」的 Model 物件！');
+    class_exists($className) || \gg('找不到名稱為「' . $className . '」的 Model 物件！');
   }
 
   spl_autoload_register('\M\autoloadModel', false, true);
