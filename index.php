@@ -23,6 +23,7 @@ define('PATH', dirname(__FILE__)              . DIRECTORY_SEPARATOR); // 此專�
 define('PATH_SYS',       PATH .     'sys'     . DIRECTORY_SEPARATOR); // sys 絕對位置
 define('PATH_LOG',       PATH .     'log'     . DIRECTORY_SEPARATOR); // log 絕對位置
 define('PATH_TMP',       PATH .     'tmp'     . DIRECTORY_SEPARATOR); // tmp 絕對位置
+define('PATH_CACHE',     PATH .     'cache'   . DIRECTORY_SEPARATOR); // cache 絕對位置
 define('PATH_SESSION',   PATH .     'session' . DIRECTORY_SEPARATOR); // session 絕對位置
 define('PATH_APP',       PATH .     'app'     . DIRECTORY_SEPARATOR); // app 絕對位置
 define('PATH_VIEW',      PATH_APP . 'view'    . DIRECTORY_SEPARATOR); // view 絕對位置
@@ -30,6 +31,7 @@ define('PATH_MODEL',     PATH_APP . 'model'   . DIRECTORY_SEPARATOR); // model �
 
 define('PATH_SYS_CORE',  PATH_SYS . 'core'    . DIRECTORY_SEPARATOR); // sys core 絕對位置
 define('PATH_SYS_LIB',   PATH_SYS . 'lib'     . DIRECTORY_SEPARATOR); // sys lib 絕對位置
+define('PATH_SYS_FUNC',  PATH_SYS . 'func'    . DIRECTORY_SEPARATOR); // sys func 絕對位置
 define('PATH_SYS_MODEL', PATH_SYS . 'model'   . DIRECTORY_SEPARATOR); // sys model 絕對位置
 
 

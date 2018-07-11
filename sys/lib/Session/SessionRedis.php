@@ -5,38 +5,40 @@ class SessionRedis extends Session implements SessionHandlerInterface {
   private $prefix = 'mazu_session:'; 
   private $lockKey = null; 
   private $keyExists = false; 
+  
+  private $host = null; 
+  private $port = null; 
+  private $timeout = null; 
+  private $password = null; 
+  private $database = null; 
 
   public function __construct() {
     parent::__construct();
+
+    $this->host = 'localhost';
+    $this->port = '6379';
+
     extension_loaded('redis') || gg('載入 SessionRedis 失敗，無 Redis 函式！');
+    $this->prefix = $this->prefix . (Session::matchIp() ? Input::ip() . ':' : '');
   }
 
   public function open($path, $name) {
     if ($this->redis !== null)
       return $this->succ();
 
-    $config = config('session', 'params');
-
-    foreach (['host', 'port', 'password', 'database', 'timeout'] as $key)
-      if (!array_key_exists($key, $config))
-        gg('params 缺少 Key：' . $key);
-
     $this->redis = new Redis();
+    $this->redis->connect($this->host, $this->port, $this->timeout) || gg('SessionRedis 錯誤，連不上 Redis，Host：' . $this->host . '，Port：' . $this->port . '，Timeout：' . $this->timeout);
+    if ($this->password) $this->redis->auth($this->password) || gg('SessionRedis 錯誤，請確認密碼，密碼：' . $this->password);
+    if ($this->database) $this->redis->select($this->database) || gg('SessionRedis 錯誤，找不到指定的 Database，Database：' . $this->database);
 
-    $this->redis->connect($config['host'], $config['port'], $config['timeout']) || gg('SessionRedis 錯誤，連不上 Redis，Host：' . $config['host'] . '，Port：' . $config['port'] . '，Timeout：' . $config['timeout']);
-
-    if ($config['password'])
-      $this->redis->auth($config['password']) || gg('SessionRedis 錯誤，請確認密碼，密碼：' . $config['password']);
-
-    if ($config['database'])
-      $this->redis->select($config['database']) || gg('SessionRedis 錯誤，找不到指定的 Database，Database：' . $config['database']);
-
-    return $this->succ ();
+    return $this->succ();
   }
 
   public function read($sessionId) {
     if ($this->redis && $this->getLock($sessionId)) {
+      $this->sessionId = $sessionId;
       $data = $this->redis->get($this->prefix . $sessionId);
+
       is_string($data) ? $this->keyExists = true : $data = '';
       $this->fingerPrint = md5($data);
       return $data;
@@ -48,8 +50,17 @@ class SessionRedis extends Session implements SessionHandlerInterface {
   public function write($sessionId, $sessionData) {
     if (!($this->redis && $this->lockKey))
       return $this->fail();
+
+    if ($sessionId !== $this->sessionId) {
+      if (!($this->releaseLock() && $this->getLock($sessionId)))
+        return $this->fail();
+
+      $this->keyExists = false;
+      $this->sessionId = $sessionId;
+    }
     
     $this->redis->setTimeout($this->lockKey, 300);
+
     if ($this->fingerPrint !== ($fingerPrint = md5($sessionData)) || $this->keyExists === false) {
       if ($this->redis->set($this->prefix . $sessionId, $sessionData, self::expiration())) {
         $this->fingerPrint = $fingerPrint;
@@ -133,5 +144,9 @@ class SessionRedis extends Session implements SessionHandlerInterface {
     }
 
     return true;
+  }
+  
+  public function __destruct() {
+    $this->redis && $this->redis->close() && $this->redis = null;
   }
 }

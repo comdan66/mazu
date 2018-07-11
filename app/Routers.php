@@ -17,17 +17,33 @@ Router::cli('/')
 Router::get('/')
       ->work(function() {
 
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // var_dump (Input::ip());
-        // Load::sysLib('Session.php');
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // // var_dump (Session::sessDestroy());
-        // var_dump (Session::sessRegenerate());
-        // var_dump (Session::allData());
 
-        // var_dump (Session::setData('a', M\User::one('id = 1')));
+        // Load::sysLib('Cache.php');
+        // $cache = Cache::CacheFile('2', function() {
+        //   return '122w';
+        // }, 2);
+
+        // echo $cache->save('1', 'adv', 2);
+        // echo $cache->get('1');
+       
+        // // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+        // // // var_dump (Session::sessDestroy());
+        // // var_dump (Session::sessRegenerate());
+        // // var_dump (Session::allData());
+
+        // var_dump (Session::setData('a', '1'));
 
         // var_dump (Session::getData('a'));
+
+    // $memcached = new Memcached();
+    // $memcached->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
+
+    // $memcached->addServer('127.0.0.1', 11211, 0);
+    // // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    // var_dump ($memcached->set('aa', 123));
+    // var_dump ($memcached->getAllKeys());
+    // exit ();;
+
         // var_dump (Session::getData('a')->title = 'def');
         // var_dump (Session::getData('a')->save());
         // var_dump (Session::getData('a'));
@@ -54,11 +70,11 @@ Router::get('/')
         // exit ();;
 
 
-        // $obj = M\Article::one('id = 1');
+        $obj = M\Article::one('id = 1');
         
-// echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-// var_dump ($obj->cover->putUrl('https://danwoog.files.wordpress.com/2018/02/pic-saugatuck-river-mark-molesworth.jpg'));
-//         echo $obj->cover->url();
+echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+var_dump ($obj->cover->putUrl('https://danwoog.files.wordpress.com/2018/02/pic-saugatuck-river-mark-molesworth.jpg'));
+        echo $obj->cover->url();
         
         // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
         // var_dump ($obj->cover->put(PATH_TMP . 'README.md'));

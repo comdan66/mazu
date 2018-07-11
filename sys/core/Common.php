@@ -27,6 +27,9 @@ class Load {
   public static function sysLib($path) {
     return self::file(PATH_SYS_LIB . $path);
   }
+  public static function sysFunc($path) {
+    return self::file(PATH_SYS_FUNC . $path);
+  }
   public static function app($path) {
     return self::file(PATH_APP . $path);
   }

@@ -12,39 +12,14 @@ class SessionDatabase extends Session implements SessionHandlerInterface {
     ini_set('session.save_path', 'SessionDataModel');
   }
 
-  private function where($sessionId) {
-    return Session::matchIp() ? ['sessionId = ? AND ipAddress = ?', $sessionId, Input::ip()] : ['sessionId = ?', $sessionId];
-  }
-
-  private function query($sql) {
-    return \_M\Connection::instance()->query($sql);
-  }
-
-  private function createTable($model) {
-    $encoding = config('database', 'encoding');
-    $dbcollat = $encoding . '_unicode_ci';
-
-    $sql = "CREATE TABLE `" . $model . "` ("
-            . "`id` int(11) unsigned NOT NULL AUTO_INCREMENT,"
-            . "`sessionId` varchar(128) COLLATE " . $dbcollat . " NOT NULL DEFAULT '' COMMENT 'Session ID',"
-            . "`ipAddress` varchar(45) COLLATE " . $dbcollat . " NOT NULL DEFAULT '' COMMENT 'IP',"
-            . "`timestamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Timestamp',"
-            . "`data` blob NOT NULL COMMENT 'Data',"
-            . "PRIMARY KEY (`id`),"
-            . (Session::matchIp() ? "KEY `ipAddress_sessionId_index` (`ipAddress`,`sessionId`)" : "KEY `sessionId_index` (`sessionId`)")
-          . ") ENGINE=InnoDB DEFAULT CHARSET=" . $encoding . " COLLATE=" . $dbcollat . ";";
-
-    return $this->query($sql);
-  }
-
   public function open($model, $name) {
     if ($this->model !== null)
       return $this->succ();
 
-    $model && class_exists($model) || gg('SessionDatabase 錯誤，找不到指定的 Model。Model：' . $model);
+    $model && class_exists($model) || gg('SessionDatabase 錯誤，找不到指定的 Model，Model：' . $model);
     
     $obj = $this->query("SHOW TABLES LIKE '" . $model . "';")->fetch(PDO::FETCH_NUM);
-    $obj && $obj[0] == $model || $this->createTable($model) || gg('產生 ' . $model . ' 資料表失敗！');
+    $obj && $obj[0] == $model || $this->runCreateSql($model) || gg('SessionDatabase 錯誤，產生 ' . $model . ' 資料表失敗！');
 
     $this->model = $model;
     return $this->succ();
@@ -160,5 +135,31 @@ class SessionDatabase extends Session implements SessionHandlerInterface {
 
     $this->lock = false;
     return true;
+  }
+
+
+  private function where($sessionId) {
+    return Session::matchIp() ? ['sessionId = ? AND ipAddress = ?', $sessionId, Input::ip()] : ['sessionId = ?', $sessionId];
+  }
+
+  private function query($sql) {
+    return \_M\Connection::instance()->query($sql);
+  }
+
+  private function runCreateSql($model) {
+    $encoding = config('database', 'encoding');
+    $dbcollat = $encoding ? $encoding . '_unicode_ci' : 'utf8mb4_unicode_ci';
+
+    $sql = "CREATE TABLE `" . $model . "` ("
+            . "`id` int(11) unsigned NOT NULL AUTO_INCREMENT,"
+            . "`sessionId` varchar(128) COLLATE " . $dbcollat . " NOT NULL DEFAULT '' COMMENT 'Session ID',"
+            . "`ipAddress` varchar(45) COLLATE " . $dbcollat . " NOT NULL DEFAULT '' COMMENT 'IP',"
+            . "`timestamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Timestamp',"
+            . "`data` blob NOT NULL COMMENT 'Data',"
+            . "PRIMARY KEY (`id`),"
+            . (Session::matchIp() ? "KEY `ipAddress_sessionId_index` (`ipAddress`,`sessionId`)" : "KEY `sessionId_index` (`sessionId`)")
+          . ") ENGINE=InnoDB DEFAULT CHARSET=" . $encoding . " COLLATE=" . $dbcollat . ";";
+
+    return $this->query($sql);
   }
 }

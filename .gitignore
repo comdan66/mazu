@@ -10,3 +10,4 @@ composer.lock
 /tmp/*
 /storage/*
 /session/*
+/cache/*

@@ -1,6 +1,6 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-if (!interface_exists ('SessionHandlerInterface', false)) {
+if (!interface_exists('SessionHandlerInterface', false)) {
   interface SessionHandlerInterface {
     public function open($savePath, $name);
     public function close();
@@ -12,10 +12,9 @@ if (!interface_exists ('SessionHandlerInterface', false)) {
 }
 
 abstract class Session {
-  
   protected $sessionId = null;
-  protected $fingerPrint = '';
   protected $lock = false;
+  protected $fingerPrint = '';
   protected $success, $failure;
 
   protected function __construct() {
@@ -33,21 +32,6 @@ abstract class Session {
   protected function cookieDestroy() { return setcookie(self::$cookie['name'], null, 1, self::$cookie['path'], self::$cookie['domain'], self::$cookie['secure'], true); }
   protected function succ() { return $this->success; }
   protected function fail() { return $this->failure; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   private static $matchIp;
   private static $expiration;
@@ -110,7 +94,7 @@ abstract class Session {
         $_SESSION[self::$lastRegenerateKey] = time();
       else if ($_SESSION[self::$lastRegenerateKey] < (time() - self::$time2Update))
         self::sessRegenerate(self::$regenerateDestroy);
-
+      else;
     } else if (isset($_COOKIE[self::$cookie['name']]) && $_COOKIE[self::$cookie['name']] === session_id()) {
       setcookie(self::$cookie['name'],
         session_id(),
@@ -362,4 +346,4 @@ abstract class Session {
   }
 }
 
-Session::init ();
+Session::init();

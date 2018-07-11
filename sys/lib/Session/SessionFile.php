@@ -9,16 +9,20 @@ class SessionFile extends Session implements SessionHandlerInterface {
 
   public function __construct() {
     parent::__construct();
-    $this->path = config('session', 'params', 'path');
+    $this->path = null;
     $this->handle = null;
     $this->fileNew = true;
 
-    ini_set('session.save_path', $this->path);
+    ini_set('session.save_path', PATH_SESSION);
   }
 
   public function open($path, $name) {
-    isset($path) && is_dir($path) && isReallyWritable($path) || gg('SessionFile 錯誤，路徑不存在或無法寫入！儲存路徑：' . $path);
-    $this->path = $path . $name . '_' . (self::matchIp() ? md5($_SERVER['REMOTE_ADDR']) . '_' : '');
+    if ($this->path)
+      return $this->succ();
+
+    isset($path) && is_dir($path) && isReallyWritable($path) || gg('SessionFile 錯誤，路徑不存在或無法寫入，儲存路徑：' . $path);
+    $this->path = $path . $name . '_' . (self::matchIp() ? Input::ip() . '_' : '');
+
     return $this->succ();
   }
 
@@ -34,6 +38,8 @@ class SessionFile extends Session implements SessionHandlerInterface {
         $this->handle = null;
         return $this->fail();
       }
+
+      $this->sessionId = $sessionId;
 
       if ($this->fileNew) {
         chmod($this->path . $sessionId, SessionFile::PERMISSIONS);
@@ -59,7 +65,7 @@ class SessionFile extends Session implements SessionHandlerInterface {
   }
 
   public function write($sessionId, $sessionData) {
-    if ($this->close() === $this->fail() || $this->read($sessionId) === $this->fail() || !is_resource($this->handle))
+    if ($sessionId !== $this->sessionId || $this->close() === $this->fail() || $this->read($sessionId) === $this->fail() || !is_resource($this->handle))
       return $this->fail();
 
     if ($this->fingerPrint === md5($sessionData))
@@ -90,7 +96,7 @@ class SessionFile extends Session implements SessionHandlerInterface {
       flock($this->handle, LOCK_UN);
       fclose($this->handle);
 
-      $this->handle = $this->fileNew = null;
+      $this->handle = $this->fileNew = $this->sessionId = null;
     }
 
     return $this->succ();
