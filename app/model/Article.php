@@ -2,6 +2,8 @@
 
 namespace M;
 
+defined('MAZU') || exit('此檔案不允許讀取！');
+
 class Article extends Model {
   // static $tableName ='devices';
 

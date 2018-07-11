@@ -90,8 +90,3 @@ Output::router(Router::current());
 Log::closeAll();
 
 Benchmark::markEnd('整體');
-
-echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-var_dump(Benchmark::elapsedTime());
-var_dump(Benchmark::elapsedMemory());
-exit ();

@@ -23,6 +23,6 @@ switch (ENVIRONMENT) {
     break;
 
   default:
-    gg('「環境變數(ENVIRONMENT)」設定錯誤！', 503);
+    new GG('「環境變數(ENVIRONMENT)」設定錯誤！', 503);
     break;
 }

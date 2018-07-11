@@ -1,219 +1,66 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-// $f1 = function () {
-//   return '1a';
-// };
-// $f2 = function () {
-//   // return Router::current()
-//   //              ->setWork(['你權限未過'])
-//   //              ->setStatus(500);
-// };
-
-
-Router::cli('/')
+Router::get('/admin/')
       ->work(function() {
-
+        
       });
-Router::get('/')
+Router::get('/admin/login')
       ->work(function() {
+        Load::sysLib('Asset.php');
+        Load::sysLib('Session.php');
 
+        $flash = Session::getFlashData('flash');
 
-        // Load::sysLib('Cache.php');
-        // $cache = Cache::CacheFile('2', function() {
-        //   return '122w';
-        // }, 2);
+        $asset = Asset::create()
+                      ->addCSS('/asset/css/icon-login.css')
+                      ->addCSS('/asset/css/admin/login.css')
+                      ->addJS('/asset/js/res/jquery-1.10.2.min.js')
+                      ->addJS('/asset/js/login.js');
 
-        // echo $cache->save('1', 'adv', 2);
-        // echo $cache->get('1');
-       
-        // // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // // // var_dump (Session::sessDestroy());
-        // // var_dump (Session::sessRegenerate());
-        // // var_dump (Session::allData());
-
-        // var_dump (Session::setData('a', '1'));
-
-        // var_dump (Session::getData('a'));
-
-    // $memcached = new Memcached();
-    // $memcached->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
-
-    // $memcached->addServer('127.0.0.1', 11211, 0);
-    // // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    // var_dump ($memcached->set('aa', 123));
-    // var_dump ($memcached->getAllKeys());
-    // exit ();;
-
-        // var_dump (Session::getData('a')->title = 'def');
-        // var_dump (Session::getData('a')->save());
-        // var_dump (Session::getData('a'));
-
-        // var_dump (Session::unsetData('a'));
-
-        // var_dump (Session::getFlashDataKeys());
-        // var_dump (Session::getFlashDatas());
-        // var_dump (Session::setFlashData('a', 'b'));
-        // var_dump (Session::getFlashData('a'));
-        // var_dump (Session::markAsFlash('a'));
-        // var_dump (Session::keepFlashData('a'));
-        // var_dump (Session::unmarkFlashData('a'));
-        // var_dump (Session::unsetFlashData('a'));
-
-
-        // var_dump (Session::getTmpKeys());
-        // var_dump (Session::getTmpDatas());
-        // var_dump (Session::setTmpData('a', 'b', 5));
-        // var_dump (Session::getTmpData('a'));
-        // var_dump (Session::markAsTmp('a'));
-        // var_dump (Session::unmarkTmp('a'));
-        // var_dump (Session::unsetTempData('a'));
-        // exit ();;
-
-
-        // $obj = M\Article::one('id = 1');
-        
-// echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-// var_dump ($obj->cover->putUrl('https://danwoog.files.wordpress.com/2018/02/pic-saugatuck-river-mark-molesworth.jpg'));
-//         echo $obj->cover->url();
-        
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // var_dump ($obj->cover->put(PATH_TMP . 'README.md'));
-        // exit ();;
-        // $user = Router::current()->getParams('user');
-        // $book = new M\BookArticle();
-
-        // M\BookArticle::one()
-
-
-        // $obj = M\BookArticle::one(Where::create('id IN (?)', [2]));
-        // $obj = M\BookArticle::one('id = 2');
-
-        // $obj = M\BookArticle::one('id = ?', 2);
-        // $obj = M\BookArticle::one('id = ?', 2);
-        
-        // throw new Exception('dd');
-
-        // gg('asd');
-
-        // $obj = M\Article::one();
-        // // // $b = function (){};
-        // $a = [1,2,3,['a', '', ['a1' => 1, 'b2' => $obj, new Book()]]];
-        // // gg($a);
-        // Log::info($a);
-
-        // gg($a);
-        // 1/0;
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // echo dump($a);
-
-
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // echo dump($a);
-
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // var_dump (dump('ad'));
-        // var_dump (dump([M\Article::one(), 1, 'abc']));
-        // $obj = M\Article::one();
-        // echo dump([new Book()]);
-        // exit ();;
-
-
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // var_dump (json_encode(M\Article::one()));
-        // exit ();
-        // Log::error('a');
-
-// 1/0;
-        // 
-        
-
-// gg('asd');
-// gg(\M\Article::one());
-// gg([\M\Article::one()]);
-
-        // $obj = \M\Article::one();
-        // var_dump ($obj);
-
-        // $obj = M\BookArticle::one(['where' => ['id = ?', 2]]);
-        // $obj = M\BookArticle::one(['where' => ['id = ?', 2], 'select' => 'id', 'order' => 'id ASC, ss DESC']);
-
-        // M\BookArticle::first();
-        // M\BookArticle::last(['order' => 'id ASC, ss DESC']);
-        // M\BookArticle::all();
-
-        // M\BookArticle::find('one', Where::create('id = ?', 2));
-        // M\BookArticle::find('one', ['where' => ['id = ?', 2], 'order' => 'id DESC']);
-        // M\BookArticle::find('one', 'id = ?', 2);
-
-
-        // M\BookArticle::find('one');
-
-
-        // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-        // var_dump ($book);
-        // exit ();
-        
-        return ;
+        return View::create('admin/auth/login.php')
+                   ->with('asset', $asset)
+                   ->with('flash', $flash);
       });
 
-// Router::get('bbb')->work('get Hello 2');
+Router::post('/admin/login')
+      ->work(function() {
+        Load::sysLib('Validator.php');
+        Load::sysLib('Session.php');
 
-// Router::post('/aaa/(:id)/bbb/(:any)')->work(function ($a, $b) {
-//   return $a . '----' . $b;
-// });
-// Router::post('bbb')->work('post Hello 2');
+        $validator = function(&$posts, &$admin) {
+          isset($posts['account'])  || Validator::error('帳號不存在！');
+          isset($posts['password']) || Validator::error('密碼不存在！');
 
-// // Router::cli('bbb', 'Hello 2');
+          $posts['account']  = trim($posts['account']);
+          $posts['password'] = trim($posts['password']);
 
+          $posts['account']  || Validator::error('帳號不存在！');
+          $posts['password'] || Validator::error('密碼不存在！');
 
-// // Router::get('aaa/(:id)/bbb/(:any)', 'Hello');
+          $posts['account'] = strip_tags($posts['account']);
+          $posts['password'] = strip_tags($posts['password']);
 
-// // Router::get('aaa/(:id)/bbb/(:any)', function ($params1, $params2) {
-// //   return View::create('...')
-// //              ->with('p1', $params1)
-// //              ->with('p2', $params2);
-// // });
+          $admin = \M\Admin::one('account = ?', $posts['account']);
+          $admin || Validator::error('此帳號不存在！');
 
+          password_verify($posts['password'], $admin->password) || Validator::error('密碼錯誤！');
+        };
 
-// // Router::get('admin/books/(:id)', function ($a, $b, $role) {
-// //   // ...
-// //   $a = $role == 'admin' ? 1 : 2;
+        $transaction = function ($admin) {
+          $admin->token || $admin->token = md5(($admin->id ? $admin->id . '_' : '') . uniqid(rand() . '_'));
+          return $admin->save();
+        };
 
-// //   return View::create('...');
-// // })->before ($func1)
-// //   ->before ($func2);
+        $posts = Input::post();
 
-// // Router::get('admin/peoples/(:id)', function ($id) {
-// //   // ...
-// //   return View::create('...');
-// // })->before ($func);
+        if ($error = Validator::check($validator, $posts, $admin))
+          return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'failure', 'msg' => $error, 'params' => $posts]);
 
+        if ($error = transaction($transaction, $admin))
+          return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'failure', 'msg' => $error, 'params' => $posts]);
 
-// // $func1 = function () {
-// //   // 驗證是否登入
-// //   $user = User::find_by_token ('adddd');
+        Session::setData('token', $admin->token);
 
-// //   return $user;
-// // };
-// // $func2 = function ($user) {
-// //   // 驗證是否登入
-
-// //   return $user->role;
-// // };
-
-// // $func3 = function ($params1, $params2) {
-
-
-// //   return View::create('...')
-// //              ->with('p1', $params1)
-// //              ->with('p2', $params2);
-  
-// //   return Output::json ([]);
-// //   return Output::text ('');
-// // };  
-
-
-// // Router::get('admin/books/(:id)')
-// //       // ->before($func1)
-// //       // ->before($func2)
-// //       ->exec ($func3);
+        return Url::refreshWithFlash(Url::base('admin'), ['type' => 'success', 'msg' => '登入成功！', 'params' => []]);
+        // return refresh (URL::base ('admin'), 'flash', array ('type' => 'success', 'msg' => '登入成功！', 'params' => array ()));
+      });

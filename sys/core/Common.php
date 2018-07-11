@@ -1,6 +1,5 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-
 class Load {
   private static $cache = [];
 
@@ -32,6 +31,45 @@ class Load {
   }
   public static function app($path) {
     return self::file(PATH_APP . $path);
+  }
+}
+
+class GG {
+  public static $isApi = false;
+
+  public function __construct($text, $code = 500, $contents = []) {
+    
+    isCli() || responseStatusHeader($code);
+    isCli() ? @system('clear') : @ob_end_clean();
+
+    $type = !isCli() ? !class_exists('View') || GG::$isApi ? 'api' : 'html' : 'cli';
+    isset($contents['traces']) || $contents['traces'] = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
+    
+    if ($code === 404)
+      $contents = [];
+
+    if (isset($contents['msgs'][0]) && $contents['msgs'][0] instanceof Exception) {
+      $contents['traces']  = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, $contents['msgs'][0]->getTrace());
+      $contents['msgs'] = array_map('dump', $contents['msgs']);
+    }
+
+    switch ($type) {
+      default:
+      case 'api':
+        $contents = array_merge(['text' => dump($text)], $contents);
+
+        @header('Content-Type: application/json');
+        echo json_encode($contents);
+        exit;
+      
+      case 'cli':
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggCli.php' : '404Cli.php'))->with('text', dump($text, 1))->with('contents', $contents)->get();
+        exit;
+
+      case 'html':
+        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggHtml.php' : '404Html.php'))->with('text', dump($text))->with('contents', $contents)->get();
+        exit;
+    }
   }
 }
 
@@ -106,7 +144,6 @@ if (!function_exists('responseStatusHeader')) {
   }
 }
 
-
 if (!function_exists('implodeRecursive')) {
   function implodeRecursive($glue, $pieces) {
     $ret = '';
@@ -121,46 +158,9 @@ if (!function_exists('implodeRecursive')) {
 }
 
 if (!function_exists('gg')) {
-  function gg($text, $code = 500, $contents = []) {
-    static $api;
-
-    if ($text === null && $code === 'api')
-      return $api = $code;
-
-    isCli() || responseStatusHeader($code);
-    isCli() ? @system('clear') : @ob_end_clean();
-
-    $type = !isCli() ? !class_exists('View') || $api === 'api' ? 'api' : 'html' : 'cli';
-    isset($contents['traces']) || $contents['traces'] = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
-    
-    if ($code === 404)
-      $contents = [];
-
-    if (isset($contents['msgs'][0]) && $contents['msgs'][0] instanceof Exception) {
-      // $text = $exception->getMessage();
-
-      $contents['traces']  = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, $contents['msgs'][0]->getTrace());
-      // $contents['msgs'][0] = $contents['msgs'][0]->getMessage();
-      $contents['msgs'] = array_map('dump', $contents['msgs']);
-    }
-
-    switch ($type) {
-      default:
-      case 'api':
-        $contents = array_merge(['text' => dump($text)], $contents);
-
-        @header('Content-Type: application/json');
-        echo json_encode($contents);
-        exit;
-      
-      case 'cli':
-        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggCli.php' : '404Cli.php'))->with('text', dump($text, 1))->with('contents', $contents)->get();
-        exit;
-
-      case 'html':
-        echo View::maybe('error' . DIRECTORY_SEPARATOR . ($contents ? 'ggHtml.php' : '404Html.php'))->with('text', dump($text))->with('contents', $contents)->get();
-        exit;
-    }
+  function gg() {
+    $args = func_get_args();
+    new GG(array_shift($args), 500, ['msgs' => $args]);
   }
 }
 
@@ -238,7 +238,7 @@ if (!function_exists('errorHandler')) {
     $details = [['title' => '類型', 'content' => isset($levels[$severity]) ? $levels[$severity] : $severity], ['title' => '訊息', 'content' => $message], ['title' => '位置', 'content' => $filepath . '(' . $line . ')']];
     $traces = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
 
-    str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && gg($message, 500, ['details' => $details, 'traces' => $traces]);
+    str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && new GG($message, 500, ['details' => $details, 'traces' => $traces]);
 
     if (!$isError)
       return log::warning(['text' => $message, 'details' => $details, 'traces' => $traces]);
@@ -255,7 +255,7 @@ if (!function_exists('exceptionHandler')) {
     $details = [['title' => '類型', 'content' => get_class($exception)], ['title' => '訊息', 'content' => $exception->getMessage()], ['title' => '位置', 'content' => $exception->getFile() . '(' . $exception->getLine() . ')']];
     $traces = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, $exception->getTrace());
 
-    str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && gg($message, 500, ['details' => $details, 'traces' => $traces]);
+    str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && new GG($message, 500, ['details' => $details, 'traces' => $traces]);
 
     isCli() || responseStatusHeader(500);
     log::error(['text' => $message, 'details' => $details, 'traces' => $traces]);
@@ -296,7 +296,6 @@ if (!function_exists('umaskChmod')) {
   }
 }
 
-
 if (!function_exists('umaskMkdir')) {
   function umaskMkdir($pathname, $mode = 0777, $recursive = false) {
     $oldmask = umask(0);
@@ -309,6 +308,13 @@ if (!function_exists('isJson')) {
   function isJson(&$string, $array = false) {
    $string = json_decode($string, $array);
    return (json_last_error() === JSON_ERROR_NONE);
+  }
+}
+
+if (!function_exists('transaction')) {
+  function transaction($closure, &...$args) {
+    function_exists('\M\transaction') || \M\useModel();
+    return is_callable($closure) ? call_user_func_array('\M\transaction', array_merge([$closure], $args)) ? null : '資料庫處理錯誤！' : false;
   }
 }
 

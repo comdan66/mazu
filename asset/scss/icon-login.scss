@@ -1,0 +1,29 @@
+@import "_oa";
+
+@include font-face("icomoon", font-files("login/fonts/icomoon.eot", "login/fonts/icomoon.woff", "login/fonts/icomoon.ttf", "login/fonts/icomoon.svg"));
+[class^="icon-"], [class*=" icon-"] {
+  font-family: "icomoon", Arial, "微軟正黑體", "Microsoft JhengHei", -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;
+  @include font-smoothing(antialiased);
+}
+
+.icon-user:before {
+  content: "\e901";
+}
+.icon-key:before {
+  content: "\e903";
+}
+.icon-close:before {
+  content: "\f00d";
+}
+.icon-check:before {
+  content: "\e902";
+}
+.icon-google:before {
+  content: "\ea88";
+}
+.icon-facebook:before {
+  content: "\ea90";
+}
+.icon-github:before {
+  content: "\eab0";
+}

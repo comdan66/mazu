@@ -9,7 +9,7 @@ class Output {
   }
   static function router($router) {
     if (!$router)
-      return gg('迷路惹！', 404);
+      return new GG('迷路惹！', 404);
 
     responseStatusHeader($router->getStatus());
 

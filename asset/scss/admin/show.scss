@@ -1,0 +1,366 @@
+/**
+ * @author      OA Wu <comdan66@gmail.com>
+ * @copyright   Copyright (c) 2015 - 2018, OAF2E
+ * @license     http://opensource.org/licenses/MIT  MIT License
+ * @link        https://www.ioa.tw/
+ */
+
+@import "_oa";
+@import "_admin";
+
+.show-panel {
+  @extend .panel;
+
+  > div {
+    display: block;
+    + div {
+      margin-top: 32px;
+    }
+    > b {
+      display: inline-block;
+      width: 100%;
+      height: 24px;
+      line-height: 24px;
+      + * {
+        margin-top: 4px;
+      }
+    }
+    > div {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      border: 1px solid rgba(230, 230, 230, 1);
+      padding: 6px 12px;
+      @include border-radius(3px);
+      background-color: rgba(250, 250, 250, 1);
+      &:empty {
+        &:before {
+          content: '無';
+          font-style: italic;
+          color: rgba(180, 180, 180, 1);
+        }
+      }
+    }
+    > .string {
+      line-height: 20px;
+      @include word-break(break-all);
+    }
+    > .date {
+      @extend .string;
+
+      &[data-time]:not([data-time='']):after {
+        content: '(' attr(data-time) ')';
+        font-size: 10px;
+        display: inline-block;
+        margin-left: 4px;
+        color: rgba(135, 135, 135, 1);
+      }
+    }
+    > .color {
+      @extend .string;
+      padding: 8px 16px;
+      width: 200px;
+      display: block;
+      font-weight: bold;
+
+      &[data-rgb]:not([data-rgb='']):after {
+        content: attr(data-rgb);
+        // @include opacity(.75);
+        display: inline-block;
+        width: calc(100% + 8px * 2);
+        height: 24px;
+        line-height: 24px;
+        margin-left: -8px;
+        padding-left: 8px;
+        
+        margin-top: 6px;
+        padding-top: 1px;
+        font-weight: normal;
+      }
+      &.w {
+        color: rgba(255, 255, 255, .75);
+        &:after {
+          color: rgba(255, 255, 255, .5);
+          border-top: 1px solid rgba(255, 255, 255, .3);
+        }
+      }
+      &.b {
+        color: rgba(0, 0, 0, .75);
+        &:after {
+          color: rgba(0, 0, 0, .5);
+          border-top: 1px solid rgba(0, 0, 0, .3);
+        }
+      }
+    }
+    > .list {
+      @extend .string;
+      @include clearfix();
+      padding: 4px 6px;
+      > * {
+        float: left;
+        display: inline-block;
+        max-width: 100%;
+        @include overflow-docx3();
+        height: 25px;
+        line-height: 25px;
+        padding: 0 8px;
+        border: 1px solid rgba(0, 0, 0, .1);
+        margin: 4px;
+        background-color: rgba(255, 255, 255, 1.00);
+      }
+    }
+    > .pure {
+      line-height: 21px;
+    }
+    > .ckeditor {
+      line-height: 23px;
+      @include word-break(break-all);
+      
+      > #{elements-of-type(block)} {
+        position: relative;
+        border: 1px dashed rgba(0, 0, 0, .1);
+        @include transition(border-color .3s);
+
+        &:after {
+          position: absolute;
+          top: -1px;
+          right: -1px;
+          display: inline-block;
+          background-color: rgba(100, 100, 100, 1);
+          color: white;
+          font-size: 10px;
+          height: 16px;
+          line-height: 16px;
+          padding: 0 8px;
+          @include opacity(0);
+          @include transition(opacity .3s);
+          @include border-bottom-left-radius(2px);
+        }
+        &:hover {
+          border: 1px dashed rgba(0, 0, 0, .3);
+          &:after {
+            @include opacity(.7);
+          }
+        }
+      }
+      
+      $blocks: (address, article, aside, blockquote, center, dd, details, dir, div, dl, dt, fieldset, figcaption, figure, footer, form, frameset, h1, h2, h3, h4, h5, h6, header, hgroup, hr, isindex, main, menu, nav, noframes, noscript, ol, p, pre, section, summary, ul);
+      @each $block in $blocks {
+        > #{$block} {
+          &:after {
+            content: '#{$block}';
+          }
+        }
+      }
+      
+      > p {
+        img {
+          max-width: 100%;
+          width: auto !important;
+          height: auto !important;
+        }
+      }
+    }
+    > .multi-datas {
+      // padding: 0;
+      // padding-top: 4px;
+      // padding-bottom: 4px;
+
+      + .multi-datas {
+        margin-top: 12px;
+      }
+      > div {
+        padding: 0 4px;
+        line-height: 20px;
+        @include word-break(break-all);
+
+        + div {
+          margin-top: 4px;
+          padding-top: 4px;
+          border-top: 1px dashed rgba(222, 222, 222, 1.00);
+        }
+        &[title]:not([title='']) {
+          &:before {
+            content: attr(title) '：';
+            display: inline;
+            font-weight: bold;
+            margin-right: 2px;
+          }
+        }
+      }
+
+      // > div {
+      //   display: inline-block;
+      //   width: 100%;
+      //   padding: 4px 12px;
+      //   @include word-break(break-all);
+
+      //   + div {
+      //     margin-top: 4px;
+      //     border-top: 1px solid rgba(222, 222, 222, 1.00);
+      //   }
+      //   > div {
+      //     line-height: 20px;
+      //     padding: 0 4px;
+      //     padding-top: 6px;
+      //     @include word-break(break-all);
+
+      //   }
+      // }
+    }
+    > .images {
+      padding: 4px;
+      @include clearfix();
+      
+      
+      > div {
+        display: inline-block;
+        max-width: 100%;
+        width: 200px;
+        height: 200px;
+        position: relative;
+        @include border-radius(2px);
+        overflow: hidden;
+        float: left;
+
+        margin: 6px;
+
+        img {
+          width: 100%;
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          border: 1px solid rgba(0, 0, 0, .15);
+          @include border-radius(2px);
+        }
+      }
+    }
+    > .map-show {
+      height: 400px;
+      padding: 0;
+
+      border: 1px solid rgba(200, 200, 200, 1.00);
+      background-color: rgba(229, 227, 223, 1.00);
+      overflow: hidden;
+      @include border-radius(2px);
+      
+      .gmap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+
+        a[href^="http://maps.google.com/maps"], a[href^="https://maps.google.com/maps"] {
+          display: none !important;
+        }
+
+        .gmnoprint.gm-bundled-control, .gm-style-cc {
+          display: none;
+        }
+      }
+
+      .zoom a {
+        color: #6f6f6f;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 20px;
+        background-color: white;
+        @include transition(color .3s);
+        
+        &:hover {
+          color: #323232;
+        }
+      }
+
+      .zoom {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        display: inline-block;
+        width: 35px;
+        height: 35px * 2 + 1px;
+        z-index: 2;
+        background-color: white;
+        padding-left: 4px;
+        padding-right: 4px;
+        @include box-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+        @include border-radius(3px);
+        
+        &:after {
+          content: '';
+          position: absolute;
+          top: 35px + 1px;
+          left: 5px;
+          display: inline-block;
+          width: calc(100% - 5px * 2);
+          height: 1px;
+          background-color: #dcdcdc;
+
+        }
+        a {
+          text-decoration: none;
+          display: inline-block;
+          width: 100%;
+          height: 35px;
+          line-height: 35px;
+          text-align: center;
+        }
+      }
+
+      .full {
+        position: absolute;
+        right: 8px;
+        bottom: 35px * 2 + 1px + 8px + 8px;
+        z-index: 2;
+        display: inline-block;
+        width: 35px;
+        height: 35px;
+        line-height: 35px;
+        background-color: white;
+
+        color: #6f6f6f;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
+        font-size: 20px;
+        @include transition(color .3s);
+        @include border-radius(3px);
+        @include box-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+        
+        &:hover {
+          color: #323232;
+        }
+        &:before {
+          content: '\e901';
+          font-family: "icomoon"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;
+          @include font-smoothing(antialiased);
+        }
+      }
+
+      &.fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        margin: 0;
+        @include border-radius(0);
+        border: 0;
+
+        .full:before {
+          content: '\e904';
+        }
+      }
+    }
+  }
+}

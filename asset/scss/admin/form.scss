@@ -1,0 +1,601 @@
+/**
+ * @author      OA Wu <comdan66@gmail.com>
+ * @copyright   Copyright (c) 2015 - 2018, OAF2E
+ * @license     http://opensource.org/licenses/MIT  MIT License
+ * @link        https://www.ioa.tw/
+ */
+
+@import "_oa";
+@import "_admin";
+
+form.form {
+  @extend .panel;
+  overflow: hidden;
+
+  .row {
+    display: inline-block;
+    width: 100%;
+    
+    + .row,  + .ctrl {
+      margin-top: 32px;
+    }
+    &.min {
+      min-height: 23px;
+      line-height: 23px;
+
+      > b {
+        display: inline-block;
+        width: auto;
+        // height: 23px;
+        // line-height: 23px;
+      }
+      .radios, .checkboxs, .switches {
+        width: auto;
+        margin-top: -7px;
+      }
+    }
+    > b {
+      display: block;
+      min-height: 23px;
+      line-height: 23px;
+      font-size: 13px;
+      &:before {
+        content: '＊';
+        color: rgba(234, 84, 75, 1.00);
+        display: none;
+        margin-right: 3px;
+      }
+      &:after {
+        color: rgba(125, 125, 125, 1);
+        display: none;
+        margin-left: 3px;
+        font-size: 10px;
+        font-weight: normal;
+      }
+      &[data-tip]:not([data-tip=""]):after {
+        content: '(' attr(data-tip) ')';
+        display: inline-block;
+      }
+      &.need:before {
+        display: inline-block;
+      }
+    }
+
+    > input[type='password'], > input[type='text'], > input[type='file'], > input[type='number'], > input[type='date'], > input[type='color'], > input[type='email'] {
+      @include input;
+    }
+    > select {
+      @include input;
+      width: 100%;
+      font-size: 14px;
+      color: rgba(90, 90, 90, 1);
+    }
+    > textarea.pure {
+      @include textarea;
+      width: 100%;
+      line-height: 21px;
+      height: 21px * 5;
+    }
+    .radios, .checkboxs, .switches {
+      display: inline-block;
+      width: 100%;
+      margin-top: -8px;
+      @include clearfix();
+
+      > * {
+        float: left;
+        margin-right: 8px;
+        margin-top: 8px;
+      }
+    }
+    .switches {
+      > * {
+        @include switch(rgba(54, 181, 163, 1.00));
+      }
+    }
+    .radios {
+      > * {
+        @include radio(rgba(59, 153, 252, 1.00));
+        font-size: 13px;
+      }
+    }
+    .checkboxs {
+      > * {
+        @include checkbox(rgba(59, 153, 252, 1.00));
+        font-size: 13px;
+      }
+    }
+
+    .drop-img  {
+      width: 100%;
+    }
+
+    .multi-drop-imgs {
+      display: inline-block;
+      width: 100%;
+      margin-top: -16px;
+      @include clearfix();
+      
+      .drop-img {
+        float: left;
+        width: 230px;
+        height: 145px;
+
+        margin-top: 16px;
+        margin-right: 16px;
+      }
+    }
+  }
+
+  .ctrl {
+    position: relative;
+    display: inline-block;
+    width: calc(100% + 16px * 2);
+    margin-left: -16px;
+    margin-bottom: -16px;
+    padding-right: 16px;
+    padding-bottom: 16px;
+    padding-top: 12px;
+
+    border-top: 1px solid rgba(222, 222, 222, 1);
+    background-color: rgba(250, 250, 250, 1.00);
+
+    + .row,  + .ctrl {
+      margin-top: 16px;
+    }
+
+    @include clearfix();
+    
+    > * {
+      float: right;
+      
+      + * {
+        margin-right: 10px;
+      }
+    }
+    button[type='submit'] {
+      @include button(rgba(65, 132, 243, 1.00));
+      padding: 0 12px;
+      font-size: 13px;
+    }
+    button[type='reset'] {
+      @include button(rgba(5, 152, 138, 1.00));
+      padding: 0 12px;
+      font-size: 13px;
+    }
+  }
+}
+
+form.form .multi-datas {
+  &, > * {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    // border: 1px solid rgba(255, 0, 0, .3);
+
+  }
+  .datas {
+    &.demo {
+      display: none;
+      + .datas {
+        margin-top: 0;
+        border-top: 0;
+      }
+    }
+    > a {
+      position: absolute;
+      top: calc(50% - 32px / 2);
+      left: 0;
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      @include border-radius(50%);
+      background-color: rgba(235, 96, 87, 1.00);
+      color: rgba(255, 255, 255, .8);
+      cursor: pointer;
+      z-index: 2;
+      @include transition(color .3s);
+      @include box-shadow(inset 1px 1px 1px rgba(255,255,255,0.15), inset -1px -1px 1px rgba(0,0,0,0.15));
+      
+      &:active {
+        @include box-shadow(inset 1px 1px 1px rgba(0,0,0,0.1));
+      }
+      &:hover {
+        color: rgba(255, 255, 255, 1);
+      }
+    }
+    &:after {
+      content: '';
+      position: absolute;
+      left: 16px - 3px / 2;
+      top: 12px;
+      display: inline-block;
+      width: 16px;
+      height: calc(100% - 12px * 2);
+      border: 3px solid rgba(179, 80, 82, .30);
+      border-right: 0;
+      @include border-left-radius(5px);
+    }
+
+    > div {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      min-height: 28px;
+
+      padding: 0;
+      padding-left: 32px + 16px;
+      + div {
+        margin-top: 8px;
+      }
+      &:before {
+        content: '＊';
+        color: rgba(234, 84, 75, 1.00);
+        position: absolute;
+        left: 32px;
+        top: 0;
+        display: none;
+        width: 16px;
+        height: 28px;
+        line-height: 28px;
+        font-size: 13px;
+        font-weight: bold;
+        // background-color: rgba(0, 0, 255, 0.2);
+        text-align: center;
+      }
+      &.need {
+        &:before {
+          display: inline-block;
+        }
+      }
+      > input, > select {
+        @include input;
+        width: 100%;
+        height: 28px;
+        line-height: 28px;
+        font-size: 14px;
+      }
+      > select {
+        font-size: 14px;
+        color: rgba(90, 90, 90, 1);
+      }
+      .switch {
+        @include switch(rgba(54, 181, 163, 1.00));
+      }
+      .radio {
+        @include radio(rgba(59, 153, 252, 1.00));
+      }
+      .checkbox {
+        @include checkbox(rgba(59, 153, 252, 1.00));
+      }
+      .switch, .radio, .checkbox {
+        margin-top: 4px;
+        margin-right: 4px;
+      }
+    }
+    + .datas {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(222, 222, 222, 1);
+      &:after {
+        top: 12px + 14px;
+      }
+      > a {
+        top: calc(50% - 32px / 2 + 14px);
+      }
+    }
+  }
+  .btns {
+    text-align: right;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(222, 222, 222, 1);
+
+    > a {
+      @include button(rgba(70, 176, 166, 1.00));
+      padding: 0 7px;
+      &:before {
+        display: inline-block;
+        margin-right: 3px;
+        margin-top: 1px;
+      }
+    }
+  }
+}
+
+form.form .map-edit {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 400px;
+  background-color: rgba(229, 227, 223, 1.00);
+  border: 1px solid rgba(200, 200, 200, 1.00);
+  overflow: hidden;
+  @include border-radius(2px);
+  
+  > input {
+    position: absolute;
+    z-index: -99999;
+    left: -99999px;
+    top: -99999px;
+    display: none;
+    @include opacity(0);
+    @include scale(0);
+  }
+
+  .inputs {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: inline-block;
+    width: 240px;
+    height: 32px * 2;
+    background-color: white;
+    color: #6f6f6f;
+    @include border-radius(3px);
+    @include box-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+    z-index: 2;
+    overflow: hidden;
+    
+    &:before {
+      content: '經度：';
+      top: 0;
+    }
+    &:after {
+      content: '緯度：';
+      top: 32px + 1px;
+    }
+    &:before, &:after {
+      position: absolute;
+      left: 0;
+      z-index: 2;
+      display: inline-block;
+      width: 48px;
+      height: 32px;
+      line-height: 32px;
+      background-color: rgba(240, 240, 240, 1);
+      font-size: 10px;
+      text-align: right;
+      border-right: 1px solid rgba(230, 230, 230, 1);
+    }
+
+    > input {
+      position: relative;
+      z-index: 1;
+      display: block;
+      height: 32px;
+      line-height: 32px;
+      border: 0;
+      padding-left: 48px + 8px;
+      padding-right: 8px;
+
+      @include border-radius(0);
+
+      &:focus {
+        outline: 0;
+      }
+      + input {
+        border-top: 1px solid rgba(222, 222, 222, 1);
+      }
+    }
+  }
+  
+  .gmap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+
+    a[href^="http://maps.google.com/maps"], a[href^="https://maps.google.com/maps"] {
+      display: none !important;
+    }
+
+    .gmnoprint.gm-bundled-control, .gm-style-cc {
+      display: none;
+    }
+  }
+
+  .zoom a {
+    color: #6f6f6f;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 20px;
+    background-color: white;
+    @include transition(color .3s);
+    
+    &:hover {
+      color: #323232;
+    }
+  }
+
+  .zoom {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: inline-block;
+    width: 35px;
+    height: 35px * 2 + 1px;
+    z-index: 2;
+    background-color: white;
+    padding-left: 4px;
+    padding-right: 4px;
+    @include box-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+    @include border-radius(3px);
+    
+    &:after {
+      content: '';
+      position: absolute;
+      top: 35px + 1px;
+      left: 5px;
+      display: inline-block;
+      width: calc(100% - 5px * 2);
+      height: 1px;
+      background-color: #dcdcdc;
+
+    }
+    a {
+      text-decoration: none;
+      display: inline-block;
+      width: 100%;
+      height: 35px;
+      line-height: 35px;
+      text-align: center;
+    }
+  }
+
+  .full {
+    position: absolute;
+    right: 8px;
+    bottom: 35px * 2 + 1px + 8px + 8px;
+    z-index: 2;
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    background-color: white;
+
+    color: #6f6f6f;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    font-size: 20px;
+    @include transition(color .3s);
+    @include border-radius(3px);
+    @include box-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
+    
+    &:hover {
+      color: #323232;
+    }
+    &:before {
+      content: '\e901';
+      font-family: "icomoon"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;
+      @include font-smoothing(antialiased);
+    }
+  }
+
+  &.fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    margin: 0;
+    @include border-radius(0);
+    border: 0;
+
+    .full:before {
+      content: '\e904';
+    }
+  }
+}
+
+form.form .drop-img {
+  position: relative;
+  border: 1px dashed rgba(200, 200, 200, 1.00);
+  max-width: 100%;
+  width: 150px;
+  height: 150px ;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: center;
+  @include border-radius(2px);
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  
+  &, * {
+    cursor: pointer;
+  }
+
+  &:hover {
+    &, a {
+      border-style: solid;
+    }
+  }
+
+  &.no {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMwAAACWBAMAAABgGXpQAAAAJ1BMVEX///+qqqrT09PW1tbU1NTi4uKrq6v19fW7u7va2tq+vr739/e/v784sdjUAAAAlUlEQVRo3u3YIQ7CAAxA0QZCwNZMcwQSLBKFQhLcboDFYTgDAguHQHMx1GYAtw2WveeqftJUNQAAAAAAhml/jw5My+IQ7RtnLqJ9o8x5vJGRkZGRkZH5UeaxrKwyn/VwjUZNyvyo2EaTZvnFqY+ZjpYWx3Vlk3mrh0tErUcHLSMjIyMjI/P3r6GOHl2xOwcAAAAA0KIX0K0kMpUsdAcAAAAASUVORK5CYII=);
+    background-size: auto 100% ;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  &.ho {
+    border: 2px dashed rgba(39, 40, 34, .30);
+  }
+
+  &:not(.no) {
+    &[data-loading] {
+      &:before {
+        content: attr(data-loading);
+        position: absolute;
+        top: calc(50% - 35px / 2);
+        left: 0;
+        display: inline-block;
+        width: 100%;
+        height: 35px;
+        text-align: center;
+        line-height: 35px - 2px;
+      }
+    }
+    a {
+      display: inline-block;
+    }
+  }
+
+  a {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+    width: 30px;
+    height: 30px;
+    line-height: 30px-2px;
+    font-weight: normal;
+    
+    background-color: rgba(0, 0, 0, .5);
+    text-align: center;
+    color: rgba(255, 255, 255, .7500);
+    cursor: pointer;
+
+    border: 1px dashed rgba(200, 200, 200, 1.00);
+    border-top: 0;
+    border-right: 0;
+    @include border-bottom-left-radius(2px);
+
+    @include transition(background-color .3s, color .3s);
+    
+    &:hover {
+      color: rgba(255, 255, 255, 1);
+      background-color: rgba(0, 0, 0, 1);
+    }
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    cursor: pointer;
+  }
+
+  input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+    @include opacity(0);
+  }
+}

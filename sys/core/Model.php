@@ -6,7 +6,7 @@ use \_M\Config;
 
 defined('MAZU') || exit('此檔案不允許讀取！');
 
-if (!function_exists('useModel')) {
+if (!function_exists('\M\useModel')) {
   function useModel() {
     define('MODEL_LOADED', true);
 

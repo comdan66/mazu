@@ -49,6 +49,14 @@ class Url {
     return $baseUrl . trim(preg_replace('/\/+/', '/', implode('/', arrayFlatten(func_get_args()))), '/');
   }
 
+  public static function refreshWithFlash($url, $data = null) {
+    $data === null || Session::setFlashData($key, $data);
+    static::refresh($url);
+
+    exit;
+    return;
+  }
+
   public static function refresh() {
     if (!$args = func_get_args())
       return false;

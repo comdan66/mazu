@@ -1,0 +1,60 @@
+/**
+ * @author      OA Wu <comdan66@gmail.com>
+ * @copyright   Copyright (c) 2015 - 2018, OAF2E
+ * @license     http://opensource.org/licenses/MIT  MIT License
+ * @link        https://www.ioa.tw/
+ */
+
+@import "_oa";
+
+* {
+  &, &:after, &:before {
+    vertical-align: top;
+    @include box-sizing(border-box);
+    @include selection(rgba(150, 200, 255, 1), rgba(255, 255, 255, 1));
+    @include font-smoothing(antialiased);
+  }
+}
+
+html {
+  height: 100%;
+
+  body {
+    // font-family: 'Open sans', Comfortaa, 'Helvetica Neue', Helvetica, Arial, 'Hiragino Maru Gothic ProN', 'メイリオ','ヒラギノ丸ゴ ProN W4', '微軟正黑體', Meiryo, 'Droid Sans';
+    // font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-family: Arial, '微軟正黑體', 'Microsoft JhengHei', -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    height: auto;
+
+    text-align: center;
+    margin: 0;
+    padding: 0;
+
+    font-size: medium;
+    font-weight: normal;
+    color: rgba(85, 85, 85, 1);
+    background-color: rgba(255, 255, 255, 1.00);
+    background-color: rgba(249, 250, 254, 1.00);
+
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    min-height: 100%;
+  }
+}
+
+
+
+#main {
+  position: fixed;
+  left: 0;
+  top: calc(50% - 64px / 2);
+  display: inline-block;
+  width: 100%;
+  height: 64px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 18px;
+  a {
+    @include a;
+  }
+}

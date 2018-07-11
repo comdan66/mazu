@@ -167,4 +167,4 @@ class Router {
 
 Router::init();
 Router::getMatchRouter();
-Router::current() || gg('迷路惹！', 404);
+Router::current() || new GG('迷路惹！', 404);

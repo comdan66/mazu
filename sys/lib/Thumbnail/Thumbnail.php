@@ -26,7 +26,6 @@ abstract class Thumbnail {
     
     $this->class = get_called_class();
     $this->filePath = $filePath;
-   
     $this->init();
   }
 

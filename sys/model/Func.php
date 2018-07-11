@@ -4,20 +4,20 @@ namespace M;
 
 defined('MAZU') || exit('此檔案不允許讀取！');
 
-if (!function_exists('getNamespaces')) {
+if (!function_exists('\M\getNamespaces')) {
   function getNamespaces($className) {
     return array_slice(explode('\\', $className), 0, -1);
   }
 }
 
-if (!function_exists('deNamespace')) {
+if (!function_exists('\M\deNamespace')) {
   function deNamespace($className) {
     $className = array_slice(explode('\\', $className), -1);
     return array_shift($className);
   }
 }
 
-if (!function_exists('transaction')) {
+if (!function_exists('\M\transaction')) {
   function transaction($closure, &...$args) {
     if (!is_callable($closure))
       return false;
@@ -39,7 +39,7 @@ if (!function_exists('transaction')) {
   }
 }
 
-if (!function_exists('modelsColumn')) {
+if (!function_exists('\M\modelsColumn')) {
   function modelsColumn($arr, $key) {
     return array_map(function($t) use($key) {
       is_callable($key) && $key = $key();
@@ -48,13 +48,13 @@ if (!function_exists('modelsColumn')) {
   }
 }
 
-if (!function_exists('getRandomName')) {
+if (!function_exists('\M\getRandomName')) {
   function getRandomName() {
     return md5(uniqid(mt_rand(), true));
   }
 }
 
-if (!function_exists('webFileExists')) {
+if (!function_exists('\M\webFileExists')) {
   function webFileExists($url, $cainfo = null) {
     $options = [CURLOPT_URL => $url, CURLOPT_NOBODY => 1, CURLOPT_FAILONERROR => 1, CURLOPT_RETURNTRANSFER => 1];
 
@@ -66,7 +66,7 @@ if (!function_exists('webFileExists')) {
   }
 }
 
-if (!function_exists('downloadWebFile')) {
+if (!function_exists('\M\downloadWebFile')) {
   function downloadWebFile($url, $fileName = null, $isUseReffer = false, $cainfo = null) {
     if (!webFileExists($url, $cainfo))
       return null;
@@ -99,7 +99,7 @@ if (!function_exists('downloadWebFile')) {
   }
 }
 
-if (!function_exists('reverseOrder')) {
+if (!function_exists('\M\reverseOrder')) {
   function reverseOrder($order) {
     return trim($order) ? implode(', ', array_map(function($part) {
       $v = trim(strtolower($part));
@@ -108,7 +108,7 @@ if (!function_exists('reverseOrder')) {
   }
 }
 
-if (!function_exists('cast')) {
+if (!function_exists('\M\cast')) {
   function cast($type, $val, $checkFormat) {
     if ($val === null)
       return null;
@@ -145,3 +145,11 @@ if (!function_exists('cast')) {
     return $val;
   }
 }
+
+// public static function transactionError ($closure, &...$args) {
+//   if (!is_callable ($closure))
+//     return false;
+
+//   $class = get_called_class ();
+//   return  call_user_func_array (array ($class, 'transaction'), array_merge (array ($closure), $args)) ? null : '資料庫處理錯誤！';
+// }

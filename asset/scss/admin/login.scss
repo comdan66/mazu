@@ -1,0 +1,363 @@
+/**
+ * @author      OA Wu <comdan66@gmail.com>
+ * @copyright   Copyright (c) 2015 - 2018, OAF2E
+ * @license     http://opensource.org/licenses/MIT  MIT License
+ * @link        https://www.ioa.tw/
+ */
+
+@import "_oa";
+
+* {
+  &, &:after, &:before {
+    vertical-align: top;
+    @include box-sizing(border-box);
+    @include selection(rgba(150, 200, 255, 1), rgba(255, 255, 255, 1));
+    @include font-smoothing(antialiased);
+  }
+}
+
+html {
+  min-height: 100%;
+
+  body {
+    font-family: 'Open sans', Comfortaa, 'Helvetica Neue', Helvetica, Arial, 'Hiragino Maru Gothic ProN', 'メイリオ','ヒラギノ丸ゴ ProN W4', '微軟正黑體', Meiryo, 'Droid Sans';
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    height: auto;
+
+    text-align: center;
+    margin: 0;
+    padding: 0;
+
+    font-size: medium;
+    font-weight: normal;
+    color: rgba(85, 85, 85, 1);
+    background-color: rgba(244, 245, 247, 1.00);
+
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    min-height: 100%;
+  }
+}
+
+
+#main {
+  display: inline-block;
+  width: 100%;
+  margin-top: 32px;
+  
+  > h1 {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    font-weight: 150;
+    margin-top: 0;
+    height: 45px;
+    line-height: 45px;
+
+    .img {
+      display: inline-block;
+      width: 45px;
+      line-height: 45px;
+      @include border-radius(6px);
+      position: relative;
+      overflow: hidden;
+      background-color: white;
+
+      img {
+        width: 100%;
+      }
+
+      &:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        border: 1px solid rgba(0, 0, 0, .1);
+        @include border-radius(6px);
+      }
+    }
+  }
+
+  > span {
+    display: inline-block;
+    width: 100%;
+    height: 22px;
+    line-height: 22px;
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 200;
+    > a {
+      @include a;
+
+    }
+  }
+  
+  .login {
+    display: inline-block;
+    width: 320px;
+    border: 1px solid rgba(211, 214, 219, 1.00);
+    background-color: rgba(255, 255, 255, 1.00);
+    padding: 0;
+    overflow: hidden;
+    @include border-radius(3px);
+    
+    .tabs {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      height: 36px;
+      line-height: 36px;
+      
+      > * {
+        position: relative;
+        z-index: 1;
+        float: left;
+        display: inline-block;
+        width: 50%;
+        cursor: pointer;
+        background-color: rgba(240, 240, 241, 1.00);
+        @include transition(background-color .3s);
+        
+
+        &:hover {
+          background-color: adjust-lightness(rgba(240, 240, 241, 1.00), -5%);
+        }
+        &.active {
+          background-color: rgba(255, 255, 255, 1.00);
+          z-index: 3;
+          cursor: default;
+        }
+        + * {
+          border-left: 1px solid rgba(211, 214, 219, 1.00);
+        }
+      }
+      &:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        display: inline-block;
+        width: 100%;
+        height: 1px;
+        border-bottom: 1px solid rgba(211, 214, 219, 1.00);;
+        z-index: 2;
+      }
+      + div {
+        position: relative;
+        
+        > * {
+          position: absolute;
+          top: 0;
+          display: inline-block;
+          width: 100%;
+          @include transition(left .3s, opacity .3s);
+          @include opacity(0);
+        }
+
+        @for $i from 1 through 2 {
+          &.n#{$i - 1} {
+
+            @for $j from 1 through 2 {
+              > * {
+                &:nth-child(#{$j}) {
+                  left: #{100% * ($j - $i)};
+                  @if $i == $j {
+                    position: relative;
+                    @include opacity(1);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    .acc-psw, .oauth {
+      > span {
+        position: relative;
+
+        display: inline-block;
+        width: 100%;
+        padding: 4px;
+        padding-left: 32px;
+        line-height: 26px;
+        font-size: 14px;
+        text-align: left;
+        margin-bottom: 8px;
+        
+        &:empty {
+          display: none;
+        }
+        @include border-radius(2px);
+
+        &.failure {
+          background-color: rgba(242, 222, 222, 1.00);
+          color: rgba(167, 69, 68, 1.00);
+          border: 1px solid rgba(234, 204, 209, 1.00);
+          &:before {
+            content: "\f00d";
+            font-family: "icomoon"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;
+          }
+        }
+        &.success {
+          background-color: rgba(218, 237, 247, 1.00);
+          color: rgba(52, 112, 141, 1.00);
+          border: 1px solid rgba(190, 232, 240, 1.00);
+          &:before {
+            content: "\e902";
+            font-family: "icomoon"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;
+          }
+        }
+        &:before {
+          position: absolute;
+          left: 0;
+          top: 4px;
+          display: inline-block;
+          width: 32px;
+          text-align: center;
+        }
+      }
+      // background-color: rgba(0, 0, 255, 0.2);
+      padding: 16px 20px;
+      padding-bottom: 32px;
+    }
+    .acc-psw {
+      > label {
+        display: inline-block;
+        width: 100%;
+        text-align: left;
+        
+        > b {
+          display: inline-block;
+          width: 100%;
+          height: 28px;
+          line-height: 28px;
+          @include opacity(.75);
+          font-size: 14px;
+        }
+        > div {
+          position: relative;
+          display: inline-block;
+          width: 100%;
+          height: 36px;
+          line-height: 36px;
+
+          > input {
+            @include input;
+            width: 100%;
+            height: 36px;
+            line-height: 36px;
+            padding-left: 36px + 6px;
+          }
+          &:before {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            display: inline-block;
+            width: 36px;
+            height: 36px - 5px * 2;
+            line-height: 36px - 5px * 2;
+
+            border-right: 1px solid rgba(230, 230, 230, 1);
+            text-align: center;
+            color: rgba(130, 130, 130, 1);
+          }
+        }
+        + label {
+          margin-top: 12px;
+        }
+      }
+      > button {
+        @include button(rgba(41, 174, 144, 1.00));
+        width: 100%;
+        height: 32px;
+        line-height: 32px;
+        font-size: 16px;
+        margin-top: 32px;
+      }
+    }
+    .oauth {
+      padding-top: 32px;
+      .facebook {
+        $color: rgba(73, 99, 161, 1.00);
+        
+        background-color: $color;
+        border-bottom: 2px solid adjust-lightness($color, -5%);
+        &:hover {
+          background-color: adjust-lightness($color, 5%);
+        }
+      }
+      .google {
+        $color: rgba(207, 73, 59, 1.00);
+        
+        background-color: $color;
+        border-bottom: 2px solid adjust-lightness($color, -5%);
+        &:hover {
+          background-color: adjust-lightness($color, 5%);
+        }
+      }
+      .github { 
+        $color: rgba(37, 41, 46, 1.00);
+        
+        background-color: $color;
+        border-bottom: 2px solid adjust-lightness($color, -10%);
+        &:hover {
+          background-color: adjust-lightness($color, 5%);
+        }
+      }
+      .line {
+        $color: rgba(84, 203, 36, 1.00);
+        
+        background-color: $color;
+        border-bottom: 2px solid adjust-lightness($color, -5%);
+        &:hover {
+          background-color: adjust-lightness($color, 5%);
+        }
+        &:before {
+          content: 'LINE';
+          font-size: 10px;
+          font-weight: normal;
+        }
+      }
+      > a {
+        position: relative;
+        display: block !important;
+        height: 36px;
+        line-height: 36px - 2px;
+        text-decoration: none;
+        padding: 0 4px;
+        font-size: 14px;
+        @include border-radius(2px);
+        overflow: hidden;
+        text-align: left;
+        color: white;
+        @include transition(background-color .3s);
+
+        + * {
+          margin-top: 8px;
+        }
+        &:before {
+          display: inline-block;
+          width: 28px;
+          height: 28px;
+          margin-right: 8px + 4px;
+          text-align: center;
+          font-size: 14px;
+        }
+        &:after {
+          content: '';
+          position: absolute;
+          left: 28px + 8px;
+          top: 4px;
+          display: inline-block;
+          width: 1px;
+          height: calc(100% - 4px * 2);
+          border-left: 1px solid rgba(255, 255, 255, .3);
+        }
+      }
+    }
+  }
+}

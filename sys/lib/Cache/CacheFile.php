@@ -8,7 +8,7 @@ class CacheFile extends Cache {
 
     $this->path = isset($options['path']) ? $options['path'] : PATH_CACHE;
 
-    isReallyWritable($this->path) || gg ('CacheFile 錯誤，路徑無法寫入。');
+    isReallyWritable($this->path) || gg('CacheFile 錯誤，路徑無法寫入。');
     Load::sysFunc('file.php') || gg('載入 file 函式錯誤！');
   }
 

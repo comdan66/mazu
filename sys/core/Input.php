@@ -118,7 +118,7 @@ class Input {
 
   private static function cleanInputKeys($str, $fatal = true) {
     if (!preg_match('/^[a-z0-9:_\/|-]+$/i', $str))
-      return $fatal === true ? false : gg('有不合法的字元！', 503);
+      return $fatal === true ? false : new GG('有不合法的字元！', 503);
       
     return UTF8_ENABLED === true ? cleanStr($str) : $str;
   }
