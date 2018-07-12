@@ -38,6 +38,11 @@ if (!function_exists('\M\useModel')) {
       }
       
       public static function count($options = []) {
+        $args = func_get_args();
+        
+        $options instanceof \Where && $options = ['where' => $options->toArray()];
+        is_string($options) && $options = ['where' => array_merge([$options], $args)];
+
         $obj = call_user_func_array(['static', 'find'], array_merge(['one'], [array_merge($options, ['select' => 'COUNT(*)', 'readonly' => true])]))->attrs();
         $obj = array_shift($obj);
         return intval($obj);

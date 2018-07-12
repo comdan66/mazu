@@ -215,10 +215,14 @@ table.list {
           margin-right: 8px;
 
           &:after {
+            text-align: center;
             content: '/';
             position: absolute;
             right: -8px;
             top: -2px;
+            display: inline-block;
+            width: 8px;
+            
             color: rgba(180, 180, 180, 1);
           }
         }

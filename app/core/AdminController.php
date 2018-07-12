@@ -7,6 +7,8 @@ class AdminController extends Controller {
     Load::sysLib('Asset.php');
     Load::sysLib('Session.php');
     Load::sysLib('Validator.php');
+    Load::sysLib('AdminList.php');
+    Load::sysLib('Pagination.php');
 
     if (!\M\Admin::current())
       return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'failure', 'msg' => $error, 'params' => $posts]);
@@ -30,6 +32,9 @@ class AdminController extends Controller {
          ->addJS('/asset/js/res/ckeditor_d2015_05_18/plugins/dropler/dropler.js')
          ->addJS('/asset/js/admin/layout.js');
 
+    $this->asset->addCSS ('/asset/css/admin/list.css')
+                ->addJS ('/asset/js/admin/list.js');
+
     $flash = Session::getFlashData('flash');
 
     // get_flash_params ($flash['params']);
@@ -40,5 +45,15 @@ class AdminController extends Controller {
                       ->with('flash', $flash)
                       ->with('currentUrl', null)
                       ->with('asset', $this->asset);
+
+    Pagination::$firstClass  = 'icon-30';
+    Pagination::$prevClass   = 'icon-05';
+    Pagination::$activeClass = 'active';
+    Pagination::$nextClass   = 'icon-06';
+    Pagination::$lastClass   = 'icon-31';
+    Pagination::$firstText   = '';
+    Pagination::$lastText    = '';
+    Pagination::$prevText    = '';
+    Pagination::$nextText    = '';
   }
 }
