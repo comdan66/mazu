@@ -22,7 +22,10 @@ class Output {
     if (is_array($exec))
       return self::json($exec);
 
+    if ($exec instanceOf Router)
+      return (string)$exec;
+
     if ($exec instanceOf View)
-      return self::text($exec->get());
+      return self::text($exec->output());
   }
 }

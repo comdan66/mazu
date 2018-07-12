@@ -32,6 +32,12 @@ class Load {
   public static function app($path) {
     return self::file(PATH_APP . $path);
   }
+  public static function core($path) {
+    return self::file(PATH_CORE . $path);
+  }
+  public static function controller($path) {
+    return self::file(PATH_CONTROLLER . $path);
+  }
 }
 
 class GG {

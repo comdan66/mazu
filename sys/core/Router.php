@@ -3,16 +3,17 @@
 class Router {
   private $method;
   private $segment;
-  private $work;
   private $params;
-
-  private $befores;
-  private $beforeParams;
-
-  private $afters;
-  private $afterParams;
-
+  private $controller;
   private $status;
+
+  private $work;
+  // private $befores;
+  // private $beforeParams;
+
+  // private $afters;
+  // private $afterParams;
+
 
   private static $current;
   private static $routers;
@@ -20,15 +21,16 @@ class Router {
   public function __construct($method, $segment) {
     $this->method  = $method;
     $this->segment = $segment;
-    $this->work    = null;
-    $this->status  = 200;
     $this->params  = [];
+    $this->controller = null;
+    $this->status  = 200;
+    $this->work    = null;
     
-    $this->befores      = [];
-    $this->beforeParams = [];
+    // $this->befores      = [];
+    // $this->beforeParams = [];
 
-    $this->afters      = [];
-    $this->afterParams = [];
+    // $this->afters      = [];
+    // $this->afterParams = [];
   }
 
   public function setStatus($status) {
@@ -49,10 +51,10 @@ class Router {
     return $key !== null && isset($this->params[$key]) ? $this->params[$key] : $this->params;
   }
   
-  public function before($before) {
-    array_push($this->befores, $before);
-    return $this;
-  }
+  // public function before($before) {
+  //   array_push($this->befores, $before);
+  //   return $this;
+  // }
 
   public function setWork($work) {
     $this->work = $work;
@@ -63,43 +65,67 @@ class Router {
     return $this->setWork($work);
   }
 
-  public function getBeforeParams($key = null) {
-    return $key !== null && isset($this->beforeParams[$key]) ? $this->beforeParams[$key] : $this->beforeParams;
-  }
+  // public function getBeforeParams($key = null) {
+  //   return $key !== null && isset($this->beforeParams[$key]) ? $this->beforeParams[$key] : $this->beforeParams;
+  // }
   
-  public function after($after) {
-    array_push($this->afters, $after);
+  // public function after($after) {
+  //   array_push($this->afters, $after);
+  //   return $this;
+  // }
+
+  // public function getAfterParams($key = null) {
+  //   return $key !== null && isset($this->afterParams[$key]) ? $this->afterParams[$key] : $this->afterParams;
+  // }
+  public function controller($controller) {
+    $this->controller = $controller;
     return $this;
   }
-
-  public function getAfterParams($key = null) {
-    return $key !== null && isset($this->afterParams[$key]) ? $this->afterParams[$key] : $this->afterParams;
+  
+  public function __toString() {
+    return '';
   }
 
   public function exec() {
-    foreach ($this->befores as $before)
-      array_push($this->beforeParams, $before());
+    if ($this->controller !== null) {
+      strpos($this->controller, '@') !== false || gg('Controller 設定有誤！');
+      list($path, $method) = explode('@', $this->controller);
+      $class = pathinfo($path, PATHINFO_BASENAME);
+
+      Load::controller($path . '.php') || gg('找不到指定的 Controller', '檔案位置：' . $path . '.php');
+      class_exists($class) || gg('找不到指定的 Controller', 'Class：' . $class);
+      $method || gg('請設定 method！');
+
+      $obj = new $class();
+      if ($error = $obj->constructError())
+        return new GG($error, 500);
+      else
+        return $obj->$method();
+    }
+
+    // foreach ($this->befores as $before)
+    //   array_push($this->beforeParams, $before());
     
-    if ($this->work === null)
-      return null;
+    // if ($this->work === null)
+    //   return null;
 
-    if (is_string($this->work))
-      return $this->work;
+    // if (is_string($this->work))
+      // return $this->work;
 
-    if (is_array($this->work))
-      return $this->work;
+    // if (is_array($this->work))
+    //   return $this->work;
 
-    if (is_callable($this->work) && ($tmp = $this->work))
-      return $tmp();
+    // if (is_callable($this->work) && ($tmp = $this->work))
+    //   return $tmp();
 
-    foreach ($this->afters as $after)
-      array_push($this->afterParams, $before());
+    // foreach ($this->afters as $after)
+    //   array_push($this->afterParams, $before());
   }
 
   public static function init() {
     self::$current = null;
     self::$routers = [];
-    Load::app('Routers.php');
+    Load::app('routers.php');
   }
 
   private static function setSegment($segment) {

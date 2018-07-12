@@ -50,7 +50,7 @@ class Url {
   }
 
   public static function refreshWithFlash($url, $data = null) {
-    $data === null || Session::setFlashData($key, $data);
+    $data === null || Session::setFlashData('flash', $data);
     static::refresh($url);
 
     exit;

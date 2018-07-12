@@ -12,7 +12,7 @@
 // need res/ckeditor_d2015_05_18/plugins/tabletools/tableresize.js
 // need res/ckeditor_d2015_05_18/plugins/dropler/dropler.js'
 
-window.gmc = function () { $(window).trigger ('gm'); };
+window.gmc = function() { $(window).trigger ('gm'); };
 
 $(function () {
   var $body = $('body');

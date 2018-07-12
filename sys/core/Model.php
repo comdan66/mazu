@@ -507,23 +507,19 @@ if (!function_exists('\M\useModel')) {
 
 
 
-if (!function_exists('autoloadModel')) {
-  function autoloadModel($className) {
-    defined('MODEL_LOADED') || useModel();
+spl_autoload_register(function ($className) {
+  defined('MODEL_LOADED') || useModel();
 
-    if (!(($namespaces = \M\getNamespaces($className)) && in_array($namespace = array_shift($namespaces), ['M', '_M']) && ($modelName = \M\deNamespace($className))))
-      return false;
+  if (!(($namespaces = \M\getNamespaces($className)) && in_array($namespace = array_shift($namespaces), ['M', '_M']) && ($modelName = \M\deNamespace($className))))
+    return false;
 
-    $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'Uploader' . DIRECTORY_SEPARATOR : '';
-    $path = ($namespace == '_M' || $uploader ? PATH_SYS_MODEL . $uploader : PATH_MODEL) . $modelName . '.php';
+  $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'Uploader' . DIRECTORY_SEPARATOR : '';
+  $path = ($namespace == '_M' || $uploader ? PATH_SYS_MODEL . $uploader : PATH_MODEL) . $modelName . '.php';
 
-    if (!(is_file($path) && is_readable($path)))
-      return false;
+  if (!(is_file($path) && is_readable($path)))
+    return false;
 
-    include_once $path;
+  include_once $path;
 
-    class_exists($className) || \gg('找不到名稱為「' . $className . '」的 Model 物件！');
-  }
-
-  spl_autoload_register('\M\autoloadModel', false, true);
-}
+  class_exists($className) || \gg('找不到名稱為「' . $className . '」的 Model 物件！');
+}, false, true);
