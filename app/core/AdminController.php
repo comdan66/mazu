@@ -7,11 +7,12 @@ class AdminController extends Controller {
     Load::sysLib('Asset.php');
     Load::sysLib('Session.php');
     Load::sysLib('Validator.php');
-    Load::sysLib('AdminList.php');
     Load::sysLib('Pagination.php');
+    Load::sysLib('AdminList.php');
+    Load::sysLib('AdminForm.php');
 
     if (!\M\Admin::current())
-      return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'failure', 'msg' => $error, 'params' => $posts]);
+      return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'failure', 'msg' => '請先登入！', 'params' => []]);
 
     $this->asset = Asset::create(1)
          ->addCSS('/asset/css/res/jqui-datepick-20180116.css')

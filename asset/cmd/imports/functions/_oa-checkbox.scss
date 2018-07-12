@@ -15,9 +15,9 @@
   display: inline-block;
   cursor: pointer;
   font-size: 13px;
-  height: 20px;
-  line-height: 20px;
-  padding-left: 20px;
+  height: 17px;
+  line-height: 17px;
+  padding-left: 19px;
   $x: '_checkbox_r_'+random(1000);
 
   > * {
@@ -49,8 +49,8 @@
     }
   }
   span {
-    width: 20px;
-    height: 20px;
+    width: 17px;
+    height: 17px;
     background-color: rgba(255, 255, 255, 1.00);
     z-index: 1;
 
@@ -80,8 +80,8 @@
 
       width: calc(100% - #{1px} * 2);
       height: calc(100% - #{1px} * 2);
-      line-height: 18px;
-      font-size: 13px;
+      line-height: 16px;
+      font-size: 12px;
       background-color: rgba(255, 255, 255, 1.00);
       color: rgba(255, 255, 255, 1.00);
       background-image: none;

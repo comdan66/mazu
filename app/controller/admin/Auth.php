@@ -22,7 +22,7 @@ class Auth extends Controller {
                   ->addJS('/asset/js/res/jquery-1.10.2.min.js')
                   ->addJS('/asset/js/login.js');
 
-    return View::create('Admin/Auth/login.php')
+    return View::create('admin/Auth/login.php')
                ->with('asset', $asset)
                ->with('flash', $flash);
   }

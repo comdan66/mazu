@@ -3,16 +3,16 @@
 class AdminListSearch {
   const KEY = '_q';
 
-  private $where, $searches, $titles, $counter, $list;
+  protected $where, $searches, $titles, $counter, $list;
   
-  public function __construct($list, &$where = null) {
+  public function __construct($list, &$where = null, $searches = [], $titles = [], $counter = 0) {
     $where !== null || $where = Where::create();
 
     $this->list = $list;
     $this->where = $where;
-    $this->searches = [];
-    $this->counter = 0;
-    $this->titles = [];
+    $this->searches = $searches;
+    $this->counter = $counter;
+    $this->titles = $titles;
   }
 
   private function add($key) {
@@ -35,17 +35,17 @@ class AdminListSearch {
     return $this->add($key);
   }
 
-  public function select($title, $sql, $options) {
+  public function select($title, $sql, array $options) {
     $this->searches[$key = AdminListSearch::KEY . ($this->counter++)] = ['el' => 'select', 'title' => $title, 'sql' => $sql, 'options' => $options];
     return $this->add($key);
   }
   
-  public function checkboxs($title, $sql, $items) {
+  public function checkboxs($title, $sql, array $items) {
     $this->searches[$key = AdminListSearch::KEY . ($this->counter++)] = ['el' => 'checkboxs', 'title' => $title, 'sql' => $sql, 'items' => $items];
     return $this->add($key);
   }
   
-  public function radios($title, $sql, $items) {
+  public function radios($title, $sql, array $items) {
     $this->searches[$key = AdminListSearch::KEY . ($this->counter++)] = ['el' => 'radios', 'title' => $title, 'sql' => $sql, 'items' => $items];
     return $this->add($key);
   }
@@ -122,6 +122,7 @@ class AdminListSearch {
             $return .= '<select name="' . $key . '">';
             $return .= '<option value="">' . $condition['title'] . '搜尋</option>';
             $return .= implode('', array_map(function($option) use($condition) {
+              isset($option['value'], $option['text']) || $option = ['text' => $option, 'value' => $option];
               return $option && isset($option['value'], $option['text']) ? '<option value="' . $option['value'] . '"' . (!empty ($condition['value']) && $condition['value'] == $option['value'] ? ' selected' : '') . '>' . $option['text'] . '</option>' : '';
             }, $condition['options']));
             $return .= '</select>';
@@ -136,6 +137,7 @@ class AdminListSearch {
             $return .= '<b>' . $condition['title'] . '搜尋</b>';
             $return .= '<div class="checkboxs">';
             $return .= implode('', array_map(function($option) use($condition, $key) {
+              isset($option['value'], $option['text']) || $option = ['text' => $option, 'value' => $option];
               return $option && isset($option['value'], $option['text']) ? '<label><input type="checkbox" name="' . $key . '[]" value="' . $option['value'] . '"' . (!empty ($condition['value']) && (is_array ($condition['value']) ? in_array ($option['value'], $condition['value']) : $condition['value'] == $option['value']) ? ' checked' : '') . ' /><span></span>' . $option['text'] . '</label>' : '';
             }, $condition['items']));
             $return .= '</div>';
@@ -150,6 +152,7 @@ class AdminListSearch {
             $return .= '<b>' . $condition['title'] . '搜尋</b>';
             $return .= '<div class="radios">';
             $return .= implode('', array_map(function($option) use($condition, $key) {
+              isset($option['value'], $option['text']) || $option = ['text' => $option, 'value' => $option];
               return $option && isset($option['value'], $option['text']) ? '<label><input type="radio" name="' . $key . '" value="' . $option['value'] . '"' . (!empty ($condition['value']) && $condition['value'] == $option['value'] ? ' checked' : '') . ' /><span></span>' . $option['text'] . '</label>' : '';
             }, $condition['items']));
             $return .= '</div>';
@@ -185,9 +188,8 @@ class AdminListSearch {
   }
 }
 
-class AdminList {
-  private $where,
-          $model,
+class AdminList extends AdminListSearch {
+  private $model,
           $modelOptions,
           $table,
           $addUrl,
@@ -198,8 +200,7 @@ class AdminList {
           $search;
 
   public function __construct($model, $modelOptions = [], &$where = null) {
-    $where !== null || $where = Where::create();
-    $this->where = $where;
+    parent::__construct($this, $where);
 
     $this->model = $model;
     $this->modelOptions = $modelOptions;
@@ -218,7 +219,8 @@ class AdminList {
   }
 
   public function search() {
-    return $this->search && $this->query() ? $this->search : $this->search = new AdminListSearch($this, $this->where);
+    $this->query();
+    return new AdminListSearch($this, $this->where, $this->searches, $this->titles, $this->counter);
   }
 
   public function table() {

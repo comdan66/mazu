@@ -10,20 +10,24 @@ class Tag extends AdminController {
   }
 
   public function index() {
-    $list = AdminList::model('\M\Tag');
+    $list = AdminList::model('\M\Tag')
+              ->input('ID', 'id = ?')
+              ->input('名稱', 'name LIKE ?')
+              ->checkboxs('狀態', 'enable IN (?)', \M\Tag::ENABLE)
+              ->setAddUrl(Url::base('admin/tags/add'))
+              ->setSortUrl(Url::base('admin/tags/sort'));
 
-    $list->search()
-         ->input('ID', 'id = ?')
-         ->input('名稱', 'name LIKE ?')
-         ->setAddUrl(Url::base('admin/tags/add'))
-         ->setSortUrl(Url::base('admin/tags/sort'));
-
-    return $this->view->setPath('admin/Tag/index.php')
-                      ->with('list', $list);
+    return $this->view
+                ->setPath('admin/Tag/index.php')
+                ->with('list', $list);
   }
   
   public function add() {
+    $form = AdminForm::create();
+    $form->setBackUrl(Url::base('admin/tags/'), '回列表');
 
+    return $this->view->setPath ('admin/Tag/add.php')
+                      ->with('form', $form);
   }
   
   public function create() {

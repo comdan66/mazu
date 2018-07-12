@@ -19,5 +19,8 @@ class Tag extends Model {
 
   // static $uploaders = [
   // ];
+
+
+  const ENABLE = ['正常', '刪除'];
 }
 
