@@ -62,6 +62,10 @@ class Log {
     return self::msg(self::logFormat(func_get_args()), 'thumbnail');
   }
 
+  public static function benchmark($msg) {
+    return self::msg(self::logFormat(func_get_args()), 'benchmark');
+  }
+
   public static function closeAll() {
     foreach(self::$fopens as $fopen)
       fclose($fopen);

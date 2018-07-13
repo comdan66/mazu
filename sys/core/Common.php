@@ -279,6 +279,7 @@ if (!function_exists('shutdownHandler')) {
 if (!function_exists('dump')) {
   function dump($val, $l = 0) {
     if ($val === null) return str_repeat(' ', $l) . 'null';
+    if (is_bool($val)) return str_repeat(' ', $l) . '' . ($val === true ? 'true' : 'false') . '';
     if (is_string($val)) return str_repeat(' ', $l) . '"' . $val . '"';
     if (is_numeric($val)) return str_repeat(' ', $l) . $val;
     if (is_array($val)) return str_repeat(' ', $l) . "[\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val), $val)) . "\n" . str_repeat(' ', $l) . "]";
@@ -323,6 +324,14 @@ if (!function_exists('transaction')) {
     return is_callable($closure) ? call_user_func_array('\M\transaction', array_merge([$closure], $args)) ? null : '資料庫處理錯誤！' : false;
   }
 }
+
+if (!function_exists('items')) {
+  function items($values, $texts) {
+    return count($values) == count($texts) ? array_map(function($value, $text) { return ['value' => '' . $value, 'text' => '' . $text]; }, $values, $texts) : [];
+  }
+}
+
+
 
 /* ------------------------------------------------------
  *  定義自己的 Error Handler

@@ -1,7 +1,7 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class AdminController extends Controller {
-  protected $asset, $view;
+  protected $asset, $view, $flash;
   
   public function __construct() {
     Load::sysLib('Asset.php');
@@ -36,14 +36,32 @@ class AdminController extends Controller {
     $this->asset->addCSS ('/asset/css/admin/list.css')
                 ->addJS ('/asset/js/admin/list.js');
 
-    $flash = Session::getFlashData('flash');
+    $this->asset->addCSS ('/asset/css/admin/form.css')
+                ->addJS ('/asset/js/admin/form.js');
 
+    $this->flash = Session::getFlashData('flash');
+    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    // var_dump ($this->flash);
+    // exit ();
+    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    // var_dump ($this->flash);
+    // exit ();
+    !isset($this->flash['params']) || $this->flash['params'] || $this->flash['params'] = null;
+    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    // var_dump ($this->flash);
+    // exit ();
+    // $this->flash['type'] = 'failure';
+    // $this->flash['msg'] = '1';
+    // $this->flash['params'] = ['name' => 'aaa'];
+// echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+// var_dump ($flash['params']['name']);
+// exit ();
     // get_flash_params ($flash['params']);
 
     $this->view = View::maybe()
                       ->appendTo(View::create('admin/layout.php'), 'content')
                       ->with('asset', $this->asset)
-                      ->with('flash', $flash)
+                      ->with('flash', $this->flash)
                       ->with('currentUrl', null)
                       ->with('asset', $this->asset);
 

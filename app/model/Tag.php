@@ -20,7 +20,14 @@ class Tag extends Model {
   // static $uploaders = [
   // ];
 
+  // ->enable = Tag::ENABLE['YES'];
 
-  const ENABLE = ['正常', '刪除'];
+  const ENABLE_YES = '0';
+  const ENABLE_NO  = 'no';
+
+  const ENABLE = [
+    self::ENABLE_YES => '啟用', 
+    self::ENABLE_NO  => '停用'
+  ];
 }
 

@@ -23,15 +23,24 @@ class Tag extends AdminController {
   }
   
   public function add() {
-    $form = AdminForm::create();
-    $form->setBackUrl(Url::base('admin/tags/'), '回列表');
+    gg([1,23, [1,2,3]]);
+
+    $form = AdminForm::createAdd()
+            ->setFlash($this->flash['params'])
+            ->setActionUrl(Url::base('admin/tags'))
+            ->setBackUrl(Url::base('admin/tags/'), '回列表');
 
     return $this->view->setPath ('admin/Tag/add.php')
                       ->with('form', $form);
   }
   
   public function create() {
-
+    
+    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+    // var_dump (Input::post());
+    // exit ();
+    // return Url::refreshWithFlash(Url::base('admin/tags/add'), ['type' => 'failure', 'msg' => 'aaaaa', 'params' => '123']);
+    return Url::refreshWithFlash(Url::base('admin/tags/add'), ['type' => 'failure', 'msg' => 'aaaaa', 'params' => Input::post()]);
   }
   
   public function edit() {

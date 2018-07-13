@@ -89,10 +89,6 @@ Output::router(Router::current());
  * ------------------------------------------------------ */
 
 // defined('MODEL_LOADED') && \_M\Connection::instance()->close();
-Log::closeAll();
-
 Benchmark::markEnd('整體');
-echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-var_dump (Benchmark::elapsedTime());
-var_dump (Benchmark::elapsedMemory());
-exit ();
+Log::benchmark("耗時：" . Benchmark::elapsedTime('整體'), "記憶體：" . Benchmark::elapsedMemory('整體'));
+Log::closeAll();
