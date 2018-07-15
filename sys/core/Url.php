@@ -50,7 +50,9 @@ class Url {
   }
 
   public static function refreshWithFlash($url, $data = null) {
-    $data === null || Session::setFlashData('flash', $data);
+    is_array($data) && !array_key_exists('type', $data) && $data['type'] = 'failure';
+    is_string($data) && $data = ['msg' => $data];
+    $data === null || Session::setFlashData('flash', array_merge(['type' => 'success', 'msg' => '', 'params' => []], $data));
     static::refresh($url);
 
     exit;

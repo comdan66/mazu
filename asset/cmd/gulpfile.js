@@ -20,7 +20,7 @@ gulp.task ('watch', function () {
     silent: true
   });
 
-  var watcherReload = chokidar.watch (['./root/app/**/*.php', './root/assets/css/**/*.css', './root/assets/js/**/*.js'], {
+  var watcherReload = chokidar.watch (['./root/app/**/*.php', './root/asset/css/**/*.css', './root/asset/js/**/*.js'], {
     ignored: /(^|[\/\\])\../,
     persistent: true
   });
@@ -41,7 +41,7 @@ gulp.task ('watch', function () {
 
   var forders = ['admin', 'login', 'site'];
   forders.forEach (function (t) {
-    var watcherStyle = chokidar.watch ('./root/assets/font/' + t + '/style.css', {
+    var watcherStyle = chokidar.watch ('./root/asset/font/' + t + '/style.css', {
       ignored: /(^|[\/\\])\../,
       persistent: true
     })
@@ -53,11 +53,11 @@ gulp.task ('watch', function () {
 
 // // ===================================================
 function update_icomoon_font_icon (forder) {
-  read ('./root/assets/font/' + forder + '/style.css', 'utf8', function (err, buffer) {
+  read ('./root/asset/font/' + forder + '/style.css', 'utf8', function (err, buffer) {
     var t = buffer.match (/\.icon-[a-zA-Z_\-0-9]*:before\s?\{\s*content:\s*"[\\A-Za-z0-9]*";(\s*color:\s*#[A-Za-z0-9]*;)?\s*}/g);
       if (!(t && t.length)) return;
 
-      writeFile ('./root/assets/scss/icon-' + forder + '.scss', '@import "_oa";\n\n@include font-face("icomoon", font-files("' + forder + '/fonts/icomoon.eot", "' + forder + '/fonts/icomoon.woff", "' + forder + '/fonts/icomoon.ttf", "' + forder + '/fonts/icomoon.svg"));\n[class^="icon-"], [class*=" icon-"] {\n  font-family: "icomoon", Arial, "微軟正黑體", "Microsoft JhengHei", -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;\n  @include font-smoothing(antialiased);\n}\n\n' + t.join ('\n'), function(err) {
+      writeFile ('./root/asset/scss/icon-' + forder + '.scss', '@import "_oa";\n\n@include font-face("icomoon", font-files("' + forder + '/fonts/icomoon.eot", "' + forder + '/fonts/icomoon.woff", "' + forder + '/fonts/icomoon.ttf", "' + forder + '/fonts/icomoon.svg"));\n[class^="icon-"], [class*=" icon-"] {\n  font-family: "icomoon", Arial, "微軟正黑體", "Microsoft JhengHei", -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;\n  @include font-smoothing(antialiased);\n}\n\n' + t.join ('\n'), function(err) {
         if (err) console.log ('\n ' + colors.red ('•') + colors.red (' [錯誤] ') + '寫入檔案失敗！');
         else console.log ('\n ' + colors.red ('•') + colors.yellow (' [icon] ') + '更新 icon 惹，目前有 ' + colors.magenta (t.length) + ' 個！');
       });
@@ -80,18 +80,18 @@ gulp.task ('minify', function () {
   gulp.start ('minify-html');
 });
 gulp.task ('js-uglify', function () {
-  gulp.src ('./root/assets/js/**/*.js')
+  gulp.src ('./root/asset/js/**/*.js')
       .pipe (uglifyJS ())
-      .pipe (gulp.dest ('./root/assets/js/'));
+      .pipe (gulp.dest ('./root/asset/js/'));
 });
 gulp.task ('minify-html', function () {
   gulp.src ('./root/app/**/*.php')
       .pipe (htmlmin ({collapseWhitespace: true}))
-      .pipe (gulp.dest ('./root/assets/'));
+      .pipe (gulp.dest ('./root/asset/'));
 });
 
 // // ===================================================
 
 gulp.task ('gh-pages', function () {
-  del (['./root/assets']);
+  del (['./root/asset']);
 });

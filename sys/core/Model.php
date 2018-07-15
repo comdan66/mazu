@@ -17,8 +17,8 @@ if (!function_exists('\M\useModel')) {
     abstract class Model {
       private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'group', 'having', 'include', 'readonly'];
 
-      public static function table() {
-        return \_M\Table::instance(get_called_class());
+      public static function table($class = null) {
+        return \_M\Table::instance($class === null ? get_called_class() : $class);
       }
 
       public static function one() {
@@ -150,6 +150,13 @@ if (!function_exists('\M\useModel')) {
 
       public function __construct($attrs) {
         $this->setAttrs($attrs)->cleanFlagDirty();
+      }
+
+      public function columnsUpdate($attrs = []) {
+        if ($attrs = array_intersect_key($attrs, $this->attrs()))
+          foreach ($attrs as $column => $value)
+            $this->$column = $value;
+        return true;
       }
 
       public function setClassName($className) {
@@ -407,7 +414,6 @@ if (!function_exists('\M\useModel')) {
         \gg($this->className . ' 找不到名稱為「' . $name . '」此物件變數！');
       }
 
-
       private function setAttr($name, $value) {
         $this->attrs[$name] = \M\cast(static::table()->columns[$name]['type'], $value, $this->className . ' 的欄位「' . $name . '」給予的值格式錯誤，請給予「' . static::table()->columns[$name]['type'] . '」的格式！');
         $this->flagDirty($name);
@@ -473,7 +479,7 @@ if (!function_exists('\M\useModel')) {
 
       public static function create($attrs) {
         $className = get_called_class();
-        $model = new $className($attrs);
+        $model = new $className(array_intersect_key($attrs, static::table($className)->columns));
         $model->setIsNew(true);
         $model->save();
         return $model;

@@ -5,92 +5,140 @@ class Tag extends AdminController {
   public function __construct() {
     parent::__construct();
 
+    if (in_array(Router::methodName(), ['edit', 'update', 'delete', 'show']))
+      if (!(($id = Router::params('id')) && ($this->obj = \M\Tag::one('id = ?', $id))))
+        Url::refreshWithFlash(Url::base('admin/tags'), ['msg' => '找不到資料。']);
+
     $this->view->with('title', '文章標籤')
                ->with('currentUrl', Url::base('admin/tags'));
   }
 
   public function index() {
-    $list = AdminList::model('\M\Tag')
+    $list = AdminList::model('\M\Tag', ['order' => AdminListOrder::desc('sort')])
               ->input('ID', 'id = ?')
               ->input('名稱', 'name LIKE ?')
-              ->checkboxs('狀態', 'enable IN (?)', \M\Tag::ENABLE)
+              ->checkboxs('狀態', 'enable IN (?)', items(array_keys(\M\Tag::ENABLE), \M\Tag::ENABLE))
               ->setAddUrl(Url::base('admin/tags/add'))
               ->setSortUrl(Url::base('admin/tags/sort'));
 
-    return $this->view
-                ->setPath('admin/Tag/index.php')
-                ->with('list', $list);
+    return $this->view->setPath('admin/Tag/index.php')
+                      ->with('list', $list);
   }
   
   public function add() {
-    gg([1,23, [1,2,3]]);
-
     $form = AdminForm::createAdd()
             ->setFlash($this->flash['params'])
             ->setActionUrl(Url::base('admin/tags'))
             ->setBackUrl(Url::base('admin/tags/'), '回列表');
 
-    return $this->view->setPath ('admin/Tag/add.php')
+    return $this->view->setPath('admin/Tag/add.php')
                       ->with('form', $form);
   }
   
   public function create() {
-    
-    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    // var_dump (Input::post());
-    // exit ();
-    // return Url::refreshWithFlash(Url::base('admin/tags/add'), ['type' => 'failure', 'msg' => 'aaaaa', 'params' => '123']);
-    return Url::refreshWithFlash(Url::base('admin/tags/add'), ['type' => 'failure', 'msg' => 'aaaaa', 'params' => Input::post()]);
+    $validator = function(&$posts) {
+      isset($posts['name']) || Validator::error('名稱不存在！');
+      $posts['name'] = strip_tags(trim($posts['name']));
+      $posts['name'] || Validator::error('名稱不存在！');
+      mb_strlen($posts['name']) <= 190 || Validator::error('名稱長度錯誤！');
+
+      $posts['sort'] = \M\Tag::count();
+    };
+
+    $transaction = function(&$posts) {
+      return \M\Tag::create($posts);
+    };
+
+    $posts = Input::post();
+
+    $error = '';
+    $error || $error = validator($validator, $posts);
+    $error || $error = transaction($transaction, $posts);
+    $error && Url::refreshWithFlash(Url::base('admin/tags/add'), ['msg' => $error, 'params' => $posts]);
+    Url::refreshWithFlash(Url::base('admin/tags'), '新增成功！');
   }
   
-  public function edit() {
+  public function edit($id) {
+    $form = AdminForm::createEdit($this->obj)
+            ->setFlash($this->flash['params'])
+            ->setActionUrl(Url::base('admin/tags/' . $this->obj->id))
+            ->setBackUrl(Url::base('admin/tags/'), '回列表');
 
+    return $this->view->setPath('admin/Tag/edit.php')
+                      ->with('obj', $this->obj)
+                      ->with('form', $form);
   }
   
-  public function update() {
+  public function update($id) {
+    $validator = function(&$posts) {
+      isset($posts['name']) || Validator::error('名稱不存在！');
+      $posts['name'] = strip_tags(trim($posts['name']));
+      $posts['name'] || Validator::error('名稱不存在！');
+      mb_strlen($posts['name']) <= 190 || Validator::error('名稱長度錯誤！');
+    };
 
+    $transaction = function(&$posts) {
+      return $this->obj->columnsUpdate($posts) && $this->obj->save();
+    };
+
+    $posts = Input::post();
+
+    $error = '';
+    $error || $error = validator($validator, $posts);
+    $error || $error = transaction($transaction, $posts);
+    $error && Url::refreshWithFlash(Url::base('admin/tags/' . $this->obj->id . 'edit'), ['msg' => $error, 'params' => $posts]);
+    Url::refreshWithFlash(Url::base('admin/tags'), '修改成功！');
   }
   
-  public function show() {
+  public function show($id) {
+    $show = AdminShow::create($this->obj)
+            ->setBackUrl(Url::base('admin/tags/'), '回列表');
 
+    return $this->view->setPath('admin/Tag/show.php')
+                      ->with('show', $show);
   }
   
   public function delete() {
-
+    $error = '';
+    $error || $error = transaction(function() {
+      return $this->obj->delete();
+    });
+    Url::refreshWithFlash(Url::base('admin/tags/'), $error ? ['msg' => $error] : '刪除成功！');
   }
 
   public function sort() {
-    // $validation = function (&$posts) {
-    //   Validation::maybe ($posts, 'changes', '狀態', array ())->isArray ()->doArrayValues ()->doArrayMap (function ($t) {
-    //     if (!isset ($t['id'], $t['ori'], $t['now']))
-    //       return Validation::error ('格式不正確(1)');
+    $validator = function(&$posts) {
+      $posts['changes'] = array_filter(array_map(function($change) {
+        if (!isset($change['id'], $change['ori'], $change['now']))
+          return null;
 
-    //     if (!$obj = OriAd::find ('one', array ('select' => 'id,sort', 'where' => Where::create ('id = ? AND sort = ?', $t['id'], $t['ori']))))
-    //       return Validation::error ('格式不正確(2)');
+        if (!$obj = \M\Tag::one(['select' => 'id,sort', 'where' => ['id = ? AND sort = ?', $change['id'], $change['ori']]]))
+          return null;
 
-    //     return array ('obj' => $obj, 'sort' => $t['now']);
-    //   })->doArrayFilter ();
-    // };
+        return ['obj' => $obj, 'sort' => $change['now']];
+      }, isset($posts['changes']) ? $posts['changes'] : []));
+    };
 
-    // $posts = Input::post ();
+    $transaction = function(&$posts) {
+      foreach ($posts['changes'] as $change)
+        $change['obj']->sort = $change['sort'];
 
-    // if ($error = Validation::form ($validation, $posts))
-    //   return Output::json ($error, 400);
+      foreach ($posts['changes'] as $change)
+        if (!$change['obj']->save())
+          return false;
 
-    // $transaction = function ($posts) {
-    //   foreach ($posts['changes'] as $value)
-    //     $value['obj']->sort = $value['sort'];
+      $posts = array_map(function($change) {
+        return ['id' => $change['obj']->id, 'sort' => $change['obj']->sort];
+      }, $posts['changes']);
 
-    //   foreach ($posts['changes'] as $value)
-    //     if (!$value['obj']->save ())
-    //       return false;
+      return true;
+    };
 
-    //   return true;
-    // };
-
-    // if ($error = OriAd::getTransactionError ($transaction, $posts))
-    //   return Output::json ($error, 400);
-
-    // return Output::json (array_map (function ($t) { return array ('id' => $t->id, 'sort' => $t->sort);}, array_column ($posts['changes'], 'obj')));
+    $posts = Input::post();
+    
+    $error = '';
+    $error || $error = validator($validator, $posts);
+    $error || $error = transaction($transaction, $posts);
+    return $error ? ['error' => $error] : $posts;
   }
 }

@@ -20,14 +20,19 @@ class Tag extends Model {
   // static $uploaders = [
   // ];
 
-  // ->enable = Tag::ENABLE['YES'];
-
-  const ENABLE_YES = '0';
+  const ENABLE_YES = 'yes';
   const ENABLE_NO  = 'no';
 
   const ENABLE = [
     self::ENABLE_YES => '啟用', 
     self::ENABLE_NO  => '停用'
   ];
+
+  public function delete() {
+    if (!isset($this->id))
+      return false;
+
+    return parent::delete();
+  }
 }
 

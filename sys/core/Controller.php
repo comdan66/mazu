@@ -1,7 +1,11 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-class Controller {
+abstract class Controller {
   private $constructError = null;
+
+  public function __construct() {
+  }
+
 
   public function constructError() {
     return $this->constructError;

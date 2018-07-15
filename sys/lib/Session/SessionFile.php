@@ -65,7 +65,10 @@ class SessionFile extends Session implements SessionHandlerInterface {
   }
 
   public function write($sessionId, $sessionData) {
-    if ($sessionId !== $this->sessionId || $this->close() === $this->fail() || $this->read($sessionId) === $this->fail() || !is_resource($this->handle))
+    if ($sessionId !== $this->sessionId && ($this->close() === $this->fail() || $this->read($sessionId) === $this->fail()))
+      return $this->fail();
+
+    if (!is_resource($this->handle))
       return $this->fail();
 
     if ($this->fingerPrint === md5($sessionData))

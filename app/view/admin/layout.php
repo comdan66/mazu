@@ -47,10 +47,10 @@
 
       <div id='menu-main'>
         <div>
-          <span class='icon-14'>文章設定</span>
+          <span class='icon-16'>文章設定</span>
           <div>
-            <a href="<?php echo $url = Url::base('admin/tags');?>" class='icon-16<?php echo $url === $currentUrl ? ' active' : '';?>'>文章標籤</a>
-            <a href="<?php echo $url = Url::base('admin/articles');?>" class='icon-16<?php echo $url === $currentUrl ? ' active' : '';?>'>文章列表</a>
+            <a href="<?php echo $url = Url::base('admin/tags');?>" class='icon-42<?php echo $url === $currentUrl ? ' active' : '';?>'>文章標籤</a>
+            <a href="<?php echo $url = Url::base('admin/articles');?>" class='icon-22<?php echo $url === $currentUrl ? ' active' : '';?>'>文章列表</a>
           </div>
         </div>
 

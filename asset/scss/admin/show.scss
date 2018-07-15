@@ -8,358 +8,331 @@
 @import "_oa";
 @import "_admin";
 
-.show-panel {
-  @extend .panel;
+.title {
+  @extend .block;
+  padding: 4px 0;
+  color: rgba(150, 150, 150, 1.00);
+  font-weight: bold;
+  font-size: 14px;
+  @include text-shadow(1px 1px 1px rgba(255, 255, 255, 1));
 
-  > div {
-    display: block;
-    + div {
-      margin-top: 32px;
+  + .panel {
+    margin-top: 0;
+  }
+}
+
+.ckeditor {
+  margin: 0 auto;
+  text-align: left;
+  word-break: break-all;
+
+
+  font-size: 15px;
+  line-height: 22.5px;
+  word-break: normal;
+  word-wrap: break-word;
+
+  > * {
+    + * {
+      margin-top: 14px;
     }
-    > b {
-      display: inline-block;
-      width: 100%;
-      height: 24px;
-      line-height: 24px;
-      + * {
-        margin-top: 4px;
-      }
+  }
+  header {
+    font-weight: bold;
+  }
+  img {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  a {
+    @include a(1px, true);
+    font-size: 15px;
+  }
+
+  > p {
+    a, span, b, i {
+      display: inline;
     }
-    > div {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      border: 1px solid rgba(230, 230, 230, 1);
-      padding: 6px 12px;
-      @include border-radius(3px);
-      background-color: rgba(250, 250, 250, 1);
-      &:empty {
-        &:before {
-          content: '無';
-          font-style: italic;
-          color: rgba(180, 180, 180, 1);
-        }
-      }
-    }
-    > .string {
-      line-height: 20px;
-      @include word-break(break-all);
-    }
-    > .date {
-      @extend .string;
-
-      &[data-time]:not([data-time='']):after {
-        content: '(' attr(data-time) ')';
-        font-size: 10px;
-        display: inline-block;
-        margin-left: 4px;
-        color: rgba(135, 135, 135, 1);
-      }
-    }
-    > .color {
-      @extend .string;
-      padding: 8px 16px;
-      width: 200px;
-      display: block;
-      font-weight: bold;
-
-      &[data-rgb]:not([data-rgb='']):after {
-        content: attr(data-rgb);
-        // @include opacity(.75);
-        display: inline-block;
-        width: calc(100% + 8px * 2);
-        height: 24px;
-        line-height: 24px;
-        margin-left: -8px;
-        padding-left: 8px;
-        
-        margin-top: 6px;
-        padding-top: 1px;
-        font-weight: normal;
-      }
-      &.w {
-        color: rgba(255, 255, 255, .75);
-        &:after {
-          color: rgba(255, 255, 255, .5);
-          border-top: 1px solid rgba(255, 255, 255, .3);
-        }
-      }
-      &.b {
-        color: rgba(0, 0, 0, .75);
-        &:after {
-          color: rgba(0, 0, 0, .5);
-          border-top: 1px solid rgba(0, 0, 0, .3);
-        }
-      }
-    }
-    > .list {
-      @extend .string;
-      @include clearfix();
-      padding: 4px 6px;
-      > * {
-        float: left;
-        display: inline-block;
-        max-width: 100%;
-        @include overflow-docx3();
-        height: 25px;
-        line-height: 25px;
-        padding: 0 8px;
-        border: 1px solid rgba(0, 0, 0, .1);
-        margin: 4px;
-        background-color: rgba(255, 255, 255, 1.00);
-      }
-    }
-    > .pure {
-      line-height: 21px;
-    }
-    > .ckeditor {
-      line-height: 23px;
-      @include word-break(break-all);
-      
-      > #{elements-of-type(block)} {
-        position: relative;
-        border: 1px dashed rgba(0, 0, 0, .1);
-        @include transition(border-color .3s);
-
-        &:after {
-          position: absolute;
-          top: -1px;
-          right: -1px;
-          display: inline-block;
-          background-color: rgba(100, 100, 100, 1);
-          color: white;
-          font-size: 10px;
-          height: 16px;
-          line-height: 16px;
-          padding: 0 8px;
-          @include opacity(0);
-          @include transition(opacity .3s);
-          @include border-bottom-left-radius(2px);
-        }
-        &:hover {
-          border: 1px dashed rgba(0, 0, 0, .3);
-          &:after {
-            @include opacity(.7);
-          }
-        }
-      }
-      
-      $blocks: (address, article, aside, blockquote, center, dd, details, dir, div, dl, dt, fieldset, figcaption, figure, footer, form, frameset, h1, h2, h3, h4, h5, h6, header, hgroup, hr, isindex, main, menu, nav, noframes, noscript, ol, p, pre, section, summary, ul);
-      @each $block in $blocks {
-        > #{$block} {
-          &:after {
-            content: '#{$block}';
-          }
-        }
-      }
-      
-      > p {
-        img {
-          max-width: 100%;
-          width: auto !important;
-          height: auto !important;
-        }
-      }
-    }
-    > .multi-datas {
-      // padding: 0;
-      // padding-top: 4px;
-      // padding-bottom: 4px;
-
-      + .multi-datas {
-        margin-top: 12px;
-      }
-      > div {
-        padding: 0 4px;
-        line-height: 20px;
-        @include word-break(break-all);
-
-        + div {
-          margin-top: 4px;
-          padding-top: 4px;
-          border-top: 1px dashed rgba(222, 222, 222, 1.00);
-        }
-        &[title]:not([title='']) {
-          &:before {
-            content: attr(title) '：';
-            display: inline;
-            font-weight: bold;
-            margin-right: 2px;
-          }
-        }
-      }
-
-      // > div {
-      //   display: inline-block;
-      //   width: 100%;
-      //   padding: 4px 12px;
-      //   @include word-break(break-all);
-
-      //   + div {
-      //     margin-top: 4px;
-      //     border-top: 1px solid rgba(222, 222, 222, 1.00);
-      //   }
-      //   > div {
-      //     line-height: 20px;
-      //     padding: 0 4px;
-      //     padding-top: 6px;
-      //     @include word-break(break-all);
-
-      //   }
-      // }
-    }
-    > .images {
-      padding: 4px;
-      @include clearfix();
-      
-      
-      > div {
-        display: inline-block;
-        max-width: 100%;
-        width: 200px;
-        height: 200px;
-        position: relative;
-        @include border-radius(2px);
-        overflow: hidden;
-        float: left;
-
-        margin: 6px;
-
-        img {
-          width: 100%;
-        }
-        &:after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          bottom: 0;
-          right: 0;
-          border: 1px solid rgba(0, 0, 0, .15);
-          @include border-radius(2px);
-        }
-      }
-    }
-    > .map-show {
-      height: 400px;
-      padding: 0;
-
-      border: 1px solid rgba(200, 200, 200, 1.00);
-      background-color: rgba(229, 227, 223, 1.00);
-      overflow: hidden;
-      @include border-radius(2px);
-      
-      .gmap {
-        position: absolute;
-        top: 0;
-        left: 0;
-        display: inline-block;
+    > iframe {
+      + span {
+        display: block;
         width: 100%;
-        height: 100%;
-        z-index: 1;
+        height: 28px;
+        line-height: 28px;
+        font-size: 13px;
+        text-align: left;
+        color: rgba(85, 85, 85, 1);
+        @include overflow-docx3();
 
-        a[href^="http://maps.google.com/maps"], a[href^="https://maps.google.com/maps"] {
-          display: none !important;
-        }
-
-        .gmnoprint.gm-bundled-control, .gm-style-cc {
+        &:empty {
           display: none;
         }
-      }
-
-      .zoom a {
-        color: #6f6f6f;
-        font-weight: bold;
-        cursor: pointer;
-        font-size: 20px;
-        background-color: white;
-        @include transition(color .3s);
-        
-        &:hover {
-          color: #323232;
-        }
-      }
-
-      .zoom {
-        position: absolute;
-        bottom: 8px;
-        right: 8px;
-        display: inline-block;
-        width: 35px;
-        height: 35px * 2 + 1px;
-        z-index: 2;
-        background-color: white;
-        padding-left: 4px;
-        padding-right: 4px;
-        @include box-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
-        @include border-radius(3px);
-        
-        &:after {
-          content: '';
-          position: absolute;
-          top: 35px + 1px;
-          left: 5px;
-          display: inline-block;
-          width: calc(100% - 5px * 2);
-          height: 1px;
-          background-color: #dcdcdc;
-
-        }
-        a {
-          text-decoration: none;
-          display: inline-block;
-          width: 100%;
-          height: 35px;
-          line-height: 35px;
-          text-align: center;
-        }
-      }
-
-      .full {
-        position: absolute;
-        right: 8px;
-        bottom: 35px * 2 + 1px + 8px + 8px;
-        z-index: 2;
-        display: inline-block;
-        width: 35px;
-        height: 35px;
-        line-height: 35px;
-        background-color: white;
-
-        color: #6f6f6f;
-        font-weight: bold;
-        cursor: pointer;
-        text-align: center;
-        font-size: 20px;
-        @include transition(color .3s);
-        @include border-radius(3px);
-        @include box-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
-        
-        &:hover {
-          color: #323232;
-        }
         &:before {
-          content: '\e901';
+          content: '\e903';
+          font-weight: bold;
           font-family: "icomoon"; speak: none; font-style: normal; font-weight: normal; font-variant: normal;
+          color: rgba(130, 130, 130, 1);
+          font-weight: bold;
+          font-size: 20px;
           @include font-smoothing(antialiased);
         }
       }
+    }
+  }
 
-      &.fixed {
-        position: fixed;
-        top: 0;
+  table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    > thead {
+      > tr {
+        th {
+          &:first-child {
+            border-left: 1px solid rgba(223, 226, 229, 1.00);
+          }
+          &:last-child {
+            border-right: 1px solid rgba(223, 226, 229, 1.00);
+          }
+          + th {
+            border-left: 1px solid rgba(223, 226, 229, 1.00);
+          }
+          background-color: rgba(246, 248, 250, 1.00);
+          padding: 2px 4px;
+        }
+        &:first-child {
+          th {
+            border-top: 1px solid rgba(223, 226, 229, 1.00);
+          }
+        }
+        &:last-child {
+          th {
+            border-bottom: 1px solid rgba(223, 226, 229, 1.00);
+          }
+        }
+        + tr {
+          th {
+            border-top: 1px solid rgba(223, 226, 229, 1.00);
+          }
+        }
+      }
+    }
+    > tbody {
+      > tr {
+        td {
+          &:first-child {
+            border-left: 1px solid rgba(223, 226, 229, 1.00);
+          }
+          &:last-child {
+            border-right: 1px solid rgba(223, 226, 229, 1.00);
+          }
+          + td {
+            border-left: 1px solid rgba(223, 226, 229, 1.00);
+          }
+          padding: 2px 4px;
+        }
+        &:first-child {
+          td {
+            border-top: 1px solid rgba(223, 226, 229, 1.00);
+          }
+        }
+        &:last-child {
+          td {
+            border-bottom: 1px solid rgba(223, 226, 229, 1.00);
+          }
+        }
+        + tr {
+          td {
+            border-top: 1px solid rgba(223, 226, 229, 1.00);
+          }
+        }
+      }
+    }
+  }
+
+  ul, ol {
+    padding-left: 24px;
+    li {
+      line-height: 18px;
+      font-size: 14px;
+      word-break: break-all;
+
+      span {
+        display: inline;
+        width: auto;
+      }
+
+      + li {
+        margin-top: 4px;
+      }
+
+      > a:not([href]) {
+        cursor: auto;
+      }
+      > ul, > ol {
+        margin-top: 2px;
+        margin-bottom: 10px;
+      }
+    }
+    + blockquote {
+      margin-top: -7px;
+    }
+  }
+
+  blockquote {
+    padding: 8px;
+    margin: 0;
+    border-left: 3px solid rgba(235, 235, 235, 1.00);
+    margin-bottom: 10px;
+  }
+}
+
+.texts {
+  padding: 6px 12px !important;
+
+  span {
+    display: inline-block;
+    width: 100%;
+    padding: 6px 4px;
+    word-break: break-all;
+
+    + span {
+      border-top: 1px dashed rgba(220, 220, 220, 1.00);
+    }
+  }
+}
+.items {
+  background-color: transparent;
+  border-color: transparent;
+  padding: 0 !important;
+  @include clearfix();
+  @include border-radius(0);
+  
+  > * {
+    float: left;
+    display: inline-block;
+    height: 23px;
+    line-height: 23px;
+
+    border: 1px solid rgba(220, 220, 220, 1.00);
+    padding: 0 10px;
+    margin: 0;
+    margin-top: 2px;
+    margin-bottom: 6px;
+    margin-right: 8px;
+
+    font-size: 14px;
+    background-color: white;
+    @include border-radius(3px);
+  }
+}
+.links {
+  padding: 6px 12px !important;
+
+  a {
+    @include a;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    padding: 6px 4px;
+    padding-left: 22px;
+    word-break: break-all;
+
+    + a {
+      border-top: 1px dashed rgba(220, 220, 220, 1.00);
+      margin-top: 2px;
+    }
+    &:before {
+      position: absolute;
+      left: 0;
+      top: 7px;
+      display: inline-block;
+      margin-right: 8px;
+      margin-top: 2px;
+      color: rgba(122, 122, 122, 1.00);
+    }
+    &:after {
+      content: ' - ' attr(href);
+      color: rgba(160, 160, 160, 1.00);
+      display: block;
+      margin-left: 0;
+      font-style: italic;
+      font-size: 12px;
+      margin-top: 2px;
+      @include transition(color .3s);
+      
+    }
+    &:hover {
+      &:after {
+        color: rgba(111, 111, 111, 1.00);
+      }
+    }
+  }
+}
+.images {
+  padding: 8px 16px !important;
+  @include clearfix();
+  
+  ._ic {
+    float: left;
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    width: 180px;
+    height: 120px;
+    max-width: 100%;
+    margin-right: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    @include border-radius(2px);
+    overflow: hidden;
+    img {
+      width: 100%;
+    }
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      border: 1px solid rgba(0, 0, 0, .1);
+    }
+    > div {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      color: white;
+      background-color: rgba(0, 0, 0, .5);
+      cursor: pointer;
+      @include opacity(0);
+      @include transition(opacity .3s);
+      z-index: 2;
+      
+      &:hover {
+        @include opacity(1);
+      }
+      &:before, &:after {
+        position: absolute;
         left: 0;
         display: inline-block;
         width: 100%;
-        height: 100%;
-        z-index: 999;
-        margin: 0;
-        @include border-radius(0);
-        border: 0;
-
-        .full:before {
-          content: '\e904';
-        }
+        text-align: center;
+      }
+      &:before {
+        top: calc(50% - 32px - 4px);
+        height: 32px;
+        line-height: 32px;
+        font-size: 32px;
+      }
+      &:after {
+        content: '點擊觀看';
+        top: calc(50% + 4px);
       }
     }
   }

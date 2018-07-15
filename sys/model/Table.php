@@ -117,7 +117,6 @@ class Table {
     return Connection::instance()->query($sql, array_values($data));
   }
 
-
   public function update($data, $primaryKeys) {
     $data = $this->processDataToStr($data);
     $where = $this->mergeWherePrimaryKeys($primaryKeys);

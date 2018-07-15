@@ -1,29 +1,38 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class Router {
-  private $method;
-  private $segment;
-  private $params;
-  private $controller;
-  private $status;
 
   private $work;
+  private $controller;
   // private $befores;
   // private $beforeParams;
 
   // private $afters;
   // private $afterParams;
 
-
   private static $current;
   private static $routers;
+
+  // private static $method;
+  // private static $segment;
+  private static $params;
+  private static $status;
+  private static $requestMethod;
+  private static $className;
+  private static $methodName;
   
-  public function __construct($method, $segment) {
-    $this->method  = $method;
-    $this->segment = $segment;
-    $this->params  = [];
-    $this->controller = null;
-    $this->status  = 200;
+  public static function init() {
+    self::$current = null;
+    self::$routers = [];
+    self::$params = [];
+    self::$status = 200;
+    self::$requestMethod = null;
+    self::$className = null;
+    self::$methodName = null;
+    Load::app('routers.php');
+  }
+
+  public function __construct() {
     $this->work    = null;
     
     // $this->befores      = [];
@@ -32,51 +41,11 @@ class Router {
     // $this->afters      = [];
     // $this->afterParams = [];
   }
-
-  public function setStatus($status) {
-    $this->status = $status;
-    return $this;
-  }
-
-  public function getStatus() {
-    return $this->status;
-  }
-  
-  public function setParams($params) {
-    $this->params = $params;
-    return $this;
-  }
-  
-  public function getParams($key = null) {
-    return $key !== null && isset($this->params[$key]) ? $this->params[$key] : $this->params;
-  }
-  
-  // public function before($before) {
-  //   array_push($this->befores, $before);
-  //   return $this;
-  // }
-
-  public function setWork($work) {
-    $this->work = $work;
-    return $this;
-  }
   
   public function work($work) {
     return $this->setWork($work);
   }
-
-  // public function getBeforeParams($key = null) {
-  //   return $key !== null && isset($this->beforeParams[$key]) ? $this->beforeParams[$key] : $this->beforeParams;
-  // }
   
-  // public function after($after) {
-  //   array_push($this->afters, $after);
-  //   return $this;
-  // }
-
-  // public function getAfterParams($key = null) {
-  //   return $key !== null && isset($this->afterParams[$key]) ? $this->afterParams[$key] : $this->afterParams;
-  // }
   public function controller($controller) {
     $this->controller = $controller;
     return $this;
@@ -89,18 +58,18 @@ class Router {
   public function exec() {
     if ($this->controller !== null) {
       strpos($this->controller, '@') !== false || gg('Controller 設定有誤！');
-      list($path, $method) = explode('@', $this->controller);
-      $class = pathinfo($path, PATHINFO_BASENAME);
+      list($path, self::$methodName) = explode('@', $this->controller);
+      self::$className = pathinfo($path, PATHINFO_BASENAME);
 
       Load::controller($path . '.php') || gg('找不到指定的 Controller', '檔案位置：' . $path . '.php');
-      class_exists($class) || gg('找不到指定的 Controller', 'Class：' . $class);
-      $method || gg('請設定 method！');
+      class_exists(self::$className) || gg('找不到指定的 Controller', 'Class：' . self::$className);
+      self::$methodName || gg('請設定 method！');
 
-      $obj = new $class();
+      $obj = new self::$className();
       if ($error = $obj->constructError())
         return new GG($error, 500);
       else
-        return $obj->$method();
+        return call_user_func_array([$obj, self::$methodName], static::params());
     }
 
     // foreach ($this->befores as $before)
@@ -122,10 +91,29 @@ class Router {
     //   array_push($this->afterParams, $before());
   }
 
-  public static function init() {
-    self::$current = null;
-    self::$routers = [];
-    Load::app('routers.php');
+
+  public static function params($key = null) {
+    return $key !== null ? array_key_exists($key, self::$params) ? self::$params[$key] : null : self::$params;
+  }
+
+  public static function className() {
+    return self::$className;
+  }
+
+  public static function methodName() {
+    return self::$methodName;
+  }
+
+  public static function setStatus($status = 200) {
+    return self::$status = $status;
+  }
+
+  public static function requestMethod() {
+    return self::$requestMethod !== null ? self::$requestMethod : self::$requestMethod = strtolower (isCli() ? 'cli' : (isset ($_POST['_method']) ? $_POST['_method'] : (isset ($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'get')));
+  }
+
+  public static function status() {
+    return self::$status;
   }
 
   private static function setSegment($segment) {
@@ -133,6 +121,26 @@ class Router {
     return preg_replace('/\(([^\[]+)\[/', '(?<$1>[', str_replace([':any', ':num'], ['[^/]+', '[0-9]+'], $segment));
   }
   
+  public static function current() {
+    if (self::$current !== null)
+      return self::$current === '' ? null : self::$current;
+
+    $method = self::requestMethod();
+
+    if (isset(self::$routers[$method]))
+      foreach (self::$routers[$method] as $segment => $obj)
+        if (preg_match ('#^' . $segment . '$#', implode('/', Url::segments()), $matches)) {
+
+          $params = [];
+          foreach (array_filter(array_keys($matches), 'is_string') as $key)
+            self::$params[$key] = $matches[$key];
+
+          return self::$current = $obj;
+        }
+
+    return self::$current = '';
+  }
+
   public static function get($segment) {
     $segment = self::setSegment($segment);
     isset(self::$routers['get']) || self::$routers['get'] = [];
@@ -163,34 +171,11 @@ class Router {
     return self::$routers['cli'][$segment] = new Router('cli', $segment);
   }
 
-  public static function current() {
-    return self::$current;
-  }
-  
   public static function all() {
     return self::$routers;
-  }
-  
-  public static function getMatchRouter() {
-    $method = strtolower (isCli() ? 'cli' : (isset ($_POST['_method']) ? $_POST['_method'] : (isset ($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'get')));
-
-    if (isset(self::$routers[$method]))
-      foreach (self::$routers[$method] as $segment => $obj)
-        if (preg_match ('#^' . $segment . '$#', implode('/', Url::segments()), $matches)) {
-          
-          $params = [];
-          foreach (array_filter(array_keys($matches), 'is_string') as $key)
-            $params[$key] = $matches[$key];
-          
-          self::$routers = [];
-
-          return self::$current = $obj->setParams($params);
-        }
-
-    return null;
   }
 }
 
 Router::init();
-Router::getMatchRouter();
+Router::current();
 Router::current() || new GG('迷路惹！', 404);

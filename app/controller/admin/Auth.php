@@ -10,7 +10,7 @@ class Auth extends Controller {
 
   public function logout() {
     Session::unsetData('admin');
-    return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'success', 'msg' => '登出成功！', 'params' => []]);
+    return Url::refreshWithFlash(Url::base('admin', 'login'), '登出成功！');
   }
 
   public function login() {
@@ -35,11 +35,14 @@ class Auth extends Controller {
       $posts['account']  = trim($posts['account']);
       $posts['password'] = trim($posts['password']);
 
+      // $posts['account'] = strip_tags($posts['account']);
+      // $posts['password'] = strip_tags($posts['password']);
+      
       $posts['account']  || Validator::error('帳號不存在！');
       $posts['password'] || Validator::error('密碼不存在！');
 
-      $posts['account'] = strip_tags($posts['account']);
-      $posts['password'] = strip_tags($posts['password']);
+      mb_strlen($posts['account']) <= 190 || Validator::error('帳號長度錯誤！');
+      mb_strlen($posts['password']) <= 190 || Validator::error('密碼長度錯誤！');
 
       $admin = \M\Admin::one('account = ?', $posts['account']);
       $admin || Validator::error('此帳號不存在！');
@@ -47,21 +50,19 @@ class Auth extends Controller {
       password_verify($posts['password'], $admin->password) || Validator::error('密碼錯誤！');
     };
 
-    $transaction = function ($admin) {
+    $transaction = function($admin) {
       return $admin->save();
     };
 
     $posts = Input::post();
 
-    if ($error = Validator::check($validator, $posts, $admin))
-      return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'failure', 'msg' => $error, 'params' => $posts]);
-
-    if ($error = transaction($transaction, $admin))
-      return Url::refreshWithFlash(Url::base('admin', 'login'), ['type' => 'failure', 'msg' => $error, 'params' => $posts]);
+    $error = '';
+    $error || $error = validator($validator, $posts, $admin);
+    $error || $error = transaction($transaction, $admin);
+    $error && Url::refreshWithFlash(Url::base('admin', 'login'), ['msg' => $error, 'params' => $posts]);
 
     Session::setData('admin', $admin);
 
-    return Url::refreshWithFlash(Url::base('admin'), ['type' => 'success', 'msg' => '登入成功！', 'params' => []]);
+    Url::refreshWithFlash(Url::base('admin'), '登入成功！');
   }
-
 }

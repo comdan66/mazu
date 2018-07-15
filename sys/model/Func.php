@@ -145,11 +145,3 @@ if (!function_exists('\M\cast')) {
     return $val;
   }
 }
-
-// public static function transactionError ($closure, &...$args) {
-//   if (!is_callable ($closure))
-//     return false;
-
-//   $class = get_called_class ();
-//   return  call_user_func_array (array ($class, 'transaction'), array_merge (array ($closure), $args)) ? null : '資料庫處理錯誤！';
-// }

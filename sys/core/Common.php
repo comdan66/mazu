@@ -321,15 +321,40 @@ if (!function_exists('isJson')) {
 if (!function_exists('transaction')) {
   function transaction($closure, &...$args) {
     function_exists('\M\transaction') || \M\useModel();
-    return is_callable($closure) ? call_user_func_array('\M\transaction', array_merge([$closure], $args)) ? null : '資料庫處理錯誤！' : false;
+    
+    is_callable($closure) || gg('transaction 第一個參數必須可呼叫！');
+
+    if (call_user_func_array('\M\transaction', array_merge([$closure], $args)))
+      return null;
+
+    Router::setStatus(400);
+
+    return '資料庫處理錯誤！';
   }
 }
 
 if (!function_exists('items')) {
-  function items($values, $texts) {
-    return count($values) == count($texts) ? array_map(function($value, $text) { return ['value' => '' . $value, 'text' => '' . $text]; }, $values, $texts) : [];
+  function items($values, $texts, $k1 = 'value', $k2 = 'text') {
+    return count($values) == count($texts) ? array_map(function($value, $text) use($k1, $k2) { return [$k1 => '' . $value, $k2 => '' . $text]; }, $values, $texts) : [];
   }
 }
+
+// if (!function_exists('run')) {
+//   function run(array $funcs = []) {
+//     foreach ($funcs as $closure => &$args) {
+//       if (!(is_array($args) && $args && is_callable($closure)))
+//         return '函式錯誤！';
+
+//       $str = '$str = $closure(' . implode(', ', array_map(function($i, $arg) { return '$args[' . $i . ']'; }, array_keys($args), $args)) . ');';
+//       eval($str);
+
+//       if ($str)
+//         return $str;
+//     }
+
+//     return null;
+//   }
+// }
 
 
 

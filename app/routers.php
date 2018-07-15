@@ -10,10 +10,10 @@ Router::get('admin')->controller('admin/Main@index');
 Router::get('admin/tags')->controller('admin/Tag@index');
 Router::get('admin/tags/add')->controller('admin/Tag@add');
 Router::post('admin/tags/')->controller('admin/Tag@create');
-Router::get('admin/tags/(:id)/edit')->controller('admin/Tag@edit');
-Router::put('admin/tags/(:id)')->controller('admin/Tag@update');
-Router::get('admin/tags/(:id)')->controller('admin/Tag@show');
-Router::delete('admin/tags/(:id)')->controller('admin/Tag@delete');
+Router::get('admin/tags/(id:num)/edit')->controller('admin/Tag@edit');
+Router::put('admin/tags/(id:num)')->controller('admin/Tag@update');
+Router::get('admin/tags/(id:num)')->controller('admin/Tag@show');
+Router::delete('admin/tags/(id:num)')->controller('admin/Tag@delete');
 Router::post('admin/tags/sort')->controller('admin/Tag@sort');
 
 
