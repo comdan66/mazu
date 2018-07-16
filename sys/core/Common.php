@@ -14,27 +14,35 @@ class Load {
 
     return self::$cache[$path] = true;
   }
+
   public static function path($path) {
     return self::file(PATH . $path);
   }
+
   public static function sysCore($path) {
     return self::file(PATH_SYS_CORE . $path);
   }
+
   public static function sysModel($path) {
     return self::file(PATH_SYS_MODEL . $path);
   }
+
   public static function sysLib($path) {
     return self::file(PATH_SYS_LIB . $path);
   }
+
   public static function sysFunc($path) {
     return self::file(PATH_SYS_FUNC . $path);
   }
+
   public static function app($path) {
     return self::file(PATH_APP . $path);
   }
+
   public static function core($path) {
     return self::file(PATH_CORE . $path);
   }
+
   public static function controller($path) {
     return self::file(PATH_CONTROLLER . $path);
   }
@@ -48,7 +56,8 @@ class GG {
     isCli() || responseStatusHeader($code);
     isCli() ? @system('clear') : @ob_end_clean();
 
-    $type = !isCli() ? !class_exists('View') || GG::$isApi ? 'api' : 'html' : 'cli';
+    $type = !isCli() ? !class_exists('View') || GG::$isApi ? 'api' : 'html' : (class_exists('View') ? 'cli' : 'api');
+    
     isset($contents['traces']) || $contents['traces'] = array_map(function($trace) { return ['path' => (isset($trace['file']) ? str_replace('', '', $trace['file']) : '[呼叫函式]') . (isset($trace['line']) ? '(' . $trace['line'] . ')' : ''), 'info' => (isset($trace['class']) ? $trace['class'] : '') . (isset($trace['type']) ? $trace['type'] : '') . (isset($trace['function']) ? $trace['function'] : '') . (isset($trace['args']) ? '(' . implodeRecursive(', ', $trace['args']) . ')' : '')]; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT));
     
     if ($code === 404)
