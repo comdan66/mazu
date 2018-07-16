@@ -58,6 +58,7 @@ class Table {
       'pk' => $row['key'] === 'PRI', // 是否為主鍵
       'ai' => $row['extra'] === 'auto_increment', // 是否自動增加
       'type' => $type,
+      'd4' => $row['default'],
     ];
   }
 

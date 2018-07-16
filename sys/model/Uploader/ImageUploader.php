@@ -5,17 +5,19 @@ namespace M;
 defined('MAZU') || exit('此檔案不允許讀取！');
 
 abstract class ImageUploader extends Uploader {
+  const ORI = 'ori';
   const SYMBOL = '_';
   const AUTO_FORMAT = true;
 
   abstract public function versions();
 
-  private function getVersions() {
+  public function getVersions() {
     $versions = $this->versions();
-    return $versions && is_array($versions) ? array_merge(['' => []], $versions) : ['' => []];
+    return $versions && is_array($versions) ? array_merge([ImageUploader::ORI => []], $versions) : [ImageUploader::ORI => []];
   }
 
-  public function path($key = '') {
+  public function path($key = null) {
+    $key !== null || $key = ImageUploader::ORI;
     $versions = $this->getVersions();
     $fileName = array_key_exists($key, $versions) && ($value = (string)$this->value) ? $key . ImageUploader::SYMBOL . $value : '';
     return parent::path($fileName);
@@ -99,11 +101,11 @@ abstract class ImageUploader extends Uploader {
     return $image->save($savePath, true);
   }
 
-  public function toImageTag($key = '', $attrs = []) { // $attrs = ['class' => 'i']
+  public function toImageTag($key = null, $attrs = []) { // $attrs = ['class' => 'i']
     return ($url = ($url = $this->url($key)) ? $url : $this->d4Url()) ? '<img src="' . $url . '"' . ($attrs ? ' ' . implode(' ', array_map(function($key, $value) { return $key . '="' . $value . '"'; }, array_keys($attrs), $attrs)) : '') . '>' : '';
   }
 
-  public function toDivImageTag($key = '', $divAttrs = [], $imgAttrs = []) {
+  public function toDivImageTag($key = null, $divAttrs = [], $imgAttrs = []) {
     return ($str = $this->toImageTag($key, $imgAttrs)) ? '<div' . ($divAttrs ? ' ' . implode(' ', array_map(function($key, $value) { return $key . '="' . $value . '"'; }, array_keys($divAttrs), $divAttrs)) : '') . '>' . $str . '</div>' : '';
   }
 }

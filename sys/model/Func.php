@@ -108,6 +108,23 @@ if (!function_exists('\M\reverseOrder')) {
   }
 }
 
+
+if (!function_exists('\M\toArray')) {
+  function toArray($objs) {
+    return array_map(function($obj) {
+      return array_map(function($attr) {
+        if ($attr instanceof ImageUploader)
+          return array_combine($keys = array_keys($attr->getVersions()), array_map(function($key) use($attr) { return $attr->url($key); }, $keys));
+        
+        if ($attr instanceof FileUploader)
+          return $attr->url();
+        
+        return (string)$attr;
+      }, $obj->attrs());
+    }, $objs);
+  }
+}
+
 if (!function_exists('\M\cast')) {
   function cast($type, $val, $checkFormat) {
     if ($val === null)

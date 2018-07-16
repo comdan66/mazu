@@ -43,23 +43,24 @@ class AdminListTableColumn {
     return $this;
   }
 
-  // public function setSwitch ($checked, $attrs = []) {
-  //   return form_switch ('', '', '', $checked, $attrs);
-  // }
-
   public function thString($sortUrl = '') {
     return '<th' . ($this->width ? ' width="' . $this->width . '"' : '') . '' . ($this->class ? ' class="' . $this->class . '"' : '') . '>' . AdminListOrder::set($this->title, $sortUrl ? '' : $this->sort) . '</th>';
   }
 
-  public function tdString($obj) {
+  public function setObj($obj) {
+    $this->obj = $obj;
+    return $this;
+  }
+
+  public function tdString() {
     $td = $this->td;
     
-    $text = '';
-    is_string($td) && $text = array_key_exists($td, $obj->attrs()) ? $obj->$td : $td;
-    is_callable($td) && $text = $td($obj, $this);
-    $text instanceof AdminListTableColumn && $text = (string)$text;
+    $td instanceof AdminListTableColumn && $td = (string)$td;
+    is_callable($td) && $td = $td($this->obj, $this);
+    is_string($td) && $td = array_key_exists($td, $this->obj->attrs()) ? $this->obj->$td : $td;
+    is_array($td) && $td = implode('', $td);
 
-    return '<td' . ($this->width ? ' width="' . $this->width . '"' : '') . '' . ($this->class ? ' class="' . $this->class . '"' : '') . '>' . $text . '</td>';
+    return '<td' . ($this->width ? ' width="' . $this->width . '"' : '') . '' . ($this->class ? ' class="' . $this->class . '"' : '') . '>' . $td . '</td>';
   }
 
   public static function create($title = '') {
@@ -89,6 +90,21 @@ class AdminListTableColumn {
     $attrs['href'] = $url;
     array_unshift($this->links, $attrs);
     return $this;
+  }
+
+  public function setSwitcher($options = []) {
+    if (!(isset($options['column'], $options['on'], $options['off'], $options['url']) && array_key_exists($options['column'], $this->obj->attrs())))
+      return '';
+
+    $attr = isset($options['url'], $options['column'], $options['on'], $options['off']) ? 'class="switch ajax" data-url="' . $options['url'] . '" data-column="' . $options['column'] . '" data-true="' . $options['on'] . '" data-false="' . $options['off'] . '"' . (!empty($options['cntlabel']) ? ' data-cntlabel="' . $options['cntlabel'] . '"' : '') : 'class="switch"';
+
+    $return = '';
+    $return .= '<label ' . $attr . '>';
+      $return .= '<input type="checkbox"' . ($this->obj->$options['column'] == $options['on'] ? ' checked' : '') . '/>';
+      $return .= '<span></span>';
+    $return .= '</label>';
+
+    return $return;
   }
 }
 
@@ -230,6 +246,17 @@ class AdminList {
   private function query() {
     if($this->runQuery)
       return $this;
+
+    Load::sysLib('Pagination.php');
+    Pagination::$firstClass  = 'icon-30';
+    Pagination::$prevClass   = 'icon-05';
+    Pagination::$activeClass = 'active';
+    Pagination::$nextClass   = 'icon-06';
+    Pagination::$lastClass   = 'icon-31';
+    Pagination::$firstText   = '';
+    Pagination::$lastText    = '';
+    Pagination::$prevText    = '';
+    Pagination::$nextText    = '';
 
     $this->runQuery = true;
 
@@ -428,7 +455,7 @@ class AdminList {
           $this->string .= $this->objs ? implode('', array_map(function($obj) use($sortUrl) {
             return ($sortUrl && isset($obj->id, $obj->sort) ? '<tr data-id="' . $obj->id . '" data-sort="' . $obj->sort . '">' : '<tr>') . implode('', array_map(function($column) use($obj) { 
               $column = clone $column;
-              return $column->tdString($obj);
+              return $column->setObj($obj)->tdString();
             }, $this->columns)) . '</tr>';
           }, $this->objs)) : '<tr><td colspan="' . count($this->columns) . '"></td></tr>';
 

@@ -8,8 +8,9 @@ class Tag extends Model {
   // static $hasOne = [
   // ];
   
-  // static $hasMany = [
-  // ];
+  static $hasMany = [
+    'articleTags' => ['model' => 'ArticleTagMapping'],
+  ];
 
   // static $belongToOne = [
   // ];
@@ -27,12 +28,5 @@ class Tag extends Model {
     self::ENABLE_YES => '啟用', 
     self::ENABLE_NO  => '停用'
   ];
-
-  public function delete() {
-    if (!isset($this->id))
-      return false;
-
-    return parent::delete();
-  }
 }
 

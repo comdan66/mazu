@@ -106,7 +106,7 @@ abstract class Uploader {
     return (string)$this->value;
   }
 
-  public function url($key = '') {
+  public function url($key = null) {
     return ($path = $this->path($key)) ? self::$baseUrl . $path : $this->d4Url();
   }
 

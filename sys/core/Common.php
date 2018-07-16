@@ -339,6 +339,32 @@ if (!function_exists('items')) {
   }
 }
 
+if (!function_exists('isUploadFileFormat')) {
+  function isUploadFileFormat($file) {
+    return isset($file['name'], $file['type'], $file['tmp_name'], $file['error'], $file['size']);
+  }
+}
+
+if (!function_exists('uploadFileInFormats')) {
+  function uploadFileInFormats($file, $formats) {
+    static $extension;
+    
+    if (!isUploadFileFormat($file))
+      return false;
+
+    $formats = array_unique(array_map('trim', $formats));
+
+    if (!$format = pathinfo($file['name'], PATHINFO_EXTENSION)) {
+      $extension || $extension = config('extension');
+      foreach ($extension as $ext => $mime)
+        if (in_array($file['type'], $mime) && ($format = $ext))
+          break;
+    }
+
+    return $format && in_array($format, $formats);
+  }
+}
+
 // if (!function_exists('run')) {
 //   function run(array $funcs = []) {
 //     foreach ($funcs as $closure => &$args) {

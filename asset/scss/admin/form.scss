@@ -34,6 +34,9 @@ form.form {
         width: auto;
         margin-top: -7px;
       }
+      + .row,  + .ctrl {
+        margin-top: 16px;
+      }
     }
     > b {
       display: block;

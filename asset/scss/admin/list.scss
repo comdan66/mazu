@@ -370,6 +370,46 @@ table.list {
           }
         }
 
+        &.texts {
+          > * {
+            display: block;
+            width: 100%;
+            margin-bottom: 2px;
+            margin-right: 4px;
+            @include overflow-docx3();
+          }
+        }
+        &.links {
+          > a {
+            display: block;
+            width: 100%;
+            padding-left: 4px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            @include overflow-docx3();
+
+            + a {
+              margin-top: 0;
+            }
+
+            &:after {
+              display: none;
+            }
+            &:hover {
+              border-bottom-color: transparent;
+            }
+          }
+        }
+        &.items {
+          padding-top: 6px !important;
+          padding-bottom: 6px !important;
+          > * {
+            margin-bottom: 2px;
+            margin-right: 4px;
+            max-width: 100%;
+            @include overflow-docx3();
+          }
+        }
         &.oaips {
           >img {
             display: none;
@@ -442,7 +482,6 @@ table.list {
             }
           }
         }
-
       }
 
       + tr {

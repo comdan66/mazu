@@ -3,7 +3,6 @@
 Router::get('admin/logout')->controller('admin/Auth@logout');
 Router::get('admin/login')->controller('admin/Auth@login');
 Router::post('admin/login')->controller('admin/Auth@signin');
-
 Router::get('admin')->controller('admin/Main@index');
 
 // Admin Tag
@@ -15,6 +14,17 @@ Router::put('admin/tags/(id:num)')->controller('admin/Tag@update');
 Router::get('admin/tags/(id:num)')->controller('admin/Tag@show');
 Router::delete('admin/tags/(id:num)')->controller('admin/Tag@delete');
 Router::post('admin/tags/sort')->controller('admin/Tag@sort');
+Router::post('admin/tags/(id:num)/enable')->controller('admin/Tag@enable');
+
+// Admin Article
+Router::get('admin/articles')->controller('admin/Article@index');
+Router::get('admin/articles/add')->controller('admin/Article@add');
+Router::post('admin/articles/')->controller('admin/Article@create');
+Router::get('admin/articles/(id:num)/edit')->controller('admin/Article@edit');
+Router::put('admin/articles/(id:num)')->controller('admin/Article@update');
+Router::get('admin/articles/(id:num)')->controller('admin/Article@show');
+Router::delete('admin/articles/(id:num)')->controller('admin/Article@delete');
+Router::post('admin/articles/(id:num)/enable')->controller('admin/Article@enable');
 
 
 

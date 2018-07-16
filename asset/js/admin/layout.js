@@ -200,6 +200,7 @@ $(function () {
       var data = {};
       data[column] = $(this).prop ('checked') ? vtrue: vfalse;
 
+
       $that.addClass ('loading');
 
       $.ajax ({
@@ -218,7 +219,7 @@ $(function () {
           updateCounter ($that.data ('cntlabel'), result[column] == vtrue);
       }.bind ($(this)))
       .fail (function (result) {
-        $(this).prop ('checked', !data[column]);
+        $(this).prop ('checked', data[column] != vtrue);
         $that.removeClass ('loading');
 
         window.notification.add ({icon: 'icon-38', color: 'rgba(234, 84, 75, 1.00)', title: '設定錯誤！', message: '※ 不明原因錯誤，請重新整理網頁確認。請點擊此訊息顯示詳細錯誤。'}, null, function () { window.ajaxError.show ((t = isJsonString (result.responseText)) !== null && t.message ? JSON.stringify (t) : result.responseText); });
@@ -322,11 +323,15 @@ $(function () {
   });
 
   if (typeof $.fn.sortable !== 'undefined') {
+    !function(t){"function"==typeof define&&define.amd?define(["jquery","jquery-ui"],t):t(jQuery)}(function(t){var i,n={},o=function(t){var i,n=document.createElement("div");for(i=0;i<t.length;i++)if(void 0!=n.style[t[i]])return t[i];return""};n.transform=o(["transform","WebkitTransform","MozTransform","OTransform","msTransform"]),n.transition=o(["transition","WebkitTransition","MozTransition","OTransition","msTransition"]),i=n.transform&&n.transition,t.widget("ui.sortable",t.ui.sortable,{options:{animation:0},_rearrange:function(o,r){var s,a,e={},m={},f=t.trim(this.options.axis);if(!parseInt(this.currentContainer.options.animation)||!f)return this._superApply(arguments);s=t(r.item[0]),a=("up"==this.direction?"":"-")+s["x"==f?"width":"height"]()+"px",this._superApply(arguments),i?e[n.transform]=("x"==f?"translateX":"translateY")+"("+a+")":(e={position:"relative"})["x"==f?"left":"top"]=a,s.css(e),i?(e[n.transition]=n.transform+" "+this.options.animation+"ms",e[n.transform]="",m[n.transform]="",m[n.transition]="",setTimeout(function(){s.css(e)},0)):(m.top="",m.position="",s.animate({top:"",position:""},this.options.animation)),setTimeout(function(){s.css(m)},this.options.animation)}})});
+
     $('table.list.dragable[data-sorturl]').each (function () {
       var $that = $(this);
       var ori = [];
 
       $that.sortable ({
+        animation: 300,
+        revert: true,
         items: $that.find ('tr[data-sort][data-id]'),
         handle: $that.find ('span.drag'),
         connectWith: $that.find ('tbody'),

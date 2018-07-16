@@ -50,7 +50,7 @@
           <span class='icon-16'>文章設定</span>
           <div>
             <a href="<?php echo $url = Url::base('admin/tags');?>" class='icon-42<?php echo $url === $currentUrl ? ' active' : '';?>'>文章標籤</a>
-            <a href="<?php echo $url = Url::base('admin/articles');?>" class='icon-22<?php echo $url === $currentUrl ? ' active' : '';?>'>文章列表</a>
+            <a href="<?php echo $url = Url::base('admin/articles');?>" class='icon-22<?php echo $url === $currentUrl ? ' active' : '';?>'>文章管理</a>
           </div>
         </div>
 

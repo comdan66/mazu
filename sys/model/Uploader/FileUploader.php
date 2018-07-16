@@ -9,7 +9,7 @@ abstract class FileUploader extends Uploader {
     return parent::url('');
   }
 
-  public function path($fileName = '') {
+  public function path($key = null) {
     return parent::path((string)$this->value);
   }
 

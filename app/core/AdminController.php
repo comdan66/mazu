@@ -1,18 +1,14 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
 class AdminController extends Controller {
-  protected $asset, $view, $flash, $obj;
+  protected $asset, $view, $flash;
   
   public function __construct() {
     parent::__construct();
-    
+
     Load::sysLib('Asset.php');
     Load::sysLib('Session.php');
     Load::sysLib('Validator.php');
-    Load::sysLib('Pagination.php');
-    Load::sysLib('AdminList.php');
-    Load::sysLib('AdminForm.php');
-    Load::sysLib('AdminShow.php');
 
     if (!\M\Admin::current())
       return Url::refreshWithFlash(Url::base('admin', 'login'), ['msg' => '請先登入！', 'params' => []]);
@@ -40,25 +36,8 @@ class AdminController extends Controller {
          ->addJS('/asset/js/res/ckeditor_d2015_05_18/plugins/dropler/dropler.js')
          ->addJS('/asset/js/admin/layout.js');
 
-    $this->obj = null;
     $this->flash = Session::getFlashData('flash');
-    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    // var_dump ($this->flash);
-    // exit ();
-    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    // var_dump ($this->flash);
-    // exit ();
     !isset($this->flash['params']) || $this->flash['params'] || $this->flash['params'] = null;
-    // echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-    // var_dump ($this->flash);
-    // exit ();
-    // $this->flash['type'] = 'failure';
-    // $this->flash['msg'] = '1';
-    // $this->flash['params'] = ['name' => 'aaa'];
-// echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-// var_dump ($flash['params']['name']);
-// exit ();
-    // get_flash_params ($flash['params']);
 
     $this->view = View::maybe()
                       ->appendTo(View::create('admin/layout.php'), 'content')
@@ -66,15 +45,5 @@ class AdminController extends Controller {
                       ->with('flash', $this->flash)
                       ->with('currentUrl', null)
                       ->with('asset', $this->asset);
-
-    Pagination::$firstClass  = 'icon-30';
-    Pagination::$prevClass   = 'icon-05';
-    Pagination::$activeClass = 'active';
-    Pagination::$nextClass   = 'icon-06';
-    Pagination::$lastClass   = 'icon-31';
-    Pagination::$firstText   = '';
-    Pagination::$lastText    = '';
-    Pagination::$prevText    = '';
-    Pagination::$nextText    = '';
   }
 }

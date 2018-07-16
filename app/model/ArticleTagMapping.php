@@ -4,7 +4,7 @@ namespace M;
 
 defined('MAZU') || exit('此檔案不允許讀取！');
 
-class Admin extends Model {
+class ArticleTagMapping extends Model {
   // static $hasOne = [
   // ];
   
@@ -19,10 +19,5 @@ class Admin extends Model {
 
   // static $uploaders = [
   // ];
-
-  // private static $current = null;
-
-  public static function current() {
-    return \Session::getData('admin');
-  }
 }
+

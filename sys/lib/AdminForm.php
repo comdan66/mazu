@@ -365,7 +365,7 @@ class AdminFormRadio extends AdminFormRow {
     $value = AdminForm::$flash[$this->name] !== null ? AdminForm::$flash[$this->name] : $this->d4;
 
     $return = '';
-    $return .= '<label class="row">';
+    $return .= '<div class="row">';
       $return .= $this->b();
       $return .= '<div class="radios">';
       $return .= implode('', array_map(function($item) use($value) {
@@ -378,7 +378,7 @@ class AdminFormRadio extends AdminFormRow {
         return $return;
       }, $this->items));
       $return .= '</div>';
-    $return .= '</label>';
+    $return .= '</div>';
 
     return $return;
   }
@@ -462,11 +462,11 @@ class AdminFormCheckbox extends AdminFormRow {
     $this->d4s    !== null || gg('請設定 Checkbox 值(d4s)！');
     $this->items  !== null || gg('請設定 Checkbox 選項(items)！');
 
-    $values = AdminForm::$flash[$this->name] !== null ? AdminForm::$flash[$this->name] : $this->d4s;
+    $values = AdminForm::$flash !== null ? isset(AdminForm::$flash[$this->name]) ? AdminForm::$flash[$this->name] : [] : $this->d4s;
     is_array($values) || $values = [];
 
     $return = '';
-    $return .= '<label class="row">';
+    $return .= '<div class="row">';
       $return .= $this->b();
 
       $return .= '<div class="checkboxs">';
@@ -480,7 +480,7 @@ class AdminFormCheckbox extends AdminFormRow {
         return $return;
       }, $this->items));
       $return .= '</div>';
-    $return .= '</label>';
+    $return .= '</div>';
 
     return $return;
   }

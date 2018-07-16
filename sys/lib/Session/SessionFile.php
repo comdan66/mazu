@@ -131,7 +131,7 @@ class SessionFile extends Session implements SessionHandlerInterface {
   }
 
   public function gc($maxLifeTime) {
-    if (($directory = opendir($this->path)) === false)
+    if (!is_dir ($this->path) || ($directory = opendir($this->path)) === false)
       return $this->fail();
 
     $ts = time() - $maxLifeTime;

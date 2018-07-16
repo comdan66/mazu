@@ -15,7 +15,7 @@ if (!function_exists('\M\useModel')) {
     \Load::sysModel('Config.php') || \gg('載入 Model Config 失敗！');
 
     abstract class Model {
-      private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'group', 'having', 'include', 'readonly'];
+      private static $validOptions = ['where', 'limit', 'offset', 'order', 'select', 'group', 'having', 'include', 'readonly', 'toArray'];
 
       public static function table($class = null) {
         return \_M\Table::instance($class === null ? get_called_class() : $class);
@@ -136,6 +136,8 @@ if (!function_exists('\M\useModel')) {
         in_array ($method, ['one', 'first']) && $options = array_merge($options, ['limit' => 1, 'offset' => 0]);
 
         $list = static::table()->find($options);
+
+        empty($options['toArray']) || $list = toArray($list);
         
         return $method != 'all' ? (isset($list[0]) ? $list[0] : null) : $list;
       }
@@ -242,7 +244,7 @@ if (!function_exists('\M\useModel')) {
           $foreignKey = !isset($options['foreignKey']) ? lcfirst($models[0]->getTableName()) . 'Id' : $options['foreignKey'];
           $primaryKeys = array_unique(array_map(function ($model) use ($primaryKey) { return $model->$primaryKey; }, $models));
 
-          $sql = 'SELECT `' . $tableName . '`.*,TagArticleMapping.articleId FROM `' . $tableName . '` INNER JOIN `' . $byTableName . '` ON(`' . $tableName . '`.`' . $byPrimaryKey . '` = `' . $byTableName . '`.`' . $byForeignKey . '`) WHERE `' . $byTableName . '`.`' . $foreignKey . '`IN(' . implode(',', array_map(function() { return '?'; }, $primaryKeys)) . ')';
+          $sql = 'SELECT `' . $tableName . '`.*,`' . $byTableName . '`.articleId FROM `' . $tableName . '` INNER JOIN `' . $byTableName . '` ON(`' . $tableName . '`.`' . $byPrimaryKey . '` = `' . $byTableName . '`.`' . $byForeignKey . '`) WHERE `' . $byTableName . '`.`' . $foreignKey . '`IN(' . implode(',', array_map(function() { return '?'; }, $primaryKeys)) . ')';
           $relations = $className::selectQuery($sql, $primaryKeys);
 
           $tmps = [];
@@ -460,8 +462,6 @@ if (!function_exists('\M\useModel')) {
       public function insert() {
         $this->isReadonly && \gg('此資料為不可寫入(readonly)型態！');
 
-        isset(static::table()->columns['createAt']) && !array_key_exists('createAt', $this->attrs) && $this->setAttr ('createAt', \date(\_M\Config::FORMAT_DATETIME));
-        isset(static::table()->columns['updateAt']) && !array_key_exists('updateAt', $this->attrs) && $this->setAttr ('updateAt', \date(\_M\Config::FORMAT_DATETIME));
       
         $this->attrs = array_intersect_key($this->attrs, static::table()->columns);
 
@@ -479,9 +479,19 @@ if (!function_exists('\M\useModel')) {
 
       public static function create($attrs) {
         $className = get_called_class();
-        $model = new $className(array_intersect_key($attrs, static::table($className)->columns));
-        $model->setIsNew(true);
-        $model->save();
+        $tableName = isset($className::$tableName) ? $className::$tableName : deNamespace($className);
+        
+        isset(static::table()->columns['createAt']) && !array_key_exists('createAt', $attrs) && $attrs['createAt'] = \date(\_M\Config::FORMAT_DATETIME);
+        isset(static::table()->columns['updateAt']) && !array_key_exists('updateAt', $attrs) && $attrs['updateAt'] = \date(\_M\Config::FORMAT_DATETIME);
+
+        $model = new $className(array_merge(array_map(function($attr) { return $attr['d4']; }, static::table($className)->columns), array_intersect_key($attrs, static::table($className)->columns)));
+        $model->setIsNew(true)
+              ->setTableName($tableName)
+              ->setClassName($className)
+              ->setIsReadonly(false)
+              ->setUploadBind()
+              ->save();
+
         return $model;
       }
 
