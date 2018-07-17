@@ -3,6 +3,8 @@ sftp-config*
 
 !app/*/.htaccess
 
+/env.php
+
 composer.lock
 
 /vendor/*
