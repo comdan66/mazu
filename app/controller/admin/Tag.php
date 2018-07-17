@@ -5,9 +5,9 @@ class Tag extends AdminCrudController {
   public function __construct() {
     parent::__construct();
 
-    if (in_array(Router::methodName(), ['edit', 'update', 'delete', 'show', 'enable']))
+    if (in_array(Router::methodName(), ['edit', 'update', 'delete', 'show']))
       if (!(($id = Router::params('id')) && ($this->obj = \M\Tag::one('id = ?', $id))))
-        Url::refreshWithFlash(Url::base('admin/tags'), ['msg' => '找不到資料。']);
+        Url::refreshWithFailureFlash(Url::base('admin/tags'), '找不到資料！');
 
     $this->view->with('title', '文章標籤')
                ->with('currentUrl', Url::base('admin/tags'));
@@ -17,7 +17,6 @@ class Tag extends AdminCrudController {
     $list = AdminList::model('\M\Tag', ['order' => AdminListOrder::desc('sort')])
               ->input('ID', 'id = ?')
               ->input('名稱', 'name LIKE ?')
-              ->checkboxs('狀態', 'enable IN (?)', items(array_keys(\M\Tag::ENABLE), \M\Tag::ENABLE))
               ->setAddUrl(Url::base('admin/tags/add'))
               ->setSortUrl(Url::base('admin/tags/sort'));
 
@@ -37,13 +36,6 @@ class Tag extends AdminCrudController {
   
   public function create() {
     $validator = function(&$posts) {
-      // enable
-      isset($posts['enable']) || Validator::error('狀態不存在！');
-      $posts['enable'] = strip_tags(trim($posts['enable']));
-      $posts['enable'] || Validator::error('狀態不存在！');
-      mb_strlen($posts['enable']) <= 190 || Validator::error('狀態長度錯誤！');
-      array_key_exists($posts['enable'], \M\Tag::ENABLE) || Validator::error('狀態錯誤！');
-
       // name
       isset($posts['name']) || Validator::error('名稱不存在！');
       $posts['name'] = strip_tags(trim($posts['name']));
@@ -63,8 +55,9 @@ class Tag extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts);
     $error || $error = transaction($transaction, $posts);
-    $error && Url::refreshWithFlash(Url::base('admin/tags/add'), ['msg' => $error, 'params' => $posts]);
-    Url::refreshWithFlash(Url::base('admin/tags'), '新增成功！');
+    $error && Url::refreshWithFailureFlash(Url::base('admin/tags/add'), $error, $posts);
+    
+    Url::refreshWithSuccessFlash(Url::base('admin/tags'), '新增成功！');
   }
   
   public function edit($id) {
@@ -80,13 +73,6 @@ class Tag extends AdminCrudController {
   
   public function update($id) {
     $validator = function(&$posts) {
-      // enable
-      isset($posts['enable']) || Validator::error('狀態不存在！');
-      $posts['enable'] = strip_tags(trim($posts['enable']));
-      $posts['enable'] || Validator::error('狀態不存在！');
-      mb_strlen($posts['enable']) <= 190 || Validator::error('狀態長度錯誤！');
-      array_key_exists($posts['enable'], \M\Tag::ENABLE) || Validator::error('狀態錯誤！');
-
       // name
       isset($posts['name']) || Validator::error('名稱不存在！');
       $posts['name'] = strip_tags(trim($posts['name']));
@@ -103,8 +89,9 @@ class Tag extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts);
     $error || $error = transaction($transaction, $posts);
-    $error && Url::refreshWithFlash(Url::base('admin/tags/' . $this->obj->id . '/edit'), ['msg' => $error, 'params' => $posts]);
-    Url::refreshWithFlash(Url::base('admin/tags'), '修改成功！');
+    $error && Url::refreshWithFailureFlash(Url::base('admin/tags/' . $this->obj->id . '/edit'), $error, $posts);
+    
+    Url::refreshWithSuccessFlash(Url::base('admin/tags'), '修改成功！');
   }
   
   public function show($id) {
@@ -119,28 +106,10 @@ class Tag extends AdminCrudController {
     $error = transaction(function() {
       return $this->obj->delete();
     });
-    Url::refreshWithFlash(Url::base('admin/tags/'), $error ? ['msg' => $error] : '刪除成功！');
-  }
 
-  public function enable($obj) {
-    $validator = function(&$posts) {
-      isset($posts['enable']) || Validator::error('狀態不存在！');
-      $posts['enable'] = strip_tags(trim($posts['enable']));
-      $posts['enable'] || Validator::error('狀態不存在！');
-      mb_strlen($posts['enable']) <= 190 || Validator::error('狀態長度錯誤！');
-      array_key_exists($posts['enable'], \M\Tag::ENABLE) || Validator::error('狀態錯誤！');
-    };
+    $error && Url::refreshWithFailureFlash(Url::base('admin/tags/'), $error);
 
-    $transaction = function(&$posts) {
-      return $this->obj->columnsUpdate($posts) && $this->obj->save();
-    };
-
-    $posts = Input::post();
-
-    $error = '';
-    $error || $error = validator($validator, $posts);
-    $error || $error = transaction($transaction, $posts);
-    return $error ? ['error' => $error] : $posts;
+    Url::refreshWithSuccessFlash(Url::base('admin/tags/'), '刪除成功！');
   }
 
   public function sort() {
@@ -164,10 +133,6 @@ class Tag extends AdminCrudController {
         if (!$change['obj']->save())
           return false;
 
-      $posts = array_map(function($change) {
-        return ['id' => $change['obj']->id, 'sort' => $change['obj']->sort];
-      }, $posts['changes']);
-
       return true;
     };
 
@@ -176,6 +141,7 @@ class Tag extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts);
     $error || $error = transaction($transaction, $posts);
-    return $error ? ['error' => $error] : $posts;
+
+    return $error ? ['error' => $error] : array_map(function($change) { return ['id' => $change['obj']->id, 'sort' => $change['obj']->sort]; }, $posts['changes']);
   }
 }

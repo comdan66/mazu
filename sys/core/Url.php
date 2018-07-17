@@ -49,16 +49,6 @@ class Url {
     return $baseUrl . trim(preg_replace('/\/+/', '/', implode('/', arrayFlatten(func_get_args()))), '/');
   }
 
-  public static function refreshWithFlash($url, $data = null) {
-    is_array($data) && !array_key_exists('type', $data) && $data['type'] = 'failure';
-    is_string($data) && $data = ['msg' => $data];
-    $data === null || Session::setFlashData('flash', array_merge(['type' => 'success', 'msg' => '', 'params' => []], $data));
-    static::refresh($url);
-
-    exit;
-    return;
-  }
-
   public static function refresh() {
     if (!$args = func_get_args())
       return false;
@@ -88,6 +78,22 @@ class Url {
 
     header('Location: ' . self::base($args), true, $code);
     exit;
+  }
+
+  public static function refreshWithSuccessFlash($url, $msg = '', $params = []) {
+    Session::setFlashData('flash', ['type' => 'success', 'msg' => $msg, 'params' => $params]);
+
+    static::refresh($url);
+    exit;
+    return;
+  }
+
+  public static function refreshWithFailureFlash($url, $msg = '', $params = []) {
+    Session::setFlashData('flash', ['type' => 'failure', 'msg' => $msg, 'params' => $params]);
+
+    static::refresh($url);
+    exit;
+    return;
   }
 }
 

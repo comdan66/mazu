@@ -2,7 +2,6 @@
 echo $form->back();
 
 echo $form->rows([
-  AdminForm::switcher()->title('狀態')->name('enable')->d4(\M\Tag::ENABLE_YES)->on(\M\Tag::ENABLE_YES)->off(\M\Tag::ENABLE_NO)->isNeed(),
   AdminForm::input()->title('名稱')->name('name')->d4('')->isNeed()->autofocus(),
   // AdminForm::textarea()->title('內容')->name('name')->d4('')->isNeed(),
   // AdminForm::ckeditor()->title('內容')->name('name')->d4('')->isNeed(),

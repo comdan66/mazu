@@ -37,6 +37,36 @@ if (!function_exists('\M\useModel')) {
         return call_user_func_array(['static', 'find'], array_merge(['all'], func_get_args()));
       }
       
+      public static function arr($columns, $options = []) {
+        $args = func_get_args();
+        $columns = array_shift($args);
+        $options = array_shift($args);
+        $options || $options = [];
+
+        $options instanceof \Where && $options = ['where' => $options->toArray()];
+        is_string($options) && $options = ['where' => array_merge([$options], $args)];
+        is_string($columns) && $columns = array_filter(preg_split('/[\s*,\s*]*,+[\s*,\s*]*/', $columns));
+
+        $objs = static::all(array_merge($options, ['select' => implode(', ', $columns), 'toArray' => true]));
+
+        return count($columns) == 1 ? array_column($objs, $columns[0]) : $objs;
+      }
+
+      // public static function getArray ($columns, $option = array ()) {
+      //   $columns = array_filter (preg_split ('/[\s*,\s*]*,+[\s*,\s*]*/', $columns));
+      //   $objs = self::find ('all', array_merge ($option, array ('select' => implode (', ', $columns))));
+
+      //   if (count ($columns) == 1)
+      //     return array_orm_column ($objs, $columns[0]);
+
+      //   return array_map (function ($obj) use ($columns) {
+      //     return array_combine ($columns, array_map (function ($column) use ($obj) {
+      //       return $obj->{$column};
+      //     }, $columns));
+      //   }, $objs);
+      // }
+
+      
       public static function count($options = []) {
         $args = func_get_args();
         

@@ -7,7 +7,7 @@ class Article extends AdminCrudController {
 
     if (in_array(Router::methodName(), ['edit', 'update', 'delete', 'show', 'enable']))
       if (!(($id = Router::params('id')) && ($this->obj = \M\Article::one('id = ?', $id))))
-        Url::refreshWithFlash(Url::base('admin/tags'), ['msg' => '找不到資料。']);
+        Url::refreshWithFailureFlash(Url::base('admin/articles'), '找不到資料！');
 
     $this->view->with('title', '文章管理')
                ->with('currentUrl', Url::base('admin/articles'));
@@ -23,9 +23,9 @@ class Article extends AdminCrudController {
     return $this->view->setPath('admin/Article/index.php')
                       ->with('list', $list);
   }
-  
+
   public function add() {
-    $tags = \M\Tag::all(['select' => 'id, name', 'where' => ['enable = ?', \M\Tag::ENABLE_YES], 'toArray' => true]);
+    $tags = \M\Tag::arr(['id', 'name'], ['order' => 'sort DESC']);
 
     $form = AdminForm::createAdd()
             ->setFlash($this->flash['params'])
@@ -52,9 +52,8 @@ class Article extends AdminCrudController {
       $files['cover']['size'] >= 1 && $files['cover']['size'] <= 10 * 1024 * 1024 || Validator::error('封面檔案大小錯誤！');
 
       // tagIds
-      $posts['tagIds'] = isset($posts['tagIds']) ? array_map(function($tagId) {
-        return \M\Tag::one(['select' => 'id', 'where' => ['id = ? AND enable = ?', $tagId, \M\Tag::ENABLE_YES]])->id;
-      }, $posts['tagIds']) : [];
+      isset($posts['tagIds']) || $posts['tagIds'] = [];
+      $posts['tagIds'] = \M\Tag::arr('id', ['where' => ['id IN (?)', $posts['tagIds']]]);
       $posts['tagIds'] || Validator::error('沒有選擇標籤！');
 
       // title
@@ -89,12 +88,13 @@ class Article extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts, $files);
     $error || $error = transaction($transaction, $posts, $files);
-    $error && Url::refreshWithFlash(Url::base('admin/articles/add'), ['msg' => $error, 'params' => $posts]);
-    Url::refreshWithFlash(Url::base('admin/articles'), '新增成功！');
+    $error && Url::refreshWithFailureFlash(Url::base('admin/articles/add'), $error, $posts);
+
+    Url::refreshWithSuccessFlash(Url::base('admin/articles'), '新增成功！');
   }
   
   public function edit($id) {
-    $tags = \M\Tag::all(['select' => 'id, name', 'where' => ['enable = ?', \M\Tag::ENABLE_YES], 'toArray' => true]);
+    $tags = \M\Tag::arr(['id', 'name'], ['order' => 'sort DESC']);
 
     $form = AdminForm::createEdit($this->obj)
             ->setFlash($this->flash['params'])
@@ -124,9 +124,8 @@ class Article extends AdminCrudController {
       }
 
       // tagIds
-      $posts['tagIds'] = isset($posts['tagIds']) ? array_map(function($tagId) {
-        return \M\Tag::one(['select' => 'id', 'where' => ['id = ? AND enable = ?', $tagId, \M\Tag::ENABLE_YES]])->id;
-      }, $posts['tagIds']) : [];
+      isset($posts['tagIds']) || $posts['tagIds'] = [];
+      $posts['tagIds'] = \M\Tag::arr('id', ['where' => ['id IN (?)', $posts['tagIds']]]);
       $posts['tagIds'] || Validator::error('沒有選擇標籤！');
 
       // title
@@ -170,8 +169,9 @@ class Article extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts, $files);
     $error || $error = transaction($transaction, $posts, $files);
-    $error && Url::refreshWithFlash(Url::base('admin/articles/' . $this->obj->id . '/edit'), ['msg' => $error, 'params' => $posts]);
-    Url::refreshWithFlash(Url::base('admin/articles'), '修改成功！');
+    $error && Url::refreshWithFailureFlash(Url::base('admin/articles/' . $this->obj->id . '/edit'), $error, $posts);
+
+    Url::refreshWithSuccessFlash(Url::base('admin/articles'), '修改成功！');
   }
   
   public function show($id) {
@@ -188,7 +188,9 @@ class Article extends AdminCrudController {
       return $this->obj->delete();
     });
 
-    Url::refreshWithFlash(Url::base('admin/articles/'), $error ? ['msg' => $error] : '刪除成功！');
+    $error && Url::refreshWithFailureFlash(Url::base('admin/articles/'), $error);
+
+    Url::refreshWithSuccessFlash(Url::base('admin/articles/'), '刪除成功！');
   }
 
   public function enable($obj) {
@@ -209,6 +211,7 @@ class Article extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts);
     $error || $error = transaction($transaction, $posts);
+
     return $error ? ['error' => $error] : $posts;
   }
 }
