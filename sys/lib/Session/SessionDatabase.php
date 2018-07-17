@@ -1,6 +1,6 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-class SessionDataModel extends M\Model {}
+class _SessionDataModel extends M\Model {}
 
 class SessionDatabase extends Session implements SessionHandlerInterface {
   private $model = null;
@@ -9,7 +9,7 @@ class SessionDatabase extends Session implements SessionHandlerInterface {
   public function __construct() {
     parent::__construct();
 
-    ini_set('session.save_path', 'SessionDataModel');
+    ini_set('session.save_path', '_SessionDataModel');
   }
 
   public function open($model, $name) {

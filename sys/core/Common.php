@@ -53,7 +53,7 @@ class GG {
 
   public function __construct($text, $code = 500, $contents = []) {
     
-    isCli() || responseStatusHeader($code);
+    responseStatusHeader($code);
     isCli() ? @system('clear') : @ob_end_clean();
 
     $type = !isCli() ? !class_exists('View') || GG::$isApi ? 'api' : 'html' : (class_exists('View') ? 'cli' : 'api');
@@ -148,14 +148,16 @@ if (!function_exists('responseStatusText')) {
 
 if (!function_exists('responseStatusHeader')) {
   function responseStatusHeader($code, $str = '') {
-      $str = responseStatusText($code);
-      $str || $str = responseStatusText($code = 500);
+    if (isCli())
+      return ;
+    $str = responseStatusText($code);
+    $str || $str = responseStatusText($code = 500);
 
-      if (strpos(PHP_SAPI, 'cgi') === 0)
-        return header('Status: ' . $code . ' ' . $str, true);
+    if (strpos(PHP_SAPI, 'cgi') === 0)
+      return header('Status: ' . $code . ' ' . $str, true);
 
-      in_array(($protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'), ['HTTP/1.0', 'HTTP/1.1', 'HTTP/2']) || $protocol = 'HTTP/1.1';
-      return header($protocol . ' ' . $code . ' ' . $str, true, $code);
+    in_array(($protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'), ['HTTP/1.0', 'HTTP/1.1', 'HTTP/2']) || $protocol = 'HTTP/1.1';
+    return header($protocol . ' ' . $code . ' ' . $str, true, $code);
   }
 }
 
@@ -205,7 +207,7 @@ if (!function_exists('isReallyWritable')) {
 
 if (!function_exists('cliColor')) {
   function cliColor($str, $fontColor = null, $backgroundColor = null) {
-    if ($str == "")
+    if ($str === "")
       return "";
 
     $keys = ['n' => '30', 'w' => '37', 'b' => '34', 'g' => '32', 'c' => '36', 'r' => '31', 'p' => '35', 'y' => '33'];
@@ -258,7 +260,7 @@ if (!function_exists('errorHandler')) {
     if (!$isError)
       return log::warning(['text' => $message, 'details' => $details, 'traces' => $traces]);
 
-    isCli() || responseStatusHeader(500);
+    responseStatusHeader(500);
     log::error(['text' => $message, 'details' => $details, 'traces' => $traces]);
     exit(1);
   }
@@ -272,7 +274,7 @@ if (!function_exists('exceptionHandler')) {
 
     str_ireplace(['off', 'none', 'no', 'false', 'null'], '', ini_get('display_errors')) && new GG($message, 500, ['details' => $details, 'traces' => $traces]);
 
-    isCli() || responseStatusHeader(500);
+    responseStatusHeader(500);
     log::error(['text' => $message, 'details' => $details, 'traces' => $traces]);
     exit(1);
   }
@@ -315,8 +317,9 @@ if (!function_exists('umaskChmod')) {
 if (!function_exists('umaskMkdir')) {
   function umaskMkdir($pathname, $mode = 0777, $recursive = false) {
     $oldmask = umask(0);
-    @mkdir($pathname, $mode, $recursive);
+    $return = @mkdir($pathname, $mode, $recursive);
     umask($oldmask);
+    return $return;
   }
 }
 

@@ -89,7 +89,7 @@ class Log {
 
     if (!self::$type) {
       $new = "\n" . cliColor(str_repeat('─', 80), 'N') . "\n";
-      self::$type = ENVIRONMENT !== 'cmd' ? isCli() ? cliColor('cli', 'c') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'C') : cliColor('web', 'p') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'P') : cliColor('cmd', 'y') . cliColor(' ➜ ', 'N') . cliColor(CMD_FILE, 'Y');
+      self::$type = ENVIRONMENT !== 'cmd' ? isCli() ? cliColor('cli', 'c') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'C') : cliColor('web', 'p') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'P') : cliColor('cmd', 'y') . cliColor(' ➜ ', 'N') . cliColor(CMD, 'Y');
     }
     return $new . self::$type . cliColor('│', 'N') . cliColor(date(Log::DATE_FORMAT), 'w') . cliColor(' ➜ ', 'N') . cliColor($time, $time < 999 ? $time < 99 ? $time < 9 ? 'w' : 'W' : 'Y' : 'R') . '' . cliColor('ms', $time < 999 ? $time < 99 ? $time < 9 ? 'N' : 'w' : 'y' : 'r') . cliColor('│', 'N') . ($valid ? cliColor('OK', 'g') : cliColor('GG', 'r')) . cliColor(' ➜ ', 'N') . call_user_func_array('sprintf', array_merge(array(preg_replace_callback('/\?/', function($matches) { return cliColor('%s', 'W'); }, $sql)), $vals)) . "\n";
   }

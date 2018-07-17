@@ -4,6 +4,7 @@ class Router {
 
   private $work;
   private $controller;
+  private $cmd;
   // private $befores;
   // private $beforeParams;
 
@@ -33,7 +34,9 @@ class Router {
   }
 
   public function __construct() {
-    $this->work    = null;
+    $this->controller = null;
+    $this->work = null;
+    $this->cmd = null;
     
     // $this->befores      = [];
     // $this->beforeParams = [];
@@ -51,11 +54,22 @@ class Router {
     return $this;
   }
   
+  public function cmd($cmd) {
+    $this->cmd = $cmd;
+    return $this;
+  }
+  
   public function __toString() {
     return '';
   }
 
   public function exec() {
+    if ($this->cmd !== null) {
+
+      Load::file(PATH_SYS_CMD . $this->cmd . '.php') || gg('找不到指定的 CMD 檔案！', '檔案位置：' . PATH_SYS_CMD . $this->cmd . '.php');
+      // class_exists(self::$className) || gg('找不到指定的 Controller', 'Class：' . self::$className);
+      return '';
+    }
     if ($this->controller !== null) {
       strpos($this->controller, '@') !== false || gg('Controller 設定有誤！');
       list($path, self::$methodName) = explode('@', $this->controller);
@@ -126,8 +140,12 @@ class Router {
       return self::$current === '' ? null : self::$current;
 
     $method = self::requestMethod();
-
-    if (isset(self::$routers[$method]))
+    
+    if ($method == 'cli' && defined('CMD')) {
+      self::$current = new Router();
+      self::$params = Url::segments();
+      return self::$current->cmd(CMD);
+    } else if (isset(self::$routers[$method]))
       foreach (self::$routers[$method] as $segment => $obj)
         if (preg_match ('#^' . $segment . '$#', implode('/', Url::segments()), $matches)) {
 
@@ -144,31 +162,31 @@ class Router {
   public static function get($segment) {
     $segment = self::setSegment($segment);
     isset(self::$routers['get']) || self::$routers['get'] = [];
-    return self::$routers['get'][$segment] = new Router('get', $segment);
+    return self::$routers['get'][$segment] = new Router();
   }
   
   public static function post($segment) {
     $segment = self::setSegment($segment);
     isset(self::$routers['post']) || self::$routers['post'] = [];
-    return self::$routers['post'][$segment] = new Router('post', $segment);
+    return self::$routers['post'][$segment] = new Router();
   }
   
   public static function put($segment) {
     $segment = self::setSegment($segment);
     isset(self::$routers['put']) || self::$routers['put'] = [];
-    return self::$routers['put'][$segment] = new Router('put', $segment);
+    return self::$routers['put'][$segment] = new Router();
   }
   
   public static function delete($segment) {
     $segment = self::setSegment($segment);
     isset(self::$routers['delete']) || self::$routers['delete'] = [];
-    return self::$routers['delete'][$segment] = new Router('delete', $segment);
+    return self::$routers['delete'][$segment] = new Router();
   }
   
   public static function cli($segment) {
     $segment = self::setSegment($segment);
     isset(self::$routers['cli']) || self::$routers['cli'] = [];
-    return self::$routers['cli'][$segment] = new Router('cli', $segment);
+    return self::$routers['cli'][$segment] = new Router();
   }
 
   public static function all() {

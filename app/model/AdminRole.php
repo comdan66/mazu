@@ -4,7 +4,7 @@ namespace M;
 
 defined('MAZU') || exit('此檔案不允許讀取！');
 
-class Admin extends Model {
+class AdminRole extends Model {
   // static $hasOne = [];
 
   // static $hasMany = [];
@@ -14,8 +14,4 @@ class Admin extends Model {
   // static $belongToMany = [];
 
   // static $uploaders = [];
-
-  public static function current() {
-    return \Session::getData('admin');
-  }
 }

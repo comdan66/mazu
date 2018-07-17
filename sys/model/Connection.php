@@ -46,7 +46,7 @@ class Connection {
     return $this;
   }
   
-  public function query($sql, $vals = [], $fetchModel = PDO::FETCH_ASSOC) {
+  public function query($sql, $vals = [], $fetchModel = PDO::FETCH_ASSOC, $returnError = false) {
 
     try {
       $sth = $this->connection->prepare((string)$sql);
@@ -54,10 +54,13 @@ class Connection {
       $sth->setFetchMode($fetchModel);
       $this->execute($sth, $sql, $vals) || \gg('執行 Connection execute 失敗！');
     } catch (PDOException $e) {
+      if ($returnError)
+        return $e->getMessage();
+
       \gg('PDO 執行失敗！', $e);
     }
 
-    return $sth;
+    return $returnError ? '' : $sth;
   }
 
   private function execute($sth, $sql, $vals) {

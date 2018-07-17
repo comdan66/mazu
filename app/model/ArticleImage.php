@@ -5,20 +5,16 @@ namespace M;
 defined('MAZU') || exit('此檔案不允許讀取！');
 
 class ArticleImage extends Model {
-  // static $hasOne = [
-  // ];
-  
-  // static $hasMany = [
-  // ];
+  // static $hasOne = [];
 
-  // static $belongToOne = [
-  // ];
+  // static $hasMany = [];
 
-  // static $belongToMany = [
-  // ];
+  // static $belongToOne = [];
+
+  // static $belongToMany = [];
 
   static $uploaders = [
-    'pic' => 'ArticlePicImageUploader',
+    'pic' => 'ArticleImagePicImageUploader',
   ];
 
   public function putFiles($files) {
@@ -29,11 +25,10 @@ class ArticleImage extends Model {
   }
 }
 
-class ArticlePicImageUploader extends ImageUploader {
+class ArticleImagePicImageUploader extends ImageUploader {
   public function versions() {
     return [
-      'w100' => [
-        'resize' => [100, 100, 'width']],
+      'w100' => ['resize' => [100, 100, 'width']],
     ];
   }
 }

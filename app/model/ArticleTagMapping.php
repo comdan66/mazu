@@ -5,19 +5,13 @@ namespace M;
 defined('MAZU') || exit('此檔案不允許讀取！');
 
 class ArticleTagMapping extends Model {
-  // static $hasOne = [
-  // ];
-  
-  // static $hasMany = [
-  // ];
+  // static $hasOne = [];
 
-  // static $belongToOne = [
-  // ];
+  // static $hasMany = [];
 
-  // static $belongToMany = [
-  // ];
+  // static $belongToOne = [];
 
-  // static $uploaders = [
-  // ];
+  // static $belongToMany = [];
+
+  // static $uploaders = [];
 }
-
