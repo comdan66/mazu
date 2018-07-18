@@ -1,40 +1,46 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-class Article extends AdminCrudController {
+class TagArticle extends AdminCrudController {
+  private $parent, $articleIds;
   
   public function __construct() {
     parent::__construct();
+    
+    if (!(($tagId = Router::params('tagId')) !== null && ($this->parent = \M\Tag::one('id = ?', $tagId))))
+      Url::refreshWithFailureFlash(Url::toRouter('AdminTagIndex'), '找不到資料！');
+
+    $this->articleIds = array_column(\M\toArray($this->parent->articleTagMappings), 'articleId');
 
     if (in_array(Router::methodName(), ['edit', 'update', 'delete', 'show', 'enable']))
-      if (!(($id = Router::params('id')) && ($this->obj = \M\Article::one('id = ?', $id))))
-        Url::refreshWithFailureFlash(Url::toRouter('AdminArticleIndex'), '找不到資料！');
+      if (!(($id = Router::params('id')) && ($this->obj = \M\Article::one('id = ? AND id IN(?)', $id, $this->articleIds))))
+        Url::refreshWithFailureFlash(Url::toRouter('AdminTagArticleIndex', $this->parent), '找不到資料！');
 
-    $this->view->with('title', '文章管理')
-               ->with('currentUrl', Url::toRouter('AdminArticleIndex'));
+    $this->view->with('title', '標籤文章')
+               ->with('currentUrl', Url::toRouter('AdminTagIndex'))
+               ->with('parent', $this->parent);
   }
 
   public function index() {
-    $list = AdminList::model('\M\Article', ['include' => ['tags', 'images']])
-                     ->input('ID', 'id = ?')
-                     ->input('標題', 'title LIKE ?')
-                     ->checkboxs('狀態', 'enable IN (?)', items(array_keys(\M\Article::ENABLE), \M\Article::ENABLE))
-                     ->setAddUrl(Url::toRouter('AdminArticleAdd'));
+    $where = Where::create('id IN (?)', $this->articleIds);
 
-    return $this->view->setPath('admin/Article/index.php')
+    $list = AdminList::model('\M\Article', ['include' => ['tags', 'images'], 'where' => $where])
+              ->input('ID', 'id = ?')
+              ->input('標題', 'title LIKE ?')
+              ->checkboxs('狀態', 'enable IN (?)', items(array_keys(\M\Article::ENABLE), \M\Article::ENABLE))
+              ->setAddUrl(Url::toRouter('AdminTagArticleAdd', $this->parent));
+
+    return $this->view->setPath('admin/TagArticle/index.php')
                       ->with('list', $list);
   }
-
+  
   public function add() {
-    $tags = \M\Tag::arr(['id', 'name'], ['order' => 'sort DESC']);
-
     $form = AdminForm::createAdd()
-                     ->setFlash($this->flash['params'])
-                     ->setActionUrl(Url::toRouter('AdminArticleCreate'))
-                     ->setBackUrl(Url::toRouter('AdminArticleIndex'), '回列表');
+            ->setFlash($this->flash['params'])
+            ->setActionUrl(Url::toRouter('AdminTagArticleCreate', $this->parent))
+            ->setBackUrl(Url::toRouter('AdminTagArticleIndex', $this->parent), '回列表');
 
-    return $this->view->setPath('admin/Article/add.php')
-                      ->with('form', $form)
-                      ->with('tags', $tags);
+    return $this->view->setPath('admin/TagArticle/add.php')
+                      ->with('form', $form);
   }
   
   public function create() {
@@ -57,9 +63,7 @@ class Article extends AdminCrudController {
       $files['images'] || Validator::error('組圖不存在！');
 
       // tagIds
-      isset($posts['tagIds']) || $posts['tagIds'] = [];
-      $posts['tagIds'] = \M\Tag::arr('id', ['where' => ['id IN (?)', $posts['tagIds']]]);
-      $posts['tagIds'] || Validator::error('沒有選擇標籤！');
+      isset($posts['tagIds']) || $posts['tagIds'] = [$this->parent->id];
 
       // title
       isset($posts['title']) || Validator::error('標題不存在！');
@@ -104,21 +108,19 @@ class Article extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts, $files);
     $error || $error = transaction($transaction, $posts, $files);
-    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminArticleAdd'), $error, $posts);
 
-    Url::refreshWithSuccessFlash(Url::toRouter('AdminArticleIndex'), '新增成功！');
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagArticleAdd', $this->parent), $error, $posts);
+
+    Url::refreshWithSuccessFlash(Url::toRouter('AdminTagArticleIndex', $this->parent), '新增成功！');
   }
   
   public function edit() {
-    $tags = \M\Tag::arr(['id', 'name'], ['order' => 'sort DESC']);
-
     $form = AdminForm::createEdit($this->obj)
-                     ->setFlash($this->flash['params'])
-                     ->setActionUrl(Url::toRouter('AdminArticleUpdate', $this->obj))
-                     ->setBackUrl(Url::toRouter('AdminArticleIndex'), '回列表');
+            ->setFlash($this->flash['params'])
+            ->setActionUrl(Url::toRouter('AdminTagArticleUpdate', $this->parent, $this->obj))
+            ->setBackUrl(Url::toRouter('AdminTagArticleIndex', $this->parent), '回列表');
 
-    return $this->view->setPath('admin/Article/edit.php')
-                      ->with('tags', $tags)
+    return $this->view->setPath('admin/TagArticle/edit.php')
                       ->with('form', $form);
   }
   
@@ -147,11 +149,6 @@ class Article extends AdminCrudController {
       $posts['_images'] = \M\ArticleImage::arr('id', ['where' => ['id IN (?)', $posts['_images']]]);
       $posts['_images'] || $files['images'] || Validator::error('組圖不存在！');
 
-      // tagIds
-      isset($posts['tagIds']) || $posts['tagIds'] = [];
-      $posts['tagIds'] = \M\Tag::arr('id', ['where' => ['id IN (?)', $posts['tagIds']]]);
-      $posts['tagIds'] || Validator::error('沒有選擇標籤！');
-
       // title
       isset($posts['title']) || Validator::error('標題不存在！');
       $posts['title'] = strip_tags(trim($posts['title']));
@@ -170,20 +167,6 @@ class Article extends AdminCrudController {
 
       if (!$this->obj->putFiles($files))
         return false;
-
-      // tags
-      $oriIds = array_column(\M\toArray($this->obj->tags), 'id');
-      $delIds = array_diff($oriIds, $posts['tagIds']);
-      $addIds = array_diff($posts['tagIds'], $oriIds);
-
-      foreach ($delIds as $delId)
-        if ($mapping = \M\ArticleTagMapping::one('articleId = ? AND tagId = ?', $this->obj->id, $delId))
-          if (!$mapping->delete())
-            return false;
-
-      foreach ($addIds as $addId)
-        if (!\M\ArticleTagMapping::create(['articleId' => $this->obj->id, 'tagId' => $addId]))
-          return false;
 
       // image
       $oriIds = array_column(\M\toArray($this->obj->images), 'id');
@@ -212,16 +195,16 @@ class Article extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts, $files);
     $error || $error = transaction($transaction, $posts, $files);
-    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminArticleEdit', $this->obj), $error, $posts);
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagArticleEdit', $this->parent, $this->obj), $error, $posts);
 
-    Url::refreshWithSuccessFlash(Url::toRouter('AdminArticleIndex'), '修改成功！');
+    Url::refreshWithSuccessFlash(Url::toRouter('AdminTagArticleIndex', $this->parent), '修改成功！');
   }
   
   public function show() {
     $show = AdminShow::create($this->obj)
-                     ->setBackUrl(Url::toRouter('AdminArticleIndex'), '回列表');
+                      ->setBackUrl(Url::toRouter('AdminTagArticleIndex', $this->parent), '回列表');
 
-    return $this->view->setPath('admin/Article/show.php')
+    return $this->view->setPath('admin/TagArticle/show.php')
                       ->with('show', $show);
   }
   
@@ -230,9 +213,9 @@ class Article extends AdminCrudController {
       return $this->obj->delete();
     });
 
-    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminArticleIndex'), $error);
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagArticleIndex', $this->parent), $error);
 
-    Url::refreshWithSuccessFlash(Url::toRouter('AdminArticleIndex'), '刪除成功！');
+    Url::refreshWithSuccessFlash(Url::toRouter('AdminTagArticleIndex', $this->parent), '刪除成功！');
   }
 
   public function enable() {

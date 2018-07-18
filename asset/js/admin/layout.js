@@ -313,10 +313,10 @@ $(function () {
       var $div = $('<div />').addClass ('oaip');
       if ($(this).attr ('data-pvid') !== undefined) $div.attr ('data-pvid', $(this).attr ('data-pvid'));
       if ($(this).attr ('data-ori') !== undefined) $div.attr ('data-ori', $(this).attr ('data-ori'));
-      return $div.append ($('<img />').attr ('src', $(this).attr ('src')));
+      return $div.append ($('<img />').attr ('src', $(this).attr ('src'))).prependTo($oaips);
     });
 
-    $oaips.append ($oaip.toArray ()).attr ('data-cnt', $oaip.length).appendTo ($(this));
+    $oaips.attr ('data-cnt', $oaip.length).appendTo ($(this));
 
     if (typeof $.fn.imgLiquid !== 'undefined') $oaip.imgLiquid ({ verticalAlign:'center' });
     window.oaips.set ($oaips, '.oaip');

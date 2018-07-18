@@ -63,7 +63,7 @@ class Url {
     exit;
   }
 
-  public static function redirect ($code = 302) {
+  public static function redirect($code = 302) {
     if (!$args = func_get_args ())
       return false;
 
@@ -94,6 +94,25 @@ class Url {
     static::refresh($url);
     exit;
     return;
+  }
+
+  public static function toRouter($name, $params = []) {
+    $params = func_get_args();
+    $name = array_shift($params);
+    $params = arrayFlatten($params);
+    $router = Router::findByName($name);
+
+    $router || gg('Router 尚未設定「' . $name . '」的名稱！');
+
+    preg_match_all('/\((\?<[^\/]+>)?(\[0-9\]\+|\[\^\/\]\+)\)/', $router->segment(), $matches);
+    $matches = array_shift($matches);
+    count($matches) == count($params) || gg('參數有誤！', 'Url::toRouter 的「' . $name . '」需要 ' . count($matches) . '個參數！');
+
+    return self::base(preg_replace_callback('/\((\?<[^\/]+>)?(\[0-9\]\+|\[\^\/\]\+)\)/', function($matches) use (&$params) {
+      $param = array_shift($params);
+      $param instanceof \M\Model && isset($param->id) && $param = $param->id;
+      return (string)$param;
+    }, $router->segment()));
   }
 }
 

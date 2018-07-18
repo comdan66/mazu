@@ -43,6 +43,11 @@ class View {
     return $this;
   }
 
+  public function withReference($key, &$val) {
+    $this->vals[$key] = &$val;
+    return $this;
+  }
+
   public function getVals() {
     return array_map(function($t) {
       return $t instanceof View ? $t->get() : $t;

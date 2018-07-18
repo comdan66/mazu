@@ -69,8 +69,9 @@ class AdminListTableColumn {
 
   public function __toString() {
     return implode('', array_filter(array_map(function($link) {
-      $attr = implode(' ', array_map(function($key, $val) { return $key . '="' . $val . '"'; }, array_keys($link), array_values($link)));
-      return $attr ? '<a ' . $attr . '></a>' : null;
+      $attr = $link[1];
+      $attr = implode(' ', array_map(function($key, $val) { return $key . '="' . $val . '"'; }, array_keys($attr), array_values($attr)));
+      return $attr ? '<a ' . $attr . '>' .  $link[0] . '</a>' : null;
     }, $this->links)));
   }
 
@@ -86,9 +87,9 @@ class AdminListTableColumn {
     return $this->addLink($url, ['class' =>'icon-29']);
   }
 
-  public function addLink($url, $attrs = []) {
+  public function addLink($url, $attrs = [], $text = '') {
     $attrs['href'] = $url;
-    array_unshift($this->links, $attrs);
+    array_unshift($this->links, [$text, $attrs]);
     return $this;
   }
 

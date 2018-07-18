@@ -46,9 +46,8 @@ abstract class Uploader {
   }
   
   protected static function thumbnail($file) {
-    is_callable(self::$thumbnail) && ($thumbnail = self::$thumbnail) && self::$thumbnail = $thumbnail($file);
-    self::$thumbnail || \gg('尚未設定縮圖工具！');
-    return self::$thumbnail;
+    is_callable(self::$thumbnail) && ($thumbnail = self::$thumbnail) || \gg('尚未設定縮圖工具！');
+    return $thumbnail($file);
   }
 
   public static function initThumbnail($thumbnail) {
@@ -100,6 +99,10 @@ abstract class Uploader {
 
   protected function uniqueColumn() {
     return 'id';
+  }
+
+  public function orm() {
+    return $this->orm;
   }
 
   public function __toString() {

@@ -1,32 +1,42 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-Router::get('admin/logout')->controller('admin/Auth@logout');
-Router::get('admin/login')->controller('admin/Auth@login');
-Router::post('admin/login')->controller('admin/Auth@signin');
-Router::get('admin')->controller('admin/Main@index');
+Router::get('admin/logout')->controller('admin/Auth@logout')->alias('AdminLogout');
+Router::get('admin/login')->controller('admin/Auth@login')->alias('AdminLogin');
+Router::post('admin/login')->controller('admin/Auth@signin')->alias('AdminSignin');
+Router::get('admin')->controller('admin/Main@index')->alias('AdminMain');
 
 // Admin Tag
-Router::get('admin/tags')->controller('admin/Tag@index');
-Router::get('admin/tags/add')->controller('admin/Tag@add');
-Router::post('admin/tags/')->controller('admin/Tag@create');
-Router::get('admin/tags/(id:num)/edit')->controller('admin/Tag@edit');
-Router::put('admin/tags/(id:num)')->controller('admin/Tag@update');
-Router::get('admin/tags/(id:num)')->controller('admin/Tag@show');
-Router::delete('admin/tags/(id:num)')->controller('admin/Tag@delete');
-Router::post('admin/tags/sort')->controller('admin/Tag@sort');
-Router::post('admin/tags/(id:num)/enable')->controller('admin/Tag@enable');
+Router::dir('admin', 'Admin', function() {
+  Router::get('tags')->controller('Tag@index')->alias('TagIndex');
+  Router::get('tags/add')->controller('Tag@add')->alias('TagAdd');
+  Router::post('tags')->controller('Tag@create')->alias('TagCreate');
+  Router::get('tags/(id:num)/edit')->controller('Tag@edit')->alias('TagEdit');
+  Router::put('tags/(id:num)')->controller('Tag@update')->alias('TagUpdate');
+  Router::get('tags/(id:num)')->controller('Tag@show')->alias('TagShow');
+  Router::delete('tags/(id:num)')->controller('Tag@delete')->alias('TagDelete');
+  Router::post('tags/sort')->controller('Tag@sort')->alias('TagSort');
+  Router::post('tags/(id:num)/enable')->controller('Tag@enable')->alias('TagEnable');
 
-// Admin Article
-Router::get('admin/articles')->controller('admin/Article@index');
-Router::get('admin/articles/add')->controller('admin/Article@add');
-Router::post('admin/articles/')->controller('admin/Article@create');
-Router::get('admin/articles/(id:num)/edit')->controller('admin/Article@edit');
-Router::put('admin/articles/(id:num)')->controller('admin/Article@update');
-Router::get('admin/articles/(id:num)')->controller('admin/Article@show');
-Router::delete('admin/articles/(id:num)')->controller('admin/Article@delete');
-Router::post('admin/articles/(id:num)/enable')->controller('admin/Article@enable');
+  // Article
+  Router::get('articles')->controller('Article@index')->alias('ArticleIndex');
+  Router::get('articles/add')->controller('Article@add')->alias('ArticleAdd');
+  Router::post('articles/')->controller('Article@create')->alias('ArticleCreate');
+  Router::get('articles/(id:num)/edit')->controller('Article@edit')->alias('ArticleEdit');
+  Router::put('articles/(id:num)')->controller('Article@update')->alias('ArticleUpdate');
+  Router::get('articles/(id:num)')->controller('Article@show')->alias('ArticleShow');
+  Router::delete('articles/(id:num)')->controller('Article@delete')->alias('ArticleDelete');
+  Router::post('articles/(id:num)/enable')->controller('Article@enable')->alias('ArticleEnable');
 
-
+  // Tag 下的 Article
+  Router::get('tag/(tagId:num)/articles')->controller('TagArticle@index')->alias('TagArticleIndex');
+  Router::get('tag/(tagId:num)/articles/add')->controller('TagArticle@add')->alias('TagArticleAdd');
+  Router::post('tag/(tagId:num)/articles/')->controller('TagArticle@create')->alias('TagArticleCreate');
+  Router::get('tag/(tagId:num)/articles/(id:num)/edit')->controller('TagArticle@edit')->alias('TagArticleEdit');
+  Router::put('tag/(tagId:num)/articles/(id:num)')->controller('TagArticle@update')->alias('TagArticleUpdate');
+  Router::get('tag/(tagId:num)/articles/(id:num)')->controller('TagArticle@show')->alias('TagArticleShow');
+  Router::delete('tag/(tagId:num)/articles/(id:num)')->controller('TagArticle@delete')->alias('TagArticleDelete');
+  Router::post('tag/(tagId:num)/articles/(id:num)/enable')->controller('TagArticle@enable')->alias('TagArticleEnable');
+});
 
 
 

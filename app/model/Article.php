@@ -9,7 +9,8 @@ class Article extends Model {
 
   static $hasMany = [
     'images' => ['model' => 'ArticleImage'],
-    'tags' => ['model' => 'Tag', 'by' => 'articleTags'],
+    'tags' => ['model' => 'Tag', 'by' => 'articleTagMappings'],
+    'articleTagMappings' => ['model' => 'ArticleTagMapping'],
   ];
 
   // static $belongToOne = [];
@@ -28,11 +29,26 @@ class Article extends Model {
     self::ENABLE_NO  => '停用'
   ];
 
+  public function delete() {
+    foreach ($this->images as $image)
+      if (!$image->delete())
+        return false;
+
+    return parent::delete();
+  }
+
   public function putFiles($files) {
     foreach ($files as $key => $file)
       if (isset($this->$key) && $this->$key instanceof Uploader && !$this->$key->put($file))
         return false;
     return true;
+  }
+  
+  public function minColumn($column, $length = 100) {
+    if (!isset($this->$column))
+      return '';
+
+    return $length ? mb_strimwidth(strip_tags($this->$column), 0, $length, '…','UTF-8') : strip_tags($this->$column);
   }
 }
 

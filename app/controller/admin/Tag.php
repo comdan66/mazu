@@ -7,18 +7,18 @@ class Tag extends AdminCrudController {
 
     if (in_array(Router::methodName(), ['edit', 'update', 'delete', 'show']))
       if (!(($id = Router::params('id')) && ($this->obj = \M\Tag::one('id = ?', $id))))
-        Url::refreshWithFailureFlash(Url::base('admin/tags'), '找不到資料！');
+        Url::refreshWithFailureFlash(Url::toRouter('AdminTagIndex'), '找不到資料！');
 
     $this->view->with('title', '文章標籤')
-               ->with('currentUrl', Url::base('admin/tags'));
+               ->with('currentUrl', Url::toRouter('AdminTagIndex'));
   }
 
   public function index() {
     $list = AdminList::model('\M\Tag', ['order' => AdminListOrder::desc('sort')])
-              ->input('ID', 'id = ?')
-              ->input('名稱', 'name LIKE ?')
-              ->setAddUrl(Url::base('admin/tags/add'))
-              ->setSortUrl(Url::base('admin/tags/sort'));
+                     ->input('ID', 'id = ?')
+                     ->input('名稱', 'name LIKE ?')
+                     ->setAddUrl(Url::toRouter('AdminTagAdd'))
+                     ->setSortUrl(Url::toRouter('AdminTagSort'));
 
     return $this->view->setPath('admin/Tag/index.php')
                       ->with('list', $list);
@@ -26,9 +26,9 @@ class Tag extends AdminCrudController {
   
   public function add() {
     $form = AdminForm::createAdd()
-            ->setFlash($this->flash['params'])
-            ->setActionUrl(Url::base('admin/tags'))
-            ->setBackUrl(Url::base('admin/tags/'), '回列表');
+                     ->setFlash($this->flash['params'])
+                     ->setActionUrl(Url::toRouter('AdminTagCreate'))
+                     ->setBackUrl(Url::toRouter('AdminTagIndex'), '回列表');
 
     return $this->view->setPath('admin/Tag/add.php')
                       ->with('form', $form);
@@ -60,18 +60,17 @@ class Tag extends AdminCrudController {
     Url::refreshWithSuccessFlash(Url::base('admin/tags'), '新增成功！');
   }
   
-  public function edit($id) {
+  public function edit() {
     $form = AdminForm::createEdit($this->obj)
-            ->setFlash($this->flash['params'])
-            ->setActionUrl(Url::base('admin/tags/' . $this->obj->id))
-            ->setBackUrl(Url::base('admin/tags/'), '回列表');
+                    ->setFlash($this->flash['params'])
+                    ->setActionUrl(Url::toRouter('AdminTagUpdate', $this->obj))
+                    ->setBackUrl(Url::toRouter('AdminTagIndex'), '回列表');
 
     return $this->view->setPath('admin/Tag/edit.php')
-                      ->with('obj', $this->obj)
                       ->with('form', $form);
   }
   
-  public function update($id) {
+  public function update() {
     $validator = function(&$posts) {
       // name
       isset($posts['name']) || Validator::error('名稱不存在！');
@@ -89,27 +88,27 @@ class Tag extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts);
     $error || $error = transaction($transaction, $posts);
-    $error && Url::refreshWithFailureFlash(Url::base('admin/tags/' . $this->obj->id . '/edit'), $error, $posts);
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagUpdate', $this->obj), $error, $posts);
     
-    Url::refreshWithSuccessFlash(Url::base('admin/tags'), '修改成功！');
+    Url::refreshWithSuccessFlash(Url::toRouter('AdminTagIndex'), '修改成功！');
   }
   
-  public function show($id) {
+  public function show() {
     $show = AdminShow::create($this->obj)
-                     ->setBackUrl(Url::base('admin/tags/'), '回列表');
+                     ->setBackUrl(Url::toRouter('AdminTagIndex'), '回列表');
 
     return $this->view->setPath('admin/Tag/show.php')
                       ->with('show', $show);
   }
   
-  public function delete($id) {
+  public function delete() {
     $error = transaction(function() {
       return $this->obj->delete();
     });
 
-    $error && Url::refreshWithFailureFlash(Url::base('admin/tags/'), $error);
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagIndex'), $error);
 
-    Url::refreshWithSuccessFlash(Url::base('admin/tags/'), '刪除成功！');
+    Url::refreshWithSuccessFlash(Url::toRouter('AdminTagIndex'), '刪除成功！');
   }
 
   public function sort() {

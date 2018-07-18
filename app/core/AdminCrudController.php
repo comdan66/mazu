@@ -11,5 +11,6 @@ class AdminCrudController extends AdminController {
     Load::sysLib('AdminShow.php');
 
     $this->obj = null;
+    $this->view->withReference('obj', $this->obj);
   }
 }

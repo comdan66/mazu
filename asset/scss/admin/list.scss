@@ -419,26 +419,31 @@ table.list {
             display: inline-block;
             width: 36px;
             height: 36px;
-            &[data-cnt]:not([data-cnt='0']):not([data-cnt='1']) {
-              &:after {
-                content: attr(data-cnt);
-                background-color: rgba(236, 83, 70, 1.00);
-                color: white;
-                position: absolute;
-                right: -10px;
-                top: -5px;
+            $cntItem: 100;
+            
+            &:after {
+              content: attr(data-cnt);
+              background-color: rgba(236, 83, 70, 1.00);
+              color: white;
+              position: absolute;
+              right: -10px;
+              top: -5px;
 
-                display: inline-block;
-                min-width: 18px;
-                height: 18px;
-                line-height: 18px;
-                padding: 0 4px;
-                text-align: center;
-                @include border-radius(18px / 2);
-                font-size: 10px;
-                @include scale(.86);
-                @include box-shadow(0 1px 1px rgba(0, 0, 0, .3));
-              }
+              display: none;
+              min-width: 18px;
+              height: 18px;
+              line-height: 18px;
+              padding: 0 4px;
+              text-align: center;
+              @include border-radius(18px / 2);
+              font-size: 10px;
+              @include scale(.86);
+              @include box-shadow(0 1px 1px rgba(0, 0, 0, .3));
+              z-index: $cntItem + 1;
+            }
+
+            &[data-cnt]:not([data-cnt='0']):not([data-cnt='1']):after {
+              display: inline-block;
             }
 
             .oaip {
@@ -449,11 +454,19 @@ table.list {
               display: inline-block;
               width: 36px;
               height: 36px;
+              z-index: 1;
+
               margin: 0;
               padding: 0;
               overflow: hidden;
               cursor: pointer;
               @include border-radius(2px);
+
+              @for $i from 1 through $cntItem {
+                &:nth-child(#{$i}) {
+                  z-index: $cntItem - $i;
+                }
+              }
 
               img {
                 display: none;

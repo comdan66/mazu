@@ -5,6 +5,9 @@ class Router {
   private $work;
   private $controller;
   private $cmd;
+  private $name;
+  private $segment;
+  private $dirs;
   // private $befores;
   // private $beforeParams;
 
@@ -33,10 +36,14 @@ class Router {
     Load::app('routers.php');
   }
 
-  public function __construct() {
+  public function __construct($segment, $dirs) {
     $this->controller = null;
     $this->work = null;
     $this->cmd = null;
+    $this->dirs = $dirs;
+
+    $this->name = $segment;
+    $this->segment = $segment;
     
     // $this->befores      = [];
     // $this->beforeParams = [];
@@ -50,7 +57,30 @@ class Router {
   }
   
   public function controller($controller) {
-    $this->controller = $controller;
+    $this->controller = $this->dirs['dir'] . $controller;
+    
+    return $this;
+  }
+  
+  public function alias($name) {
+    $this->name = $this->dirs['prefix'] . $name;
+    return $this;
+  }
+
+  public function name($name = null) {
+    if ($name === null)
+      return $this->name;
+
+    $this->name = $this->prefix . $name;
+    return $this;
+  }
+  
+  
+  public function segment($segment = null) {
+    if ($segment === null)
+      return $this->segment;
+
+    $this->segment = $segment;
     return $this;
   }
   
@@ -159,38 +189,48 @@ class Router {
     return self::$current = '';
   }
 
-  public static function get($segment) {
-    $segment = self::setSegment($segment);
-    isset(self::$routers['get']) || self::$routers['get'] = [];
-    return self::$routers['get'][$segment] = new Router();
+  private static function getDirs() {
+    $dirs = array_filter(array_map(function($trace) { return isset($trace['class']) && ($trace['class'] == 'Router') && isset($trace['function']) && ($trace['function'] == 'dir') && isset($trace['type']) && ($trace['type'] == '::') && isset($trace['args'][0], $trace['args'][1]) ? ['dir' => trim($trace['args'][0], '/') . '/', 'prefix' => is_string($trace['args'][1]) ? $trace['args'][1] : ''] : null; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)));
+    $dirs = array_shift($dirs);
+    $dirs || $dirs = ['dir' => '', 'prefix' =>''];
+
+    return $dirs;
   }
-  
-  public static function post($segment) {
-    $segment = self::setSegment($segment);
-    isset(self::$routers['post']) || self::$routers['post'] = [];
-    return self::$routers['post'][$segment] = new Router();
-  }
-  
-  public static function put($segment) {
-    $segment = self::setSegment($segment);
-    isset(self::$routers['put']) || self::$routers['put'] = [];
-    return self::$routers['put'][$segment] = new Router();
-  }
-  
-  public static function delete($segment) {
-    $segment = self::setSegment($segment);
-    isset(self::$routers['delete']) || self::$routers['delete'] = [];
-    return self::$routers['delete'][$segment] = new Router();
-  }
-  
-  public static function cli($segment) {
-    $segment = self::setSegment($segment);
-    isset(self::$routers['cli']) || self::$routers['cli'] = [];
-    return self::$routers['cli'][$segment] = new Router();
+
+  public static function __callStatic ($name, $args) {
+    if (!in_array($name = strtolower($name), ['get', 'post', 'put', 'delete', 'cli']))
+      return false;
+
+    $args || gg('Router 的「' . $name . '」requset method 必須給予 Segment');
+    $segment = array_shift($args);
+
+    $dirs = self::getDirs();
+    
+    $segment = $dirs['dir'] . self::setSegment($segment);
+    isset(self::$routers[$name]) || self::$routers[$name] = [];
+    return self::$routers[$name][$segment] = new Router($segment, $dirs);
   }
 
   public static function all() {
     return self::$routers;
+  }
+  
+  public static function dir($dir, $prefix, $closure = null) {
+    if (is_callable($prefix)) {
+      $closure = $prefix;
+      $prefix = '';
+    }
+
+    $closure();
+  }
+
+  public static function findByName($name) {
+    foreach (self::$routers as $method => $routers)
+      foreach ($routers as $segment => $router)
+        if ($router->segment() === self::setSegment($name) || $router->name() === $name)
+          return $router;
+
+    return null;
   }
 }
 

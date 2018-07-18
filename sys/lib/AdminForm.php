@@ -271,14 +271,22 @@ class AdminFormImages extends AdminFormRow {
       $return .= '<div class="multi-drop-imgs">';
 
       $return .= implode('', array_map(function($src) use($attrs) {
+        $id = null;
+
+        if ($src instanceof \M\ImageUploader && isset($src->orm()->id)) {
+          $id = $src->orm()->id;
+          $src = $src->url();
+        }
+
         $return = '';
         $return .= '<div class="drop-img">';
+          $return .= '<input type="hidden" name="_' . $this->name .'[]" value="' . $id . '">';
           $return .= '<img src="' . $src . '" />';
           $return .= '<input' . AdminForm::attrs($attrs) .'/>';
           $return .= '<a class="icon-04"></a>';
         $return .= '</div>';
         return $return;
-      }, array_merge([''], $this->srcs)));
+      }, array_merge($this->srcs, [''])));
 
       $return .= '</div>';
     $return .= '</div>';

@@ -306,19 +306,12 @@ class Input {
     $filterSize = true;
     $keys = array_keys($files);
 
-    if (is_array($files['name'])) {
-      foreach ($files['name'] as $i => $val)
-        if ((!is_array($files['size']) && (!$filterSize || $files['size'] != 0)) || (!$filterSize || $files['size'][$i] != 0))
-          foreach ($keys as $key)
-            $news[$i][$key] = is_array($files[$key]) ? $files[$key][$i] : $files[$key];
-    } else {
-      for ($i = $j = 0, $c = count($files['name']), $keys = array_keys($files); $i < $c; $i++)
-        if ((!is_array($files['size']) && (!$filterSize || $files['size'] != 0)) || (!$filterSize || $files['size'][$i] != 0)) {
-          foreach ($keys as $key)
-            $news[$j][$key] = is_array ($files[$key]) ? $files[$key][$i] : $files[$key];
-          $j++;
-        }
-    }
+    for ($i = $j = 0, $c = count($files['name']), $keys = array_keys($files); $i < $c; $i++)
+      if ((!is_array($files['size']) && (!$filterSize || $files['size'] != 0)) || (!$filterSize || $files['size'][$i] != 0)) {
+        foreach ($keys as $key)
+          $news[$j][$key] = is_array ($files[$key]) ? $files[$key][$i] : $files[$key];
+        $j++;
+      }
 
     return $news;
   }
@@ -327,8 +320,10 @@ class Input {
     $news = [];
     if ($filesList)
       foreach ($filesList as $key => $files)
-        $news[$key] = self::transposedFilesArray ($files);
-
+        if (!is_array($files['name']))
+          $files['size'] == 0 || $news[$key] = $files;
+        else
+          $news[$key] = self::transposedFilesArray($files);
     return $news;
   }
 
@@ -355,7 +350,7 @@ class Input {
       return [];
 
     if ($index === null)
-      return array_filter(array_map(function($t) { return is_array($t) && count($t) == 1 ? $t[0] : $t; }, self::transposedAllFilesArray($_FILES)));
+      return self::transposedAllFilesArray($_FILES);
 
     preg_match_all('/^(?P<var>\w+)(\s?\[\s?\]\s?)$/', $index, $matches);
     $matches = $matches['var'] ? $matches['var'][0] : null;
