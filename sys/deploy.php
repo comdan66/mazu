@@ -47,6 +47,17 @@ task('deploy', function () {
   echo cliColor("有的", 'g') . "\n";
 
 
+
+
+
+
+
+
+
+
+
+
+
   echo "\n";
   echo " " . cliColor('【Git Pull】', 'W') . "\n";
 
@@ -68,6 +79,16 @@ task('deploy', function () {
     return ;
   }
   echo cliColor("成功", 'g') . "\n";
+
+
+
+
+
+
+
+
+
+
 
 
   echo "\n";
@@ -104,6 +125,19 @@ task('deploy', function () {
   echo cliColor("成功", 'g') . "\n";
 
   echo cliColor("   ➤ ", 'R') . "目前 Migration 版本：第 " . cliColor($result['now'], 'W') . " 版". "\n";
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   echo "\n";
   echo " " . cliColor('【清除 Cache】', 'W') . "\n";
