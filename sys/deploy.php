@@ -24,14 +24,14 @@ task('deploy', function () {
   echo "\n";
   echo " " . cliColor('【檢查變數】', 'W') . "\n";
 
-  echo cliColor("   ➜ ", 'R') . "檢查路徑 " . cliColor($deployPath, 'W') . " 是否正確" . cliColor(' ─ ', 'N');
+  echo cliColor("   ➤ ", 'R') . "檢查路徑 " . cliColor($deployPath, 'W') . " 是否正確" . cliColor(' ─ ', 'N');
   if (!test('[ -d ' . $deployPath . ' ]')) {
     echo cliColor(" ✘ 錯誤", 'r') . "\n";
     return ;
   }
   echo cliColor(" ✔ 正確", 'g') . "\n";
 
-  echo cliColor("   ➜ ", 'R') . "檢查路徑 " . cliColor($deployPath . '/sys', 'W') . " 是否正確" . cliColor(' ─ ', 'N');
+  echo cliColor("   ➤ ", 'R') . "檢查路徑 " . cliColor($deployPath . '/sys', 'W') . " 是否正確" . cliColor(' ─ ', 'N');
   if (!test('[ -d ' . $deployPath . '/sys ]')) {
     echo cliColor(" ✘ 錯誤", 'r') . "\n";
     return ;
@@ -86,11 +86,20 @@ task('deploy', function () {
   echo cliColor("   ➤ ", 'R') . "執行 Migration 指令：" . cliColor('php migration new', 'W') . cliColor(' ─ ', 'N');
   $result = run("$php migration new");
   $result = json_decode($result, true);
+  echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
+  var_dump ($result);
+  exit ();
+
+  if (!isset($result['status'], $result['msgs'], $result['now'])) {
+    echo cliColor(" ✘ 失敗", 'r') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 錯誤原因：" . cliColor('回傳結構有誤！', 'W') . "\n";
+    return ;
+  }
 
   if ($result['status'] !== 1) {
     echo cliColor(" ✘ 失敗", 'r') . "\n";
     foreach ($result['msgs'] as $msg) {
-    echo "   ➜ " . $msg . "\n";
+    echo "     " . cliColor('➤', 'B') . $msg . "\n";
     }
     return ;
   }
