@@ -93,9 +93,9 @@ if (!function_exists('cho1')) {
     } while ($check != 'y');
     
     exit( "\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n"
-        . "\n " . cliColor('◎', 'G') . ' Migration「' . cliColor($name, 'W') . '」建立中.. ' . (createMigration($name, $err) ? cliColor('成功！', 'g')
-        . "\n" . ' ' . cliColor('◎', 'G') . ' 已經成功建立 Migration：' . cliColor($err, 'W') . "\n" : cliColor('失敗！', 'r')
-        . "\n" . ' ' . cliColor('◎', 'G') . ' 錯誤原因：' . cliColor($err, 'W') . "\n")
+        . "\n " . cliColor('➤', 'R') . ' Migration「' . cliColor($name, 'W') . '」建立中.. ' . (createMigration($name, $err) ? cliColor('成功！', 'g')
+        . "\n" . ' ' . cliColor('➤', 'R') . ' 已經成功建立 Migration：' . cliColor($err, 'W') . "\n" : cliColor('失敗！', 'r')
+        . "\n" . ' ' . cliColor('➤', 'R') . ' 錯誤原因：' . cliColor($err, 'W') . "\n")
         . "\n");
   }
 }
@@ -124,7 +124,7 @@ if (!function_exists('cho2')) {
 
 
       headerText('2');
-      echo "\n " . cliColor('◎', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
+      echo "\n " . cliColor('➜', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
          . "\n " . cliColor('➜', 'R') . ' 請輸入 ' . cliColor('圖片上傳器', 'W') . ' 欄位：';
       
       $imgUploads = trim(fgets(STDIN));
@@ -132,8 +132,8 @@ if (!function_exists('cho2')) {
 
 
       headerText('2');
-      echo "\n " . cliColor('◎', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
-         . "\n " . cliColor('◎', 'G') . ' 請輸入 ' . cliColor('圖片上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads))
+      echo "\n " . cliColor('➜', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
+         . "\n " . cliColor('➜', 'G') . ' 請輸入 ' . cliColor('圖片上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads))
          . "\n " . cliColor('➜', 'R') . ' 請輸入 ' . cliColor('檔案上傳器', 'W') . ' 欄位：';
       
       $fileUploads = trim(fgets(STDIN));
@@ -143,9 +143,9 @@ if (!function_exists('cho2')) {
 
       do {
         headerText('2');
-        echo "\n " . cliColor('◎', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
-           . "\n " . cliColor('◎', 'G') . ' 請輸入 ' . cliColor('圖片上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads))
-           . "\n " . cliColor('◎', 'G') . ' 請輸入 ' . cliColor('檔案上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $fileUploads));
+        echo "\n " . cliColor('➜', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
+           . "\n " . cliColor('➜', 'G') . ' 請輸入 ' . cliColor('圖片上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads))
+           . "\n " . cliColor('➜', 'G') . ' 請輸入 ' . cliColor('檔案上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $fileUploads));
         
         echo "\n\n " . cliColor('➜', 'R') . ' 以上資訊是否正確' . cliColor('[y：沒錯, n：重新填寫]', 'N') . '：';
 
@@ -157,19 +157,19 @@ if (!function_exists('cho2')) {
     
 
     headerText('2');
-    echo "\n " . cliColor('◎', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
-       . "\n " . cliColor('◎', 'G') . ' 請輸入 ' . cliColor('圖片上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads))
-       . "\n " . cliColor('◎', 'G') . ' 請輸入 ' . cliColor('檔案上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $fileUploads))
+    echo "\n " . cliColor('➜', 'G') . ' 請輸入 Model 名稱：' . cliColor($name, 'W')
+       . "\n " . cliColor('➜', 'G') . ' 請輸入 ' . cliColor('圖片上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads))
+       . "\n " . cliColor('➜', 'G') . ' 請輸入 ' . cliColor('檔案上傳器', 'W') . ' 欄位：' . implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $fileUploads))
        . "\n";
 
     Load::sysFunc('file.php');
     $path = PATH_MODEL . $name . '.php';
 
     exit( "\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n"
-        . "\n " . cliColor('➜', 'R') . " 新增 Model「" . cliColor($name, 'W') . "」- " . (fileWrite($path, createModel($name, $imgUploads, $fileUploads), 'x') ? cliColor('成功', 'g') : cliColor('失敗', 'r'))
-        . "\n " . cliColor('➜', 'R') . " 位置：" . cliColor($path, 'W')
-        . "\n " . cliColor('➜', 'R') . ' 圖片上傳器欄位：' . ($imgUploads ? implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads)) : cliColor('無', 'N'))
-        . "\n " . cliColor('➜', 'R') . ' 檔案上傳器欄位：' . ($fileUploads ? implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $fileUploads)) : cliColor('無', 'N'))
+        . "\n " . cliColor('➤', 'R') . " 新增 Model「" . cliColor($name, 'W') . "」- " . (fileWrite($path, createModel($name, $imgUploads, $fileUploads), 'x') ? cliColor('成功', 'g') : cliColor('失敗', 'r'))
+        . "\n " . cliColor('➤', 'R') . " 位置：" . cliColor($path, 'W')
+        . "\n " . cliColor('➤', 'R') . ' 圖片上傳器欄位：' . ($imgUploads ? implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $imgUploads)) : cliColor('無', 'N'))
+        . "\n " . cliColor('➤', 'R') . ' 檔案上傳器欄位：' . ($fileUploads ? implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $fileUploads)) : cliColor('無', 'N'))
         . "\n\n");
   }
 }

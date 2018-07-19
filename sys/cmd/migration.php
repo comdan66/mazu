@@ -45,8 +45,9 @@ if (!function_exists('cho1')) {
 
       $err = Migration::to($version);
       headerText($cho) && $err === true ?
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新成功', 'g') . "！\n " . cliColor('◎', 'G') . ' 目前已經更新至第 ' . cliColor(Migration::nowVersion(), 'W') . ' 版了！' . "\n\n") :
-        exit("\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新失敗', 'r') . "！\n\n" . implode("\n", array_map(function($key, $err) { return ' ' . cliColor('◎', 'G') . ' ' . $key . '：' . cliColor($err, 'W') . "\n"; }, array_keys($err), $err)) . "\n " . cliColor('◎', 'G') . ' 目前在 ' . cliColor(Migration::nowVersion(), 'W') . ' 版！' . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n" . cliColor(' ➤', 'R') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版' . cliColor(' ─ ', 'N') . cliColor('成功', 'g') . "\n" . cliColor(' ➤', 'R') . ' 目前已經更新至第 ' . cliColor(Migration::nowVersion(), 'W') . ' 版！' . "\n\n") :
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n" . cliColor(' ➤', 'R') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版' . cliColor(' ─ ', 'N') . cliColor('失敗', 'r') . "\n" . cliColor(' ➤', 'R') . ' 目前版本只更新到 ' . cliColor(Migration::nowVersion(), 'W') . ' 版！' . "\n\n"
+                  . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n" . implode("\n", array_map(function($key, $err) { return ' ' . cliColor('➤', 'B') . ' ' . $key . '：' . cliColor($err, 'W') . "\n"; }, array_keys($err), $err)) . "\n\n");
     } else {
       $err = Migration::to($version);
       exit(json_encode(['status' => $err === true ? 1 : 0, 'msgs' => $err === true ? [] : $err, 'now' => Migration::nowVersion()]));
@@ -61,7 +62,7 @@ if (!function_exists('cho2')) {
     
     do {
       headerText('2');
-      echo "\n " . cliColor('◎', 'G') . " 請輸入要更新的版本號" . cliColor('(0 ~ ' . end($keys) . ')', 'N') . "：" . (is_numeric($version) && $version >= 0 && $version <= end($keys) ? $version . "\n" : '');
+      echo "\n " . cliColor('➜', 'R') . " 請輸入要更新的版本號" . cliColor('(0 ~ ' . end($keys) . ')', 'N') . "：" . (is_numeric($version) && $version >= 0 && $version <= end($keys) ? $version . "\n" : '');
       is_numeric($version = is_numeric($version) && $version >= 0 && $version <= end($keys) ? $version : trim(fgets(STDIN))) || $version = '';
 
       if (is_numeric($version) && $version >= 0 && $version <= end($keys)) {

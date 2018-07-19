@@ -24,12 +24,13 @@ if (!function_exists('cho1')) {
 
     if ($files)
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor(' ➤ ', 'R') . cliColor('清除失敗！', 'r') . '無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
         exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
     else
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " 全部已清除完畢！" . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n" . cliColor(' ➤', 'R') . " 全部已清除完畢！" . "\n"
+                                                                     . cliColor(' ➤', 'R') . " 分別清除了 " . cliColor('Cache', 'W') . '、' . cliColor('Tmp', 'W') . '、' . cliColor('Session', 'W') . ' 目錄！' . "\n\n");
       else
         exit(json_encode(['status' => 1, 'msgs' => []]));
   }
@@ -41,12 +42,12 @@ if (!function_exists('cho2')) {
 
     if ($files)
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor(' ➤ ', 'R') . cliColor('清除失敗！', 'r') . '無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
         exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案如下' => $files]]));
     else
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " " . cliColor("Cache 目錄", 'W') . "全部已清除完畢！" . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n" . cliColor(' ➤', 'R') . " " . cliColor("Cache 目錄", 'W') . "已清除完畢！" . "\n\n");
       else
         exit(json_encode(['status' => 1, 'msgs' => []]));
   }
@@ -58,12 +59,12 @@ if (!function_exists('cho3')) {
 
     if ($files)
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor(' ➤ ', 'R') . cliColor('清除失敗！', 'r') . '無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
         exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
     else
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " " . cliColor("Tmp 目錄", 'W') . "全部已清除完畢！" . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n" . cliColor(' ➤', 'R') . " " . cliColor("Tmp 目錄", 'W') . "已清除完畢！" . "\n\n");
       else
         exit(json_encode(['status' => 1, 'msgs' => []]));
   }
@@ -75,12 +76,12 @@ if (!function_exists('cho4')) {
 
     if ($files)
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor(' ➤ ', 'R') . cliColor('清除失敗！', 'r') . '無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
         exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
     else
       if ($echo)
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " " . cliColor("Session 目錄", 'W') . "全部已清除完畢！" . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n" . cliColor(' ➤', 'R') . " " . cliColor("Session 目錄", 'W') . "已清除完畢！" . "\n\n");
       else
         exit(json_encode(['status' => 1, 'msgs' => []]));
   }
@@ -111,7 +112,7 @@ if (is_string(Router::params(0))) {
     headerText();
     echo "\n " . cliColor('➜', 'R') . ' 請輸入您的選項' .  cliColor('(q)', 'N') . '：';
     ($cho = strtolower(trim(fgets(STDIN)))) || $cho = 'q';
-  } while (!in_array($cho, ['1', '2', 'q']));
+  } while (!in_array($cho, ['1', '2', '3', '4', 'q']));
 }
 
 $cho === '1' && cho1();
