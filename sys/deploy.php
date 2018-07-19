@@ -167,7 +167,7 @@ task('deploy', function () {
   if ($result['status'] !== 1) {
     echo cliColor("失敗", 'r') . "\n";
     foreach ($result['msgs'] as $title => $msg)
-      echo "     " . cliColor('➤', 'B') . ' ' . $title . '：' . (!is_array($msg) ? cliColor($msg, 'W') : implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $msg)))  . "\n";
+      echo "     " . cliColor('➤', 'B') . ' ' . $title . '：' . (is_array($msg) ? "\n" . implode("\n", array_map(function($t) { return "       " . cliColor('•', 'N') . " " . $t; }, $msg)) : cliColor($msg, 'W'))  . "\n";
     return ;
   }
   echo cliColor("成功", 'g') . "\n";
