@@ -2,7 +2,7 @@
 
 return [
   'up' => "CREATE TABLE `Admin` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID'
     
     `name` varchar(190) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '名稱',
     `account` varchar(190) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '帳號',

@@ -84,8 +84,13 @@ task('deploy', function () {
   echo cliColor(" ✔ 有的", 'g') . "\n";
 
   echo cliColor("   ➤ ", 'R') . "執行 Migration 指令：" . cliColor('php migration new', 'W') . cliColor(' ─ ', 'N');
-  $result = run("$php migration");
-  
+  $result = run("$php migration new");
+  $result = json_decode($result, true);
 
-  writeln($result);
+  if ($result['status'] !== 1) {
+    echo cliColor(" ✘ 失敗", 'r') . "\n";
+    return ;
+  }
+  echo cliColor(" ✔ 成功", 'g') . "\n";
+  
 })->shallow();
