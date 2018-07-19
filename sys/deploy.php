@@ -95,8 +95,8 @@ task('deploy', function () {
 
   if ($result['status'] !== 1) {
     echo cliColor(" ✘ 失敗", 'r') . "\n";
-    foreach ($result['msgs'] as $msg) {
-    echo "     " . cliColor('➤', 'B') . ' ' . $msg . "\n";
+    foreach ($result['msgs'] as $title => $msg) {
+    echo "     " . cliColor('➤', 'B') . ' ' . $title . '：' . cliColor($msg, 'W') . "\n";
     }
     return ;
   }
