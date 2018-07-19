@@ -78,12 +78,17 @@ Migration::files(true) || exit("\n " . cliColor('◎', 'G') . " 目前沒有任�
 
 if (is_numeric(Router::params(0)) && Router::params(0) >= 0) {
   cho1(Router::params(0));
-} else if (is_string(Router::params(0)) && Router::params(0) === 'new') {
-  cho1(null, false);
-  exit();
-} else if (is_string(Router::params(0)) && Router::params(0) === 'ori') {
-  cho1(0, false);
-  exit();
+} else if (is_string(Router::params(0)) && in_array(Router::params(0), ['new', 'ori'])) {
+  switch (Router::params(0)) {
+    default:
+    case 'new':
+      cho1(null, Router::params(1) !== 'deploy');
+      break;
+
+    case 'ori':
+      cho1(0, Router::params(1) !== 'deploy');
+      break;
+  }
 } else {
   do {
     headerText();

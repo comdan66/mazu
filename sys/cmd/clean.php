@@ -21,12 +21,12 @@ if (!function_exists('headerText')) {
 if (!function_exists('cho1')) {
   function cho1($echo = true) {
     $files = arrayFlatten(array_filter([PATH_CACHE, PATH_TMP, PATH_SESSION], function($dir) { return array_filter(dirMap($dir), function($file) use($dir) { return $file !== 'index.html' ? !@unlink($dir . $file) ? ($dir . $file) : false : false; }); }));
-
+    $files = ['ad', 'asd'];
     if ($files)
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
-        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $file]]));
+        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
     else
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " 全部已清除完畢！" . "\n\n");
@@ -38,12 +38,12 @@ if (!function_exists('cho1')) {
 if (!function_exists('cho2')) {
   function cho2($echo = true) {
     $files = arrayFlatten(array_filter([PATH_CACHE], function($dir) { return array_filter(dirMap($dir), function($file) use($dir) { return $file !== 'index.html' ? !@unlink($dir . $file) ? ($dir . $file) : false : false; }); }));
-
+    $files = ['ad', 'asd'];
     if ($files)
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
-        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $file]]));
+        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
     else
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " " . cliColor("Cache 目錄", 'W') . "全部已清除完畢！" . "\n\n");
@@ -55,12 +55,12 @@ if (!function_exists('cho2')) {
 if (!function_exists('cho3')) {
   function cho3($echo = true) {
     $files = arrayFlatten(array_filter([PATH_TMP], function($dir) { return array_filter(dirMap($dir), function($file) use($dir) { return $file !== 'index.html' ? !@unlink($dir . $file) ? ($dir . $file) : false : false; }); }));
-
+    $files = ['ad', 'asd'];
     if ($files)
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
-        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $file]]));
+        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
     else
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " " . cliColor("Tmp 目錄", 'W') . "全部已清除完畢！" . "\n\n");
@@ -72,12 +72,12 @@ if (!function_exists('cho3')) {
 if (!function_exists('cho4')) {
   function cho4() {
     $files = arrayFlatten(array_filter([PATH_SESSION], function($dir) { return array_filter(dirMap($dir), function($file) use($dir) { return $file !== 'index.html' ? !@unlink($dir . $file) ? ($dir . $file) : false : false; }); }));
-
+    $files = ['ad', 'asd'];
     if ($files)
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
-        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $file]]));
+        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
     else
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " " . cliColor("Session 目錄", 'W') . "全部已清除完畢！" . "\n\n");
@@ -90,20 +90,20 @@ if (!function_exists('cho4')) {
 if (is_string(Router::params(0))) {
   switch (Router::params(0)) {
     case 'cache':
-      cho2(false);
+      cho2(Router::params(1) !== 'deploy');
       break;
 
     case 'tmp':
-      cho3(false);
+      cho3(Router::params(1) !== 'deploy');
       break;
 
     case 'session':
-      cho4(false);
+      cho4(Router::params(1) !== 'deploy');
       break;
 
     default:
     case 'all':
-      cho1(false);
+      cho1(Router::params(1) !== 'deploy');
       break;
   }
 } else {
