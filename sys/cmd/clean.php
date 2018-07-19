@@ -43,7 +43,7 @@ if (!function_exists('cho2')) {
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('清除失敗！', 'r') . ' 無法清除的資訊如下：' . "\n" . implode("\n", array_map(function($file) { return '  ' . cliColor('➜', 'G') . ' 檔案位置：' . cliColor($file, 'W'); }, $files)) . "\n\n");
       else
-        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案' => $files]]));
+        exit(json_encode(['status' => 0, 'msgs' => ['錯誤原因' => '清除失敗！', '無法刪除的檔案如下' => $files]]));
     else
       if ($echo)
         exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " " . cliColor("Cache 目錄", 'W') . "全部已清除完畢！" . "\n\n");

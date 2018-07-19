@@ -106,7 +106,7 @@ task('deploy', function () {
   echo cliColor("有的", 'g') . "\n";
 
   echo cliColor("   ➤ ", 'R') . "執行 Migration 指令：" . cliColor('php migration new', 'W') . cliColor(' ─ ', 'N');
-  $result = run("$php migration new");
+  $result = run("$php migration new deploy");
   $result = json_decode($result, true);
 
   if (!isset($result['status'], $result['msgs'], $result['now'])) {
@@ -147,11 +147,38 @@ task('deploy', function () {
   echo cliColor("成功", 'g') . "\n";
 
   echo cliColor("   ➤ ", 'R') . "檢查專案是否有 Clean 執行檔" . cliColor(' ─ ', 'N');
-  // if (!test('[ -f ' . $deployPath . '/sys/clean ]')) {
-  //   echo cliColor("沒有", 'r') . "\n";
-  //   return ;
-  // }
+  if (!test('[ -f ' . $deployPath . '/sys/clean ]')) {
+    echo cliColor("沒有", 'r') . "\n";
+    return ;
+  }
   echo cliColor("有的", 'g') . "\n";
+
+
+  echo cliColor("   ➤ ", 'R') . "清除 Cache，執行 Clean 指令：" . cliColor('php clean cache', 'W') . cliColor(' ─ ', 'N');
+  $result = run("$php clean cache deploy");
+  $result = json_decode($result, true);
+
+  if (!isset($result['status'], $result['msgs'])) {
+    echo cliColor("失敗", 'r') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 錯誤原因：" . cliColor('回傳結構有誤！', 'W') . "\n";
+    return ;
+  }
+
+  if ($result['status'] !== 1) {
+    echo cliColor("失敗", 'r') . "\n";
+    foreach ($result['msgs'] as $title => $msg)
+      echo "     " . cliColor('➤', 'B') . ' ' . $title . '：' . (!is_array($msg) ? cliColor($msg, 'W') : implode('、', array_map(function($t) { return cliColor($t, 'W'); }, $msg)))  . "\n";
+    return ;
+  }
+  echo cliColor("成功", 'g') . "\n";
+
+
+
+
+
+
+
+
 
 
   echo "\n";
