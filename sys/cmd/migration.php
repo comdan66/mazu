@@ -73,6 +73,8 @@ Migration::files(true) || exit("\n " . cliColor('◎', 'G') . " 目前沒有任�
 
 if (is_numeric(Router::params(0)) && Router::params(0) >= 0) {
   cho1(Router::params(0));
+} else if (is_string(Router::params(0)) && Router::params(0) === 'new') {
+  cho1(null);
 } else {
   do {
     headerText();
