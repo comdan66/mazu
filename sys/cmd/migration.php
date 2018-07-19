@@ -30,7 +30,7 @@ if (!function_exists('headerText')) {
 }
 
 if (!function_exists('cho1')) {
-  function cho1($version = null) {
+  function cho1($version = null, $echo = true) {
     $cho  = 1;
     $now  = Migration::nowVersion();
     $keys = array_keys(Migration::files(true));
@@ -40,12 +40,17 @@ if (!function_exists('cho1')) {
     else
       $version = end($keys);
 
-    headerText($cho);
+    if ($echo) {
+      headerText($cho);
 
-    $err = Migration::to($version);
-    headerText($cho) && $err === true ?
-      exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新成功', 'g') . "。\n " . cliColor('◎', 'G') . ' 目前已經更新至第 ' . cliColor(Migration::nowVersion(), 'W') . ' 版了！' . "\n\n") :
-      exit("\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新失敗', 'r') . "。\n\n" . implode("\n", array_map(function($e) { return ' ' . cliColor('◎', 'G') . ' ' . $e . "\n"; }, $err)) . "\n " . cliColor('◎', 'G') . ' 目前在 ' . cliColor(Migration::nowVersion(), 'W') . ' 版。' . "\n\n");
+      $err = Migration::to($version);
+      headerText($cho) && $err === true ?
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新成功', 'g') . "。\n " . cliColor('◎', 'G') . ' 目前已經更新至第 ' . cliColor(Migration::nowVersion(), 'W') . ' 版了！' . "\n\n") :
+        exit("\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新失敗', 'r') . "。\n\n" . implode("\n", array_map(function($e) { return ' ' . cliColor('◎', 'G') . ' ' . $e . "\n"; }, $err)) . "\n " . cliColor('◎', 'G') . ' 目前在 ' . cliColor(Migration::nowVersion(), 'W') . ' 版。' . "\n\n");
+    } else {
+      $err = Migration::to($version);
+      echo json_encode(['status' => $err === true ? 1 : 0, 'msg' => $err === true ? '' : $err]);
+    }
   }
 }
 
@@ -74,7 +79,11 @@ Migration::files(true) || exit("\n " . cliColor('◎', 'G') . " 目前沒有任�
 if (is_numeric(Router::params(0)) && Router::params(0) >= 0) {
   cho1(Router::params(0));
 } else if (is_string(Router::params(0)) && Router::params(0) === 'new') {
-  cho1(null);
+  cho1(null, false);
+  exit();
+} else if (is_string(Router::params(0)) && Router::params(0) === 'ori') {
+  cho1(0, false);
+  exit();
 } else {
   do {
     headerText();
