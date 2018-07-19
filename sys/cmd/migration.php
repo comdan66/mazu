@@ -1,6 +1,6 @@
 <?php defined('MAZU') || exit('此檔案不允許讀取！');
 
-Load::sysLib('Migration.php') || exit("\n" . cliColor(str_repeat('─', CLI_LEN), 'W', 'r') . "\n" . cliColor(str_repeat(' ', CLI_LEN), 'N', 'r') . "\n" . cliColor(' 警告！ ', 'Y', 'r') . cliColor('Migration 初始化失敗。' . str_repeat(' ', CLI_LEN - 30), 'W', 'r') . "\n" . cliColor(str_repeat(' ', CLI_LEN), 'N', 'r') . "\n" . cliColor(str_repeat('─', CLI_LEN), 'W', 'r') . "\n\n");
+Load::sysLib('Migration.php') || exit("\n" . cliColor(str_repeat('─', CLI_LEN), 'W', 'r') . "\n" . cliColor(str_repeat(' ', CLI_LEN), 'N', 'r') . "\n" . cliColor(' 警告！ ', 'Y', 'r') . cliColor('Migration 初始化失敗！' . str_repeat(' ', CLI_LEN - 30), 'W', 'r') . "\n" . cliColor(str_repeat(' ', CLI_LEN), 'N', 'r') . "\n" . cliColor(str_repeat('─', CLI_LEN), 'W', 'r') . "\n\n");
 
 if (!function_exists('headerText')) {
   function headerText($cho = null) {
@@ -45,8 +45,8 @@ if (!function_exists('cho1')) {
 
       $err = Migration::to($version);
       headerText($cho) && $err === true ?
-        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新成功', 'g') . "。\n " . cliColor('◎', 'G') . ' 目前已經更新至第 ' . cliColor(Migration::nowVersion(), 'W') . ' 版了！' . "\n\n") :
-        exit("\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新失敗', 'r') . "。\n\n" . implode("\n", array_map(function($e) { return ' ' . cliColor('◎', 'G') . ' ' . $e . "\n"; }, $err)) . "\n " . cliColor('◎', 'G') . ' 目前在 ' . cliColor(Migration::nowVersion(), 'W') . ' 版。' . "\n\n");
+        exit("\n" . cliColor(str_repeat('═', CLI_LEN), 'N') . "\n\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新成功', 'g') . "！\n " . cliColor('◎', 'G') . ' 目前已經更新至第 ' . cliColor(Migration::nowVersion(), 'W') . ' 版了！' . "\n\n") :
+        exit("\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新失敗', 'r') . "！\n\n" . implode("\n", array_map(function($key, $err) { return ' ' . cliColor('◎', 'G') . ' ' . $key . '：' . cliColor($err, 'W') . "\n"; }, array_keys($err), $err)) . "\n " . cliColor('◎', 'G') . ' 目前在 ' . cliColor(Migration::nowVersion(), 'W') . ' 版！' . "\n\n");
     } else {
       $err = Migration::to($version);
       echo json_encode(['status' => $err === true ? 1 : 0, 'msgs' => $err === true ? '' : $err, 'now' => Migration::nowVersion()]);
@@ -74,7 +74,7 @@ if (!function_exists('cho2')) {
   }
 }
 
-Migration::files(true) || exit("\n " . cliColor('◎', 'G') . " 目前沒有任何 Migration。\n\n");
+Migration::files(true) || exit("\n " . cliColor('◎', 'G') . " 目前沒有任何 Migration！\n\n");
 
 if (is_numeric(Router::params(0)) && Router::params(0) >= 0) {
   cho1(Router::params(0));

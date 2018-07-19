@@ -86,9 +86,6 @@ task('deploy', function () {
   echo cliColor("   ➤ ", 'R') . "執行 Migration 指令：" . cliColor('php migration new', 'W') . cliColor(' ─ ', 'N');
   $result = run("$php migration new");
   $result = json_decode($result, true);
-  echo '<meta http-equiv="Content-type" content="text/html; charset=utf-8" /><pre>';
-  var_dump ($result);
-  exit ();
 
   if (!isset($result['status'], $result['msgs'], $result['now'])) {
     echo cliColor(" ✘ 失敗", 'r') . "\n";
@@ -99,7 +96,7 @@ task('deploy', function () {
   if ($result['status'] !== 1) {
     echo cliColor(" ✘ 失敗", 'r') . "\n";
     foreach ($result['msgs'] as $msg) {
-    echo "     " . cliColor('➤', 'B') . $msg . "\n";
+    echo "     " . cliColor('➤', 'B') . ' ' . $msg . "\n";
     }
     return ;
   }
