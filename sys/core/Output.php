@@ -41,6 +41,9 @@ class Output {
     if ($exec === null)
       return self::text('');
 
+    if (is_bool($exec))
+      return self::text('');
+
     if (is_string($exec))
       return self::text($exec);
 

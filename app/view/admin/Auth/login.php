@@ -18,7 +18,7 @@
         <span>登入後台</span>
       </h1>
 
-      <form class='login' action='<?php echo Url::base ('admin', 'login');?>' method='post'>
+      <form class='login' action='<?php echo Url::toRouter ('AdminAuthSignin');?>' method='post'>
       
         <div>
           <div class='acc-psw'>

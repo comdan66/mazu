@@ -27,6 +27,7 @@ define('PATH_CACHE',      PATH .     'cache'       . DIRECTORY_SEPARATOR); // ca
 define('PATH_SESSION',    PATH .     'session'     . DIRECTORY_SEPARATOR); // session 絕對位置
 define('PATH_APP',        PATH .     'app'         . DIRECTORY_SEPARATOR); // app 絕對位置
 define('PATH_CORE',       PATH_APP . 'core'        . DIRECTORY_SEPARATOR); // core 絕對位置
+define('PATH_ROUTER',     PATH_APP . 'router'      . DIRECTORY_SEPARATOR); // router 絕對位置
 define('PATH_CONTROLLER', PATH_APP . 'controller'  . DIRECTORY_SEPARATOR); // controller 絕對位置
 define('PATH_MIGRATION',  PATH_APP . 'migration'   . DIRECTORY_SEPARATOR); // migration 絕對位置
 define('PATH_VIEW',       PATH_APP . 'view'        . DIRECTORY_SEPARATOR); // view 絕對位置

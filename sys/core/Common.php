@@ -46,6 +46,10 @@ class Load {
   public static function controller($path) {
     return self::file(PATH_CONTROLLER . $path);
   }
+
+  public static function router($path) {
+    return self::file(PATH_ROUTER . $path);
+  }
 }
 
 class GG {
@@ -177,7 +181,7 @@ if (!function_exists('implodeRecursive')) {
 if (!function_exists('gg')) {
   function gg() {
     $args = func_get_args();
-    new GG(array_shift($args), 500, ['msgs' => $args]);
+    new GG(array_shift($args), 500, ['msgs' => array_filter($args, function($arg) { return $arg !== '' && $arg !== null; })]);
   }
 }
 

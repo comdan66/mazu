@@ -10,7 +10,7 @@ class Auth extends Controller {
 
   public function logout() {
     Session::unsetData('admin');
-    return Url::refreshWithSuccessFlash(Url::base('admin', 'login'), '登出成功！');
+    return Url::refreshWithSuccessFlash(Url::toRouter('AdminAuthLogin'), '登出成功！');
   }
 
   public function login() {
@@ -59,9 +59,9 @@ class Auth extends Controller {
     $error = '';
     $error || $error = validator($validator, $posts, $admin);
     $error || $error = transaction($transaction, $admin);
-    $error && Url::refreshWithFailureFlash(Url::base('admin', 'login'), $error, $posts);
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminAuthLogin'), $error, $posts);
 
     Session::setData('admin', $admin);
-    Url::refreshWithSuccessFlash(Url::base('admin'), '登入成功！');
+    Url::refreshWithSuccessFlash(Url::toRouter('AdminMainIndex'), '登入成功！');
   }
 }

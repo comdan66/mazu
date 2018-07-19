@@ -3,11 +3,14 @@
 class Router {
 
   private $work;
-  private $controller;
   private $cmd;
   private $name;
   private $segment;
   private $dirs;
+
+  private $path;
+  private $class;
+  private $method;
   // private $befores;
   // private $beforeParams;
 
@@ -24,6 +27,7 @@ class Router {
   private static $requestMethod;
   private static $className;
   private static $methodName;
+  private static $names;
   
   public static function init() {
     self::$current = null;
@@ -33,17 +37,31 @@ class Router {
     self::$requestMethod = null;
     self::$className = null;
     self::$methodName = null;
+    self::$names = [];
+
     Load::app('routers.php');
+
+    // // 使用 Cache
+    // Load::sysLib('Cache.php');
+    // self::$routers = Cache::cacheFile('Routers', function() {
+    //   Load::app('routers.php');
+    //   return Router::all();
+    // }, 10);
   }
 
-  public function __construct($segment, $dirs) {
-    $this->controller = null;
+  public function __construct($segment = null, $dirs = []) {
+    // $this->controller = null;
     $this->work = null;
     $this->cmd = null;
     $this->dirs = $dirs;
 
-    $this->name = $segment;
+    $this->path = null;
+    $this->class = null;
+    $this->method = null;
+
     $this->segment = $segment;
+    // $this->controller
+    // $this->name();
     
     // $this->befores      = [];
     // $this->beforeParams = [];
@@ -57,22 +75,28 @@ class Router {
   }
   
   public function controller($controller) {
-    $this->controller = $this->dirs['dir'] . $controller;
+    $controller = trim($controller, '/');
+
+    strpos($controller, '@') !== false || $controller = $controller . '@' . 'index';
+    list($this->path, $this->method) = explode('@', $controller);
+    $this->class = pathinfo($this->path, PATHINFO_BASENAME);
     
-    return $this;
+    $this->path = pathinfo($this->path, PATHINFO_DIRNAME);
+    $this->path = $this->dirs['dir'] . ($this->path === '.' ? '' : $this->path . '/');
+
+    return $this->name($this->class . ucfirst($this->method));
   }
   
   public function alias($name) {
-    $this->name = $this->dirs['prefix'] . $name;
-    return $this;
+    return $this->name($name);
   }
 
   public function name($name = null) {
     if ($name === null)
       return $this->name;
 
-    $this->name = $this->prefix . $name;
-    return $this;
+    $this->name = $this->dirs['prefix'] . $name;
+    return isset(self::$names[$this->name]) ? self::$names[$this->name] : self::$names[$this->name] = $this;
   }
   
   
@@ -95,21 +119,18 @@ class Router {
 
   public function exec() {
     if ($this->cmd !== null) {
-
-      Load::file(PATH_SYS_CMD . $this->cmd . '.php') || gg('找不到指定的 CMD 檔案！', '檔案位置：' . PATH_SYS_CMD . $this->cmd . '.php');
-      // class_exists(self::$className) || gg('找不到指定的 Controller', 'Class：' . self::$className);
-      return '';
+      return Load::file(PATH_SYS_CMD . $this->cmd . '.php') || gg('找不到指定的 CMD 檔案！', '檔案位置：' . PATH_SYS_CMD . $this->cmd . '.php');
     }
-    if ($this->controller !== null) {
-      strpos($this->controller, '@') !== false || gg('Controller 設定有誤！');
-      list($path, self::$methodName) = explode('@', $this->controller);
-      self::$className = pathinfo($path, PATHINFO_BASENAME);
 
-      Load::controller($path . '.php') || gg('找不到指定的 Controller', '檔案位置：' . $path . '.php');
-      class_exists(self::$className) || gg('找不到指定的 Controller', 'Class：' . self::$className);
-      self::$methodName || gg('請設定 method！');
+    if (isset($this->path, $this->class, $this->method)) {
 
+      self::$className = $this->class;
+      Load::controller($this->path . self::$className . '.php') || gg('找不到指定的 Controller', 'Controller：' . $this->class, '檔案位置：' . $this->path);
+      class_exists(self::$className) || gg('找不到指定的 Controller', 'Controller：' . self::$className);
+
+      self::$methodName = $this->method;
       $obj = new self::$className();
+
       if ($error = $obj->constructError())
         return new GG($error, 500);
       else
@@ -134,7 +155,6 @@ class Router {
     // foreach ($this->afters as $after)
     //   array_push($this->afterParams, $before());
   }
-
 
   public static function params($key = null) {
     return $key !== null ? array_key_exists($key, self::$params) ? self::$params[$key] : null : self::$params;
@@ -175,6 +195,7 @@ class Router {
       self::$current = new Router();
       self::$params = Url::segments();
       return self::$current->cmd(CMD);
+
     } else if (isset(self::$routers[$method]))
       foreach (self::$routers[$method] as $segment => $obj)
         if (preg_match ('#^' . $segment . '$#', implode('/', Url::segments()), $matches)) {
@@ -193,7 +214,7 @@ class Router {
     $dirs = array_filter(array_map(function($trace) { return isset($trace['class']) && ($trace['class'] == 'Router') && isset($trace['function']) && ($trace['function'] == 'dir') && isset($trace['type']) && ($trace['type'] == '::') && isset($trace['args'][0], $trace['args'][1]) ? ['dir' => trim($trace['args'][0], '/') . '/', 'prefix' => is_string($trace['args'][1]) ? $trace['args'][1] : ''] : null; }, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT)));
     $dirs = array_shift($dirs);
     $dirs || $dirs = ['dir' => '', 'prefix' =>''];
-
+    $dirs['prefix'] || $dirs['prefix'] = implode('', array_map(function($t) { return ucfirst($t); }, explode('/', preg_replace ('/[\s_]+/', '/', $dirs['dir']))));
     return $dirs;
   }
 
@@ -201,12 +222,13 @@ class Router {
     if (!in_array($name = strtolower($name), ['get', 'post', 'put', 'delete', 'cli']))
       return false;
 
-    $args || gg('Router 的「' . $name . '」requset method 必須給予 Segment');
+    $args || $args = [''];
     $segment = array_shift($args);
 
     $dirs = self::getDirs();
     
-    $segment = $dirs['dir'] . self::setSegment($segment);
+    $segment = self::setSegment($segment);
+    $segment = trim($dirs['dir'] . $segment, '/');
     isset(self::$routers[$name]) || self::$routers[$name] = [];
     return self::$routers[$name][$segment] = new Router($segment, $dirs);
   }
@@ -224,11 +246,19 @@ class Router {
     $closure();
   }
 
+  public static function file($name) {
+    return Load::router($name);
+  }
+
   public static function findByName($name) {
+    if (isset(self::$names[$name]))
+      return self::$names[$name];
+
     foreach (self::$routers as $method => $routers)
-      foreach ($routers as $segment => $router)
-        if ($router->segment() === self::setSegment($name) || $router->name() === $name)
+      foreach ($routers as $segment => $router) {
+        if ($segment === self::setSegment($name) || $router->name() === $name)
           return $router;
+      }
 
     return null;
   }

@@ -21,6 +21,7 @@ abstract class Cache {
 
     return self::$drivers[$driver] = new $driver($options);
   }
+
   public static function __callStatic($method, $args = []) {
     if (!$args)
       return null;
@@ -31,7 +32,7 @@ abstract class Cache {
 
     is_numeric($expire = array_shift($args)) || $expire = 60;
 
-    if (!$class = self::create($method))
+    if (!$class = self::create(ucfirst($method)))
       return is_callable($closure) ? $closure() : $closure;
 
     if (($data = $class->get($key)) !== null)

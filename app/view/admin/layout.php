@@ -17,7 +17,7 @@
       <header id='main-header'>
         <a id='hamburger' class='icon-01'></a>
         <nav><b><?php echo isset($title) && $title ? $title : '';?></b></nav>
-        <a href='<?php echo Url::base('admin/logout');?>' class='icon-02'></a>
+        <a href='<?php echo Url::toRouter('AdminAuthLogout');?>' class='icon-02'></a>
       </header>
 
       <div class='flash <?php echo $flash['type'];?>'><?php echo $flash['msg'];?></div>

@@ -1,0 +1,6 @@
+<?php
+
+define('CLI_LEN', 80);
+define('CMD', array_shift($argv));
+
+include '..' . DIRECTORY_SEPARATOR . 'index.php';
