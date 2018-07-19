@@ -70,7 +70,7 @@ if (!function_exists('cho3')) {
 }
 
 if (!function_exists('cho4')) {
-  function cho4() {
+  function cho4($echo = true) {
     $files = arrayFlatten(array_filter([PATH_SESSION], function($dir) { return array_filter(dirMap($dir), function($file) use($dir) { return $file !== 'index.html' ? !@unlink($dir . $file) ? ($dir . $file) : false : false; }); }));
 
     if ($files)

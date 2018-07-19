@@ -106,12 +106,13 @@ task('deploy', function () {
   echo cliColor("有的", 'g') . "\n";
 
   echo cliColor("   ➤ ", 'R') . "執行 Migration 指令：" . cliColor('php migration new', 'W') . cliColor(' ─ ', 'N');
-  $result = run("$php migration new deploy");
-  $result = json_decode($result, true);
+  $res = run("$php migration new deploy");
+  $result = json_decode($res, true);
 
   if (!isset($result['status'], $result['msgs'], $result['now'])) {
     echo cliColor("失敗", 'r') . "\n";
     echo "     " . cliColor('➤', 'B') . " 錯誤原因：" . cliColor('回傳結構有誤！', 'W') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 回傳結果：" . cliColor($res, 'W') . "\n";
     return ;
   }
 
@@ -154,13 +155,14 @@ task('deploy', function () {
   echo cliColor("有的", 'g') . "\n";
 
 
-  echo cliColor("   ➤ ", 'R') . "清除 Cache，執行 Clean 指令：" . cliColor('php clean cache', 'W') . cliColor(' ─ ', 'N');
-  $result = run("$php clean cache deploy");
-  $result = json_decode($result, true);
+  echo cliColor("   ➤ ", 'R') . "清空 Cache 目錄，執行 Clean 指令：" . cliColor('php clean cache', 'W') . cliColor(' ─ ', 'N');
+  $res = run("$php clean cache deploy");
+  $result = json_decode($res, true);
 
   if (!isset($result['status'], $result['msgs'])) {
     echo cliColor("失敗", 'r') . "\n";
     echo "     " . cliColor('➤', 'B') . " 錯誤原因：" . cliColor('回傳結構有誤！', 'W') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 回傳結果：" . cliColor($res, 'W') . "\n";
     return ;
   }
 
@@ -171,6 +173,47 @@ task('deploy', function () {
     return ;
   }
   echo cliColor("成功", 'g') . "\n";
+
+
+  echo cliColor("   ➤ ", 'R') . "清空 Tmp 目錄，執行 Clean 指令：" . cliColor('php clean tmp', 'W') . cliColor(' ─ ', 'N');
+  $res = run("$php clean tmp deploy");
+  $result = json_decode($res, true);
+
+  if (!isset($result['status'], $result['msgs'])) {
+    echo cliColor("失敗", 'r') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 錯誤原因：" . cliColor('回傳結構有誤！', 'W') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 回傳結果：" . cliColor($res, 'W') . "\n";
+    return ;
+  }
+
+  if ($result['status'] !== 1) {
+    echo cliColor("失敗", 'r') . "\n";
+    foreach ($result['msgs'] as $title => $msg)
+      echo "     " . cliColor('➤', 'B') . ' ' . $title . '：' . (is_array($msg) ? "\n" . implode("\n", array_map(function($t) { return "       " . cliColor('•', 'N') . " " . $t; }, $msg)) : cliColor($msg, 'W'))  . "\n";
+    return ;
+  }
+  echo cliColor("成功", 'g') . "\n";
+
+
+  echo cliColor("   ➤ ", 'R') . "清空 Session 目錄，執行 Clean 指令：" . cliColor('php clean session', 'W') . cliColor(' ─ ', 'N');
+  $res = run("$php clean session deploy");
+  $result = json_decode($res, true);
+
+  if (!isset($result['status'], $result['msgs'])) {
+    echo cliColor("失敗", 'r') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 錯誤原因：" . cliColor('回傳結構有誤！', 'W') . "\n";
+    echo "     " . cliColor('➤', 'B') . " 回傳結果：" . cliColor($res, 'W') . "\n";
+    return ;
+  }
+
+  if ($result['status'] !== 1) {
+    echo cliColor("失敗", 'r') . "\n";
+    foreach ($result['msgs'] as $title => $msg)
+      echo "     " . cliColor('➤', 'B') . ' ' . $title . '：' . (is_array($msg) ? "\n" . implode("\n", array_map(function($t) { return "       " . cliColor('•', 'N') . " " . $t; }, $msg)) : cliColor($msg, 'W'))  . "\n";
+    return ;
+  }
+  echo cliColor("成功", 'g') . "\n";
+
 
 
 
