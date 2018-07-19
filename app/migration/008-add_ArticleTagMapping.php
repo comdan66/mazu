@@ -3,10 +3,8 @@
 return [
   'up' => "CREATE TABLE `ArticleTagMapping` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    
     `tagId` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Tag ID',
     `articleId` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Article ID',
-    
     `updateAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新時間',
     `createAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增時間',
     PRIMARY KEY (`id`)
