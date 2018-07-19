@@ -78,7 +78,7 @@ class Migration {
 
     foreach ($tmps as $file) {
       if (($sql = self::get($file[1], $isUp)) && ($error = self::query($sql, [], PDO::FETCH_ASSOC, true)))
-        return ['錯誤原因：' . cliColor($error, 'W'), "SQL 語法：" . cliColor($sql, 'W')];
+        return ['錯誤原因：' . $error, "SQL 語法：" . $sql];
 
       self::$obj->version = $file[0];
       self::$obj->save();

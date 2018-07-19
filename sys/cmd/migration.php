@@ -49,7 +49,7 @@ if (!function_exists('cho1')) {
         exit("\n " . cliColor('◎', 'G') . " Migration 更新中，正在由第 " . cliColor($now, 'W') . ' 版更新至第' . cliColor($version, 'W') . ' 版.. ' . cliColor('更新失敗', 'r') . "。\n\n" . implode("\n", array_map(function($e) { return ' ' . cliColor('◎', 'G') . ' ' . $e . "\n"; }, $err)) . "\n " . cliColor('◎', 'G') . ' 目前在 ' . cliColor(Migration::nowVersion(), 'W') . ' 版。' . "\n\n");
     } else {
       $err = Migration::to($version);
-      echo json_encode(['status' => $err === true ? 1 : 0, 'msgs' => $err === true ? '' : $err]);
+      echo json_encode(['status' => $err === true ? 1 : 0, , 'msgs' => $err === true ? '' : $err, 'now' => Migration::nowVersion()]);
     }
   }
 }

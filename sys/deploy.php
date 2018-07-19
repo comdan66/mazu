@@ -90,7 +90,7 @@ task('deploy', function () {
   if ($result['status'] !== 1) {
     echo cliColor(" ✘ 失敗", 'r') . "\n";
     foreach ($result['msgs'] as $msg) {
-    echo "   ➜ 錯誤原因：" . $msg . "\n";
+    echo "   ➜ " . $msg . "\n";
     }
     return ;
   }
