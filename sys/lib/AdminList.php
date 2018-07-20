@@ -304,7 +304,7 @@ class AdminList {
 
     $return = '<div class="conditions">';
       
-      $return .= implode('', array_map(function($key, $condition) use(&$gets) {
+      $return .= implode('', array_map(function($key, $condition) use (&$gets) {
         unset($gets[$key]);
         $return = '';
 
@@ -330,7 +330,7 @@ class AdminList {
             $return .= '<b>' . $condition['title'] . '</b>';
             $return .= '<select name="' . $key . '">';
             $return .= '<option value="">' . $condition['title'] . '</option>';
-            $return .= implode('', array_map(function($item) use($condition) {
+            $return .= implode('', array_map(function($item) use ($condition) {
               return $item && isset($item['value'], $item['text']) ? '<option value="' . $item['value'] . '"' . (!empty ($condition['value']) && $condition['value'] == $item['value'] ? ' selected' : '') . '>' . $item['text'] . '</option>' : '';
             }, $condition['items']));
             $return .= '</select>';
@@ -344,7 +344,7 @@ class AdminList {
             $return .= '<div class="row">';
             $return .= '<b>' . $condition['title'] . '</b>';
             $return .= '<div class="checkboxs">';
-            $return .= implode('', array_map(function($item) use($condition, $key) {
+            $return .= implode('', array_map(function($item) use ($condition, $key) {
               return $item && isset($item['value'], $item['text']) ? '<label><input type="checkbox" name="' . $key . '[]" value="' . $item['value'] . '"' . (!empty ($condition['value']) && (is_array ($condition['value']) ? in_array ($item['value'], $condition['value']) : $condition['value'] == $item['value']) ? ' checked' : '') . ' /><span></span>' . $item['text'] . '</label>' : '';
             }, $condition['items']));
             $return .= '</div>';
@@ -358,7 +358,7 @@ class AdminList {
             $return .= '<div class="row">';
             $return .= '<b>' . $condition['title'] . '</b>';
             $return .= '<div class="radios">';
-            $return .= implode('', array_map(function($item) use($condition, $key) {
+            $return .= implode('', array_map(function($item) use ($condition, $key) {
               return $item && isset($item['value'], $item['text']) ? '<label><input type="radio" name="' . $key . '" value="' . $item['value'] . '"' . (!empty ($condition['value']) && $condition['value'] == $item['value'] ? ' checked' : '') . ' /><span></span>' . $item['text'] . '</label>' : '';
             }, $condition['items']));
             $return .= '</div>';
@@ -451,13 +451,13 @@ class AdminList {
 
         $this->string .= '<thead>';
           $this->string .= '<tr>';
-          $this->string .= implode('', array_map(function($column) use($sortUrl) { return $column->thString($sortUrl); }, $this->columns));
+          $this->string .= implode('', array_map(function($column) use ($sortUrl) { return $column->thString($sortUrl); }, $this->columns));
           $this->string .= '</tr>';
         $this->string .= '</thead>';
         $this->string .= '<tbody>';
 
-          $this->string .= $this->objs ? implode('', array_map(function($obj) use($sortUrl) {
-            return ($sortUrl && isset($obj->id, $obj->sort) ? '<tr data-id="' . $obj->id . '" data-sort="' . $obj->sort . '">' : '<tr>') . implode('', array_map(function($column) use($obj) { 
+          $this->string .= $this->objs ? implode('', array_map(function($obj) use ($sortUrl) {
+            return ($sortUrl && isset($obj->id, $obj->sort) ? '<tr data-id="' . $obj->id . '" data-sort="' . $obj->sort . '">' : '<tr>') . implode('', array_map(function($column) use ($obj) { 
               $column = clone $column;
               return $column->setObj($obj)->tdString();
             }, $this->columns)) . '</tr>';

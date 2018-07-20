@@ -36,8 +36,8 @@ if (!function_exists('checkColumnHasDouble')) {
 
 if (!function_exists('createModel')) {
   function createModel($name, array $imgUploads, array $fileUploads) {
-    $imgUploads = array_map(function($t) use($name) {return [$t, $name . ucfirst($t), 'ImageUploader']; }, $imgUploads);
-    $fileUploads = array_map(function($t) use($name) { return [$t, $name . ucfirst($t), 'FileUploader']; }, $fileUploads);
+    $imgUploads = array_map(function($t) use ($name) {return [$t, $name . ucfirst($t), 'ImageUploader']; }, $imgUploads);
+    $fileUploads = array_map(function($t) use ($name) { return [$t, $name . ucfirst($t), 'FileUploader']; }, $fileUploads);
     
     $uploader = implode("\n", array_map(function($uploader) { return "    '" . $uploader[0] . "' => '" . $uploader[1] . $uploader[2] . "',"; }, array_merge($imgUploads, $fileUploads)));
     $uploader = $uploader ? "  static \$uploaders = [\n" . $uploader . "\n  ];\n" . "  public function putFiles(\$files) {\n    foreach (\$files as \$key => \$file)\n      if (isset(\$this->\$key) && \$this->\$key instanceof Uploader && !\$this->\$key->put(\$file))\n        return false;\n    return true;\n  }\n" : "  // static \$uploaders = [];\n";

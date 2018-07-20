@@ -28,7 +28,7 @@ if (!function_exists('\M\transaction')) {
 
 if (!function_exists('\M\modelsColumn')) {
   function modelsColumn($arr, $key) {
-    return array_map(function($t) use($key) {
+    return array_map(function($t) use ($key) {
       is_callable($key) && $key = $key();
       return $t->$key;
     }, $arr);
@@ -102,7 +102,7 @@ if (!function_exists('\M\toArray')) {
   function toArray($obj) {
     return array_map(function($attr) {
       if ($attr instanceof ImageUploader)
-        return array_combine($keys = array_keys($attr->getVersions()), array_map(function($key) use($attr) { return $attr->url($key); }, $keys));
+        return array_combine($keys = array_keys($attr->getVersions()), array_map(function($key) use ($attr) { return $attr->url($key); }, $keys));
 
       if ($attr instanceof FileUploader)
         return $attr->url();

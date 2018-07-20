@@ -383,7 +383,7 @@ if (!function_exists('\M\useModel')) {
 
         $sql = 'SELECT `' . $tableName . '`.* FROM `' . $tableName . '` INNER JOIN `' . $byTableName . '` ON(`' . $tableName . '`.`' . $byPrimaryKey . '` = `' . $byTableName . '`.`' . $byForeignKey . '`) WHERE `' . $byTableName . '`.`' . $foreignKey . '`=' . $this->$primaryKey;
 
-        return array_map(function ($row) use($className, $tableName, $byReadonly) {
+        return array_map(function ($row) use ($className, $tableName, $byReadonly) {
           $obj = new $className($row);
 
           return $obj->setIsNew(false)

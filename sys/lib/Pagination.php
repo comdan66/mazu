@@ -60,7 +60,7 @@ class Pagination {
     return [
       'offset' => ($gets[$offsetKey] - 1) * $gets[$limitKey],
       'limit' => $gets[$limitKey],
-      'links' => array_map(function($link) use($gets, $offsetKey) {
+      'links' => array_map(function($link) use ($gets, $offsetKey) {
         $gets[$offsetKey] = $link['offset'];
         return '<a href="' . ('?' . http_build_query($gets)) . '"' . (($t = implode(' ', array_filter($link['classes']))) ? ' class="' . $t . '"' : '') . '>' . $link['text'] . '</a>';
       }, $links)

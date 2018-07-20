@@ -328,8 +328,8 @@ if (!function_exists('dump')) {
     if (is_bool($val)) return str_repeat(' ', $l) . '' . ($val === true ? 'true' : 'false') . '';
     if (is_string($val)) return str_repeat(' ', $l) . '"' . $val . '"';
     if (is_numeric($val)) return str_repeat(' ', $l) . $val;
-    if (is_array($val)) return str_repeat(' ', $l) . "[\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val), $val)) . "\n" . str_repeat(' ', $l) . "]";
-    if ($val instanceof \M\Model) return str_repeat(' ', $l) . 'Model(' . deNamespace(get_class($val)) . ") {\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val->attrs()), $val->attrs())) . "\n" . str_repeat(' ', $l) . "}";
+    if (is_array($val)) return str_repeat(' ', $l) . "[\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use ($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val), $val)) . "\n" . str_repeat(' ', $l) . "]";
+    if ($val instanceof \M\Model) return str_repeat(' ', $l) . 'Model(' . deNamespace(get_class($val)) . ") {\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use ($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val->attrs()), $val->attrs())) . "\n" . str_repeat(' ', $l) . "}";
     if ($val instanceof \_M\DateTime) return str_repeat(' ', $l) . 'DateTime(' . '"' . $val . '"' . ")";
     if ($val instanceof \M\ImageUploader) return str_repeat(' ', $l) . "ImageUploader(" . '"' . $val . '"' . ") {\n" . str_repeat(' ', $l + 2) . '"versions": ' . "[" . implode(', ', array_map('dump', array_keys($val->versions()))) . "]" . "\n" . str_repeat(' ', $l) . "}";
     if ($val instanceof \M\FileUploader) return str_repeat(' ', $l) . "FileUploader(" . '"' . $val . '"' . ")";
@@ -392,7 +392,7 @@ if (!function_exists('arrayColumn')) {
 
 if (!function_exists('items')) {
   function items($values, $texts, $k1 = 'value', $k2 = 'text') {
-    return count($values) == count($texts) ? array_map(function($value, $text) use($k1, $k2) { return [$k1 => '' . $value, $k2 => '' . $text]; }, $values, $texts) : [];
+    return count($values) == count($texts) ? array_map(function($value, $text) use ($k1, $k2) { return [$k1 => '' . $value, $k2 => '' . $text]; }, $values, $texts) : [];
   }
 }
 

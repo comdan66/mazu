@@ -270,7 +270,7 @@ class AdminFormImages extends AdminFormRow {
       $return .= $this->b();
       $return .= '<div class="multi-drop-imgs">';
 
-      $return .= implode('', array_map(function($src) use($attrs) {
+      $return .= implode('', array_map(function($src) use ($attrs) {
         $id = null;
 
         if ($src instanceof \M\ImageUploader && isset($src->orm()->id)) {
@@ -337,7 +337,7 @@ class AdminFormSelect extends AdminFormRow {
       $return .= $this->b();
       $return .= '<select' . AdminForm::attrs($attrs) .'>';
         $return .= '<option value=""' . ($value == '' ? ' selected' : '') . '>請選擇' . $this->title . '</option>';
-        $return .= implode('', array_map(function($item) use($value) {
+        $return .= implode('', array_map(function($item) use ($value) {
           return '<option value="' . $item['value'] . '"' . ($value == $item['value']  ? ' selected' : '') . '>' . $item['text'] . '</option>';
         }, $this->items));
       $return .= '</select>';
@@ -376,7 +376,7 @@ class AdminFormRadio extends AdminFormRow {
     $return .= '<div class="row">';
       $return .= $this->b();
       $return .= '<div class="radios">';
-      $return .= implode('', array_map(function($item) use($value) {
+      $return .= implode('', array_map(function($item) use ($value) {
         $return = '';
         $return .= '<label>';
           $return .= '<input type="radio" name="' . $this->name . '" value="' . $item['value'] . '"' . ($this->need === true ? ' required' : '') . ($value !== null && $value == $item['value']  ? ' checked' : '') . '/>';
@@ -478,7 +478,7 @@ class AdminFormCheckbox extends AdminFormRow {
       $return .= $this->b();
 
       $return .= '<div class="checkboxs">';
-      $return .= implode('', array_map(function($item) use($values) {
+      $return .= implode('', array_map(function($item) use ($values) {
         $return = '';
         $return .= '<label>';
           $return .= '<input type="checkbox" value="' . $item['value'] . '" name="' . $this->name . '[]"' . (AdminFormCheckbox::inArray($item['value'], $values) ? ' checked' : '') . '/>';

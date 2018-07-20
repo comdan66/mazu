@@ -8,7 +8,7 @@ $config = \config('model', 'uploader');
 
 Uploader::init($config);
 
-Uploader::initThumbnail(function ($file) use($config) {
+Uploader::initThumbnail(function ($file) use ($config) {
   $thumbnail = $config['thumbnail'];
   if (!(\Load::sysLib('Thumbnail' . DIRECTORY_SEPARATOR . $thumbnail . '.php') && class_exists($thumbnail = "\\" . $thumbnail)))
     return null;
@@ -16,7 +16,7 @@ Uploader::initThumbnail(function ($file) use($config) {
   return $thumbnail::create($file);
 });
 
-Uploader::initSaveTool(function () use($config) {
+Uploader::initSaveTool(function () use ($config) {
   $saveTool = $config['saveTool'];
   if (!(\Load::sysLib('SaveTool' . DIRECTORY_SEPARATOR . $saveTool . '.php') && class_exists($saveTool = "\\" . $saveTool)))
     return null;
