@@ -14,7 +14,7 @@ class Tag extends AdminCrudController {
   }
 
   public function index() {
-    $list = AdminList::model('\M\Tag', ['order' => AdminListOrder::desc('sort')])
+    $list = AdminList::model('\M\Tag', ['order' => AdminListOrder::desc('sort'), 'include' => ['articles']])
                      ->input('ID', 'id = ?')
                      ->input('名稱', 'name LIKE ?')
                      ->setAddUrl(Url::toRouter('AdminTagAdd'))
@@ -37,9 +37,9 @@ class Tag extends AdminCrudController {
   public function create() {
     $validator = function(&$posts) {
       // name
-      isset($posts['name']) || Validator::error('名稱不存在！');
+      isset($posts['name']) || Validator::error('名稱必填！');
       $posts['name'] = strip_tags(trim($posts['name']));
-      $posts['name'] || Validator::error('名稱不存在！');
+      $posts['name'] || Validator::error('名稱必填！');
       mb_strlen($posts['name']) <= 190 || Validator::error('名稱長度錯誤！');
 
       // sort
@@ -55,9 +55,9 @@ class Tag extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts);
     $error || $error = transaction($transaction, $posts);
-    $error && Url::refreshWithFailureFlash(Url::base('admin/tags/add'), $error, $posts);
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagAdd'), $error, $posts);
     
-    Url::refreshWithSuccessFlash(Url::base('admin/tags'), '新增成功！');
+    Url::refreshWithSuccessFlash(Url::toRouter('AdminTagIndex'), '新增成功！');
   }
   
   public function edit() {
@@ -73,9 +73,9 @@ class Tag extends AdminCrudController {
   public function update() {
     $validator = function(&$posts) {
       // name
-      isset($posts['name']) || Validator::error('名稱不存在！');
+      isset($posts['name']) || Validator::error('名稱必填！');
       $posts['name'] = strip_tags(trim($posts['name']));
-      $posts['name'] || Validator::error('名稱不存在！');
+      $posts['name'] || Validator::error('名稱必填！');
       mb_strlen($posts['name']) <= 190 || Validator::error('名稱長度錯誤！');
     };
 
@@ -88,7 +88,7 @@ class Tag extends AdminCrudController {
     $error = '';
     $error || $error = validator($validator, $posts);
     $error || $error = transaction($transaction, $posts);
-    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagUpdate', $this->obj), $error, $posts);
+    $error && Url::refreshWithFailureFlash(Url::toRouter('AdminTagEdit', $this->obj), $error, $posts);
     
     Url::refreshWithSuccessFlash(Url::toRouter('AdminTagIndex'), '修改成功！');
   }

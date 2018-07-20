@@ -349,6 +349,16 @@ if (!function_exists('transaction')) {
   }
 }
 
+if (!function_exists('arrayColumn')) {
+  function arrayColumn(array $objs, $key) {
+    if (!$objs)
+      return [];
+
+    $objs[0] instanceof \M\Model && $objs = \M\toArray($objs);
+    return array_column($objs, $key);
+  }
+}
+
 if (!function_exists('items')) {
   function items($values, $texts, $k1 = 'value', $k2 = 'text') {
     return count($values) == count($texts) ? array_map(function($value, $text) use($k1, $k2) { return [$k1 => '' . $value, $k2 => '' . $text]; }, $values, $texts) : [];

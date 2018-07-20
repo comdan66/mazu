@@ -47,6 +47,11 @@
 
       <div id='menu-main'>
         <div>
+          <span class='icon-14'>後台設定</span>
+          <div>
+            <a href="<?php echo $url = Url::toRouter('AdminMainIndex');?>" class='icon-21<?php echo $url === $currentUrl ? ' active' : '';?>'>後台首頁</a>
+            <a href="<?php echo $url = Url::toRouter('AdminAdminIndex');?>" class='icon-15<?php echo $url === $currentUrl ? ' active' : '';?>'>後台帳號</a>
+          </div>
           <span class='icon-16'>文章設定</span>
           <div>
             <a href="<?php echo $url = Url::toRouter('AdminTagIndex');?>" class='icon-42<?php echo $url === $currentUrl ? ' active' : '';?>'>文章標籤</a>

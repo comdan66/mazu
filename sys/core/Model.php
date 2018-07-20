@@ -51,21 +51,6 @@ if (!function_exists('\M\useModel')) {
 
         return count($columns) == 1 ? array_column($objs, $columns[0]) : $objs;
       }
-
-      // public static function getArray ($columns, $option = array ()) {
-      //   $columns = array_filter (preg_split ('/[\s*,\s*]*,+[\s*,\s*]*/', $columns));
-      //   $objs = self::find ('all', array_merge ($option, array ('select' => implode (', ', $columns))));
-
-      //   if (count ($columns) == 1)
-      //     return array_orm_column ($objs, $columns[0]);
-
-      //   return array_map (function ($obj) use ($columns) {
-      //     return array_combine ($columns, array_map (function ($column) use ($obj) {
-      //       return $obj->{$column};
-      //     }, $columns));
-      //   }, $objs);
-      // }
-
       
       public static function count($options = []) {
         $args = func_get_args();
@@ -274,7 +259,7 @@ if (!function_exists('\M\useModel')) {
           $foreignKey = !isset($options['foreignKey']) ? lcfirst($models[0]->getTableName()) . 'Id' : $options['foreignKey'];
           $primaryKeys = array_unique(array_map(function ($model) use ($primaryKey) { return $model->$primaryKey; }, $models));
 
-          $sql = 'SELECT `' . $tableName . '`.*,`' . $byTableName . '`.articleId FROM `' . $tableName . '` INNER JOIN `' . $byTableName . '` ON(`' . $tableName . '`.`' . $byPrimaryKey . '` = `' . $byTableName . '`.`' . $byForeignKey . '`) WHERE `' . $byTableName . '`.`' . $foreignKey . '`IN(' . implode(',', array_map(function() { return '?'; }, $primaryKeys)) . ')';
+          $sql = 'SELECT `' . $tableName . '`.*,`' . $byTableName . '`.`' . $foreignKey . '` FROM `' . $tableName . '` INNER JOIN `' . $byTableName . '` ON(`' . $tableName . '`.`' . $byPrimaryKey . '` = `' . $byTableName . '`.`' . $byForeignKey . '`) WHERE `' . $byTableName . '`.`' . $foreignKey . '`IN(' . implode(',', array_map(function() { return '?'; }, $primaryKeys)) . ')';
           $relations = $className::selectQuery($sql, $primaryKeys);
 
           $tmps = [];

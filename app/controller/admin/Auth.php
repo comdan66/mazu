@@ -29,8 +29,8 @@ class Auth extends Controller {
 
   public function signin() {
     $validator = function(&$posts, &$admin) {
-      isset($posts['account'])  || Validator::error('帳號不存在！');
-      isset($posts['password']) || Validator::error('密碼不存在！');
+      isset($posts['account'])  || Validator::error('帳號必填！');
+      isset($posts['password']) || Validator::error('密碼必填！');
 
       $posts['account']  = trim($posts['account']);
       $posts['password'] = trim($posts['password']);
@@ -38,8 +38,8 @@ class Auth extends Controller {
       // $posts['account'] = strip_tags($posts['account']);
       // $posts['password'] = strip_tags($posts['password']);
       
-      $posts['account']  || Validator::error('帳號不存在！');
-      $posts['password'] || Validator::error('密碼不存在！');
+      $posts['account']  || Validator::error('帳號必填！');
+      $posts['password'] || Validator::error('密碼必填！');
 
       mb_strlen($posts['account']) <= 190 || Validator::error('帳號長度錯誤！');
       mb_strlen($posts['password']) <= 190 || Validator::error('密碼長度錯誤！');

@@ -11,7 +11,7 @@ class AdminController extends Controller {
     Load::sysLib('Validator.php');
 
     if (!\M\Admin::current())
-      return Url::refreshWithFlash(Url::base('admin', 'login'), ['msg' => '請先登入！', 'params' => []]);
+      return Url::refreshWithFailureFlash(Url::base('admin', 'login'), '請先登入！');
 
     $this->asset = Asset::create(1)
          ->addCSS('/asset/css/res/jqui-datepick-20180116.css')

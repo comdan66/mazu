@@ -9,7 +9,7 @@ class TagArticle extends AdminCrudController {
     if (!(($tagId = Router::params('tagId')) !== null && ($this->parent = \M\Tag::one('id = ?', $tagId))))
       Url::refreshWithFailureFlash(Url::toRouter('AdminTagIndex'), '找不到資料！');
 
-    $this->articleIds = array_column(\M\toArray($this->parent->articleTagMappings), 'articleId');
+    $this->articleIds = arrayColumn($this->parent->articleTagMappings, 'articleId');
 
     if (in_array(Router::methodName(), ['edit', 'update', 'delete', 'show', 'enable']))
       if (!(($id = Router::params('id')) && ($this->obj = \M\Article::one('id = ? AND id IN(?)', $id, $this->articleIds))))
@@ -46,35 +46,35 @@ class TagArticle extends AdminCrudController {
   public function create() {
     $validator = function(&$posts, &$files) {
       // enable
-      isset($posts['enable']) || Validator::error('狀態不存在！');
+      isset($posts['enable']) || Validator::error('狀態必填！');
       $posts['enable'] = strip_tags(trim($posts['enable']));
-      $posts['enable'] || Validator::error('狀態不存在！');
+      $posts['enable'] || Validator::error('狀態必填！');
       mb_strlen($posts['enable']) <= 190 || Validator::error('狀態長度錯誤！');
       array_key_exists($posts['enable'], \M\Article::ENABLE) || Validator::error('狀態錯誤！');
 
       // cover
-      isset($files['cover']) || Validator::error('封面不存在！');
+      isset($files['cover']) || Validator::error('封面必填！');
       uploadFileInFormats($files['cover'], ['jpg', 'gif', 'png']) || Validator::error('封面格式不符！');
       $files['cover']['size'] >= 1 && $files['cover']['size'] <= 10 * 1024 * 1024 || Validator::error('封面檔案大小錯誤！');
 
       // images
       isset($files['images']) || $files['images'] = [];
       $files['images'] = array_filter($files['images'], function($image) { return uploadFileInFormats($image, ['jpg', 'gif', 'png']) && $image['size'] >= 1 && $image['size'] <= 10 * 1024 * 1024; });
-      $files['images'] || Validator::error('組圖不存在！');
+      $files['images'] || Validator::error('組圖必填！');
 
       // tagIds
       isset($posts['tagIds']) || $posts['tagIds'] = [$this->parent->id];
 
       // title
-      isset($posts['title']) || Validator::error('標題不存在！');
+      isset($posts['title']) || Validator::error('標題必填！');
       $posts['title'] = strip_tags(trim($posts['title']));
-      $posts['title'] || Validator::error('標題不存在！');
+      $posts['title'] || Validator::error('標題必填！');
       mb_strlen($posts['title']) <= 190 || Validator::error('標題長度錯誤！');
 
       // content
-      isset($posts['content']) || Validator::error('內容不存在！');
+      isset($posts['content']) || Validator::error('內容必填！');
       $posts['content'] = trim($posts['content']);
-      $posts['content'] || Validator::error('內容不存在！');
+      $posts['content'] || Validator::error('內容必填！');
     };
 
     $transaction = function(&$posts, &$files) {
@@ -127,15 +127,15 @@ class TagArticle extends AdminCrudController {
   public function update() {
     $validator = function(&$posts, &$files) {
       // enable
-      isset($posts['enable']) || Validator::error('狀態不存在！');
+      isset($posts['enable']) || Validator::error('狀態必填！');
       $posts['enable'] = strip_tags(trim($posts['enable']));
-      $posts['enable'] || Validator::error('狀態不存在！');
+      $posts['enable'] || Validator::error('狀態必填！');
       mb_strlen($posts['enable']) <= 190 || Validator::error('狀態長度錯誤！');
       array_key_exists($posts['enable'], \M\Article::ENABLE) || Validator::error('狀態錯誤！');
 
       // cover
       if (!(string)$this->obj->cover) {
-        isset($files['cover']) || Validator::error('封面不存在！');
+        isset($files['cover']) || Validator::error('封面必填！');
         uploadFileInFormats($files['cover'], ['jpg', 'gif', 'png']) || Validator::error('封面格式不符！');
         $files['cover']['size'] >= 1 && $files['cover']['size'] <= 10 * 1024 * 1024 || Validator::error('封面檔案大小錯誤！');
       }
@@ -147,18 +147,18 @@ class TagArticle extends AdminCrudController {
       // _images
       isset($posts['_images']) || $posts['_images'] = [];
       $posts['_images'] = \M\ArticleImage::arr('id', ['where' => ['id IN (?)', $posts['_images']]]);
-      $posts['_images'] || $files['images'] || Validator::error('組圖不存在！');
+      $posts['_images'] || $files['images'] || Validator::error('組圖必填！');
 
       // title
-      isset($posts['title']) || Validator::error('標題不存在！');
+      isset($posts['title']) || Validator::error('標題必填！');
       $posts['title'] = strip_tags(trim($posts['title']));
-      $posts['title'] || Validator::error('標題不存在！');
+      $posts['title'] || Validator::error('標題必填！');
       mb_strlen($posts['title']) <= 190 || Validator::error('標題長度錯誤！');
 
       // content
-      isset($posts['content']) || Validator::error('內容不存在！');
+      isset($posts['content']) || Validator::error('內容必填！');
       $posts['content'] = trim($posts['content']);
-      $posts['content'] || Validator::error('內容不存在！');
+      $posts['content'] || Validator::error('內容必填！');
     };
 
     $transaction = function(&$posts, &$files) {
@@ -169,7 +169,7 @@ class TagArticle extends AdminCrudController {
         return false;
 
       // image
-      $oriIds = array_column(\M\toArray($this->obj->images), 'id');
+      $oriIds = arrayColumn($this->obj->images, 'id');
       $delIds = array_diff($oriIds, $posts['_images']);
 
       foreach ($delIds as $delId)
@@ -220,9 +220,9 @@ class TagArticle extends AdminCrudController {
 
   public function enable() {
     $validator = function(&$posts) {
-      isset($posts['enable']) || Validator::error('狀態不存在！');
+      isset($posts['enable']) || Validator::error('狀態必填！');
       $posts['enable'] = strip_tags(trim($posts['enable']));
-      $posts['enable'] || Validator::error('狀態不存在！');
+      $posts['enable'] || Validator::error('狀態必填！');
       mb_strlen($posts['enable']) <= 190 || Validator::error('狀態長度錯誤！');
       array_key_exists($posts['enable'], \M\Article::ENABLE) || Validator::error('狀態錯誤！');
     };

@@ -205,7 +205,7 @@ class AdminList {
     
     $this->addUrl = '';
     $this->sortUrl = '';
-    $this->setWhere(Where::create());
+    $this->setWhere(isset($this->modelOptions['where']) ? $this->modelOptions['where'] : Where::create());
 
     $this->searches = [];
     $this->titles = [];
@@ -221,6 +221,9 @@ class AdminList {
     $this->string = null;
   }
 
+  public function &objs() {
+    return $this->query()->objs;
+  }
   public function setAddUrl($addUrl) {
     $this->addUrl = $addUrl;
     return $this;
@@ -262,7 +265,6 @@ class AdminList {
     $this->runQuery = true;
 
     $model = $this->model;
-
     $this->total = $model::count($this->where);
     $this->pages = Pagination::info($this->total);
 
@@ -278,6 +280,7 @@ class AdminList {
   }
 
   public static function model($model, $modelOptions = []) {
+    $modelOptions instanceof Where && $modelOptions = ['where' => $modelOptions];
     return new static($model, $modelOptions);
   }
 
@@ -286,7 +289,7 @@ class AdminList {
 
     if ($value === null || $value === '' || (is_array($value) && !count($value)) || empty($this->searches[$key]['sql']))
       return $this;
-    
+
     is_callable($this->searches[$key]['sql']) && $this->where->and($this->searches[$key]['sql']($value));
     is_string($this->searches[$key]['sql'])   && $this->where->and($this->searches[$key]['sql'], strpos(strtolower($this->searches[$key]['sql']), ' like ') !== false ? '%' . $value . '%' : $value);
     is_object($this->searches[$key]['sql'])   && $this->searches[$key]['sql'] instanceof Where && $this->where->and($this->searches[$key]['sql']);

@@ -40,4 +40,13 @@ Router::dir('admin', 'Admin', function() {
   Router::get('tag/(tagId:num)/articles/(id:num)')->controller('TagArticle@show');
   Router::delete('tag/(tagId:num)/articles/(id:num)')->controller('TagArticle@delete');
   Router::post('tag/(tagId:num)/articles/(id:num)/enable')->controller('TagArticle@enable');
+
+  // Admin
+  Router::get('admins')->controller('Admin@index');
+  Router::get('admins/add')->controller('Admin@add');
+  Router::post('admins')->controller('Admin@create');
+  Router::get('admins/(id:num)/edit')->controller('Admin@edit');
+  Router::put('admins/(id:num)')->controller('Admin@update');
+  Router::get('admins/(id:num)')->controller('Admin@show');
+  Router::delete('admins/(id:num)')->controller('Admin@delete');
 });

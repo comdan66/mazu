@@ -7,7 +7,9 @@ defined('MAZU') || exit('此檔案不允許讀取！');
 class Admin extends Model {
   // static $hasOne = [];
 
-  // static $hasMany = [];
+  static $hasMany = [
+    'roles' => ['model' => 'AdminRole'],
+  ];
 
   // static $belongToOne = [];
 
