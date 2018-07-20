@@ -5,7 +5,7 @@ if (!function_exists('asset')) {
     $args = func_get_args();
     $args = ltrim(preg_replace('/\/+/', '/', implode('/', arrayFlatten($args))), '/');
     
-    return url::base($args);
+    return Url::base($args);
   }
 }
 
