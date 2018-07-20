@@ -123,10 +123,10 @@ class Router {
     }
 
     if (isset($this->path, $this->class, $this->method)) {
-
       self::$className = $this->class;
-      Load::controller($this->path . self::$className . '.php') || gg('找不到指定的 Controller', 'Controller：' . $this->class, '檔案位置：' . $this->path);
-      class_exists(self::$className) || gg('找不到指定的 Controller', 'Controller：' . self::$className);
+      $path = $this->path . self::$className . '.php';
+      Load::controller($path) || gg('找不到指定的 Class', 'Class：' . $this->class, '檔案位置：' . $path);
+      class_exists(self::$className) || gg('找不到指定的 Class，請檢查 ' . $path . ' 檔案的 Class 名稱是否正確！', 'Class：' . self::$className, '檔案位置：' . $path);
 
       self::$methodName = $this->method;
       $obj = new self::$className();

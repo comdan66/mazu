@@ -9,13 +9,13 @@ if ($text !== null) {
 
 if (!empty($contents['msgs'])) {
   foreach ($contents['msgs'] as $msg) {
-    echo cliColor(' ◎ ', 'G') . cliColor('：', 'N') . cliColor($msg, 'W') . "\n";
+    echo cliColor(' ➤ ', 'R') . cliColor($msg, 'W') . "\n";
   }
   echo "\n";
 }
 if (!empty($contents['details'])) {
   foreach ($contents['details'] as $detail) {
-    echo cliColor(' ◎ ', 'G') . $detail['title'] . cliColor('：', 'N') . cliColor($detail['content'], 'W') . "\n";
+    echo cliColor(' ➤ ', 'R') . $detail['title'] . cliColor('：', 'N') . cliColor($detail['content'], 'W') . "\n";
   }
   echo "\n";
 }

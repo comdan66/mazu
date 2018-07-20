@@ -9,10 +9,17 @@ class Log {
   private static $fopens = [];
 
   public static function msg($text, $prefix) {
-    if (!is_dir(PATH_LOG)|| !isReallyWritable(PATH_LOG))
+    if (!is_dir(PATH_LOG) || !isReallyWritable(PATH_LOG))
       return false;
 
-    $newfile = !file_exists($path = PATH_LOG . date('Y-m-d') . '-' . $prefix . Log::EXT);
+    $path = PATH_LOG . $prefix . DIRECTORY_SEPARATOR;
+    is_dir($path) || umaskMkdir($path, 0777);
+
+    if (!is_dir($path) || !isReallyWritable($path))
+      return false;
+
+    $path .= date('Y-m-d') . Log::EXT;
+    $newfile = !file_exists($path);
 
     if (!isset(self::$fopens[$path]))
       if (!$fopen = @fopen($path, 'ab'))
@@ -71,13 +78,6 @@ class Log {
       fclose($fopen);
     return true;
   }
-
-  // public static function queryLine() {
-  //   self::$type || self::$type = ENVIRONMENT !== 'cmd' ? request_is_cli() ? cliColor('cli', 'c') . cliColor(' ➜ ', 'N') . cliColor(URL::uriString(), 'C') : cliColor('web', 'p') . cliColor(' ➜ ', 'N') . cliColor(URL::uriString(), 'P') : cliColor('cmd', 'y') . cliColor(' ➜ ', 'N') . cliColor(CMD_FILE, 'Y');
-  //   @self::msg("\n" . self::$type . cliColor(' ╞' . str_repeat('═', CLI_LEN -(strlen(self::$type) - 31)) . "\n", 'N'), 'query');
-  //   return true;
-  // }
-  
 
   private static function queryFormat($args) {
     $valid = $args[0];

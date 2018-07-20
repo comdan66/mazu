@@ -21,7 +21,7 @@ class Table {
 
   private function setTableName($className){
     $this->className = $className;
-    $this->tableName = isset($className::$tableName) ? $className::$tableName : \M\deNamespace($className);
+    $this->tableName = isset($className::$tableName) ? $className::$tableName : \deNamespace($className);
     return $this;
   }
 

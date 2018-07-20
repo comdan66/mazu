@@ -49,4 +49,9 @@ Router::dir('admin', 'Admin', function() {
   Router::put('admins/(id:num)')->controller('Admin@update');
   Router::get('admins/(id:num)')->controller('Admin@show');
   Router::delete('admins/(id:num)')->controller('Admin@delete');
+  
+  // Backup
+  Router::get('backups')->controller('Backup@index');
+  Router::get('backups/(id:num)')->controller('Backup@show');
+  Router::post('backups/(id:num)/enable')->controller('Backup@enable');
 });

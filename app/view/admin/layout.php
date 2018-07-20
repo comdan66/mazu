@@ -51,6 +51,7 @@
           <div>
             <a href="<?php echo $url = Url::toRouter('AdminMainIndex');?>" class='icon-21<?php echo $url === $currentUrl ? ' active' : '';?>'>後台首頁</a>
             <a href="<?php echo $url = Url::toRouter('AdminAdminIndex');?>" class='icon-15<?php echo $url === $currentUrl ? ' active' : '';?>'>後台帳號</a>
+            <a href="<?php echo $url = Url::toRouter('AdminBackupIndex');?>" class='icon-46<?php echo $url === $currentUrl ? ' active' : '';?>'>每日備份</a>
           </div>
           <span class='icon-16'>文章設定</span>
           <div>

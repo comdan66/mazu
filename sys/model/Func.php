@@ -4,19 +4,6 @@ namespace M;
 
 defined('MAZU') || exit('此檔案不允許讀取！');
 
-if (!function_exists('\M\getNamespaces')) {
-  function getNamespaces($className) {
-    return array_slice(explode('\\', $className), 0, -1);
-  }
-}
-
-if (!function_exists('\M\deNamespace')) {
-  function deNamespace($className) {
-    $className = array_slice(explode('\\', $className), -1);
-    return array_shift($className);
-  }
-}
-
 if (!function_exists('\M\transaction')) {
   function transaction($closure, &...$args) {
     if (!is_callable($closure))
@@ -109,18 +96,26 @@ if (!function_exists('\M\reverseOrder')) {
 }
 
 
+
+
 if (!function_exists('\M\toArray')) {
-  function toArray($objs) {
+  function toArray($obj) {
+    return array_map(function($attr) {
+      if ($attr instanceof ImageUploader)
+        return array_combine($keys = array_keys($attr->getVersions()), array_map(function($key) use($attr) { return $attr->url($key); }, $keys));
+
+      if ($attr instanceof FileUploader)
+        return $attr->url();
+      
+      return (string)$attr;
+    }, $obj->attrs());
+  }
+}
+
+if (!function_exists('\M\modelsToArray')) {
+  function modelsToArray($objs) {
     return array_map(function($obj) {
-      return array_map(function($attr) {
-        if ($attr instanceof ImageUploader)
-          return array_combine($keys = array_keys($attr->getVersions()), array_map(function($key) use($attr) { return $attr->url($key); }, $keys));
-        
-        if ($attr instanceof FileUploader)
-          return $attr->url();
-        
-        return (string)$attr;
-      }, $obj->attrs());
+      return toArray($obj);
     }, $objs);
   }
 }

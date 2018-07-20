@@ -152,7 +152,7 @@ if (!function_exists('\M\useModel')) {
 
         $list = static::table()->find($options);
 
-        empty($options['toArray']) || $list = toArray($list);
+        empty($options['toArray']) || $list = modelsToArray($list);
         
         return $method != 'all' ? (isset($list[0]) ? $list[0] : null) : $list;
       }
@@ -169,6 +169,9 @@ if (!function_exists('\M\useModel')) {
         $this->setAttrs($attrs)->cleanFlagDirty();
       }
 
+      public function toArray() {
+        return \M\toArray($this);
+      }
       public function columnsUpdate($attrs = []) {
         if ($attrs = array_intersect_key($attrs, $this->attrs()))
           foreach ($attrs as $column => $value)
@@ -494,7 +497,7 @@ if (!function_exists('\M\useModel')) {
 
       public static function create($attrs) {
         $className = get_called_class();
-        $tableName = isset($className::$tableName) ? $className::$tableName : deNamespace($className);
+        $tableName = isset($className::$tableName) ? $className::$tableName : \deNamespace($className);
         
         isset(static::table()->columns['createAt']) && !array_key_exists('createAt', $attrs) && $attrs['createAt'] = \date(\_M\Config::FORMAT_DATETIME);
         isset(static::table()->columns['updateAt']) && !array_key_exists('updateAt', $attrs) && $attrs['updateAt'] = \date(\_M\Config::FORMAT_DATETIME);
@@ -546,7 +549,7 @@ if (!function_exists('\M\useModel')) {
 spl_autoload_register(function ($className) {
   defined('MODEL_LOADED') || useModel();
 
-  if (!(($namespaces = \M\getNamespaces($className)) && in_array($namespace = array_shift($namespaces), ['M', '_M']) && ($modelName = \M\deNamespace($className))))
+  if (!(($namespaces = \getNamespaces($className)) && in_array($namespace = array_shift($namespaces), ['M', '_M']) && ($modelName = \deNamespace($className))))
     return false;
 
   $uploader = in_array($modelName, ['Uploader', 'ImageUploader', 'FileUploader']) ? 'Uploader' . DIRECTORY_SEPARATOR : '';

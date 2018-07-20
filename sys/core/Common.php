@@ -209,30 +209,72 @@ if (!function_exists('isReallyWritable')) {
   }
 }
 
-if (!function_exists('cliColor')) {
-  function cliColor($str, $fontColor = null, $backgroundColor = null) {
+if (!function_exists('cc')) {
+  function cc($str, $fontColor = null, $backgroundColor = null, $options = []) {
     if ($str === "")
       return "";
 
-    $keys = ['n' => '30', 'w' => '37', 'b' => '34', 'g' => '32', 'c' => '36', 'r' => '31', 'p' => '35', 'y' => '33'];
+    $colors = ['n' => '30', 'r' => '31', 'g' => '32', 'y' => '33', 'b' => '34', 'p' => '35', 'c' => '36', 'w' => '37'];
+    $styles = ['underline' => '4', 'blink' => '5', 'reverse' => '7', 'hidden' => '8',
+               'u' => '4',         'b' => '5',     'r' => '7',       'h' => '8'];
 
-    $newStr = "";
+    $tmps = [];
 
-    if ($fontColor && in_array(strtolower($fontColor), array_map('strtolower', array_keys($keys)))) {
-      $fontColor = !in_array(ord($fontColor[0]), array_map('ord', array_keys($keys))) ? in_array(ord($fontColor[0]) | 0x20, array_map('ord', array_keys($keys))) ? '1;' . $keys[strtolower($fontColor[0])] : null : $keys[$fontColor[0]];
-      $newStr .= $fontColor ? "\033[" . $fontColor . "m" : "";
+    is_array($options) || $options = array_filter(array_map('trim', explode(',', $options)));
+
+    if ($options = array_map('strtolower', $options))
+      foreach ($options as $style)
+        isset($styles[$style]) && array_push($tmps, ["\033[" . $styles[$style] . "m", "\033[0m"]);
+
+    if ($backgroundColor !== null) {
+      $c = $backgroundColor[0];
+      $c = strtolower($c);
+      isset($colors[$c]) && array_push($tmps, ["\033[" . ($colors[$c] + 10) . "m", "\033[0m"]);
     }
 
-    $newStr .= $backgroundColor && in_array(strtolower($backgroundColor), array_map('strtolower', array_keys($keys))) ? "\033[" . ($keys[strtolower($backgroundColor[0])] + 10) . "m" : "";
+    if ($fontColor !== null) {
+      strlen($fontColor) > 1 || $fontColor .= '_';
+      list($c, $w) = str_split($fontColor);
 
-    if ($has_new_line = substr($str, -1) == "\n")
-      $str = substr($str, 0, -1);
+      $w = $w === '_' ? ctype_upper($c) ? '2' : $w : $w;
+      $c = strtolower($c);
 
-    $newStr .=  $str . "\033[0m";
-    $newStr = $newStr . ($has_new_line ? "\n" : "");
-    return $newStr;
+      in_array($w, ['0', '1', '2']) || $w = '1';
+      $w = $w !== '0' ? $w === '1' ? '0' : '1' : '2';
+
+      isset($colors[$c]) && array_push($tmps, ["\033[" . $w . ';' . $colors[$c] . "m", "\033[0m"]);
+    }
+
+    foreach ($tmps as $tmp)
+      $str = $tmp[0] . $str . $tmp[1];
+
+    return $str;
   }
 }
+// if (!function_exists('cliColor')) {
+//   function cliColor($str, $fontColor = null, $backgroundColor = null) {
+//     if ($str === "")
+//       return "";
+
+//     $keys = ['n' => '30', 'w' => '37', 'b' => '34', 'g' => '32', 'c' => '36', 'r' => '31', 'p' => '35', 'y' => '33'];
+
+//     $newStr = "";
+
+//     if ($fontColor && in_array(strtolower($fontColor), array_map('strtolower', array_keys($keys)))) {
+//       $fontColor = !in_array(ord($fontColor[0]), array_map('ord', array_keys($keys))) ? in_array(ord($fontColor[0]) | 0x20, array_map('ord', array_keys($keys))) ? '1;' . $keys[strtolower($fontColor[0])] : null : $keys[$fontColor[0]];
+//       $newStr .= $fontColor ? "\033[" . $fontColor . "m" : "";
+//     }
+
+//     $newStr .= $backgroundColor && in_array(strtolower($backgroundColor), array_map('strtolower', array_keys($keys))) ? "\033[" . ($keys[strtolower($backgroundColor[0])] + 10) . "m" : "";
+
+//     if ($has_new_line = substr($str, -1) == "\n")
+//       $str = substr($str, 0, -1);
+
+//     $newStr .=  $str . "\033[0m";
+//     $newStr = $newStr . ($has_new_line ? "\n" : "");
+//     return $newStr;
+//   }
+// }
 
 if (!function_exists('arrayFlatten')) {
   function arrayFlatten($arr) {
@@ -291,6 +333,19 @@ if (!function_exists('shutdownHandler')) {
   }
 }
 
+if (!function_exists('getNamespaces')) {
+  function getNamespaces($className) {
+    return array_slice(explode('\\', $className), 0, -1);
+  }
+}
+
+if (!function_exists('deNamespace')) {
+  function deNamespace($className) {
+    $className = array_slice(explode('\\', $className), -1);
+    return array_shift($className);
+  }
+}
+
 if (!function_exists('dump')) {
   function dump($val, $l = 0) {
     if ($val === null) return str_repeat(' ', $l) . 'null';
@@ -298,7 +353,7 @@ if (!function_exists('dump')) {
     if (is_string($val)) return str_repeat(' ', $l) . '"' . $val . '"';
     if (is_numeric($val)) return str_repeat(' ', $l) . $val;
     if (is_array($val)) return str_repeat(' ', $l) . "[\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val), $val)) . "\n" . str_repeat(' ', $l) . "]";
-    if ($val instanceof \M\Model) return str_repeat(' ', $l) . 'Model(' . \M\deNamespace(get_class($val)) . ") {\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val->attrs()), $val->attrs())) . "\n" . str_repeat(' ', $l) . "}";
+    if ($val instanceof \M\Model) return str_repeat(' ', $l) . 'Model(' . deNamespace(get_class($val)) . ") {\n" . str_repeat(' ', $l + 2) . implode(",\n" . str_repeat(' ', $l + 2), array_map(function ($k, $v) use($l) { return dump($k) . ': ' . ltrim(dump($v, $l + 2));}, array_keys($val->attrs()), $val->attrs())) . "\n" . str_repeat(' ', $l) . "}";
     if ($val instanceof \_M\DateTime) return str_repeat(' ', $l) . 'DateTime(' . '"' . $val . '"' . ")";
     if ($val instanceof \M\ImageUploader) return str_repeat(' ', $l) . "ImageUploader(" . '"' . $val . '"' . ") {\n" . str_repeat(' ', $l + 2) . '"versions": ' . "[" . implode(', ', array_map('dump', array_keys($val->versions()))) . "]" . "\n" . str_repeat(' ', $l) . "}";
     if ($val instanceof \M\FileUploader) return str_repeat(' ', $l) . "FileUploader(" . '"' . $val . '"' . ")";
@@ -354,7 +409,7 @@ if (!function_exists('arrayColumn')) {
     if (!$objs)
       return [];
 
-    $objs[0] instanceof \M\Model && $objs = \M\toArray($objs);
+    $objs[0] instanceof \M\Model && $objs = \M\modelsToArray($objs);
     return array_column($objs, $key);
   }
 }
