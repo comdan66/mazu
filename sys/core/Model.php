@@ -55,7 +55,8 @@ if (!function_exists('\M\useModel')) {
       public static function count($options = []) {
         $args = func_get_args();
         $options = array_shift($args);
-        
+        $options === null && $options = [];
+
         $options instanceof \Where && $options = ['where' => $options->toArray()];
         is_string($options) && $options = ['where' => array_merge([$options], $args)];
 
