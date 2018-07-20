@@ -49,12 +49,12 @@ class Backup extends Model {
     self::STATUS_SUCCESS => '成功',
   ];
 
-  const READ_YES = 'yes';
-  const READ_NO  = 'no';
+  const UNWATCH_YES = 'yes';
+  const UNWATCH_NO  = 'no';
 
-  const READ = [
-    self::READ_YES => '已讀', 
-    self::READ_NO  => '未讀',
+  const UNWATCH = [
+    self::UNWATCH_YES => '關閉', 
+    self::UNWATCH_NO  => '打開',
   ];
 
   static $uploaders = [

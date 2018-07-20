@@ -53,5 +53,5 @@ Router::dir('admin', 'Admin', function() {
   // Backup
   Router::get('backups')->controller('Backup@index');
   Router::get('backups/(id:num)')->controller('Backup@show');
-  Router::post('backups/(id:num)/enable')->controller('Backup@enable');
+  Router::post('backups/(id:num)/unwatch')->controller('Backup@unwatch');
 });

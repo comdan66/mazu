@@ -317,8 +317,8 @@ class AdminList {
               return $return;
 
             $return .= '<label class="row">';
-            $return .= '<b>' . $condition['title'] . '搜尋</b>';
-            $return .= '<input name="' . $key . '" type="' . (isset($condition['type']) ? $condition['type'] : 'text') . '" placeholder="' . $condition['title'] . '搜尋" value="' . (empty ($condition['value']) ? '' : $condition['value']) . '" />';
+            $return .= '<b>' . $condition['title'] . '</b>';
+            $return .= '<input name="' . $key . '" type="' . (isset($condition['type']) ? $condition['type'] : 'text') . '" placeholder="' . $condition['title'] . '" value="' . (empty ($condition['value']) ? '' : $condition['value']) . '" />';
             $return .= '</label>';
             break;
           
@@ -327,9 +327,9 @@ class AdminList {
               return $return;
 
             $return .= '<label class="row">';
-            $return .= '<b>' . $condition['title'] . '搜尋</b>';
+            $return .= '<b>' . $condition['title'] . '</b>';
             $return .= '<select name="' . $key . '">';
-            $return .= '<option value="">' . $condition['title'] . '搜尋</option>';
+            $return .= '<option value="">' . $condition['title'] . '</option>';
             $return .= implode('', array_map(function($item) use($condition) {
               return $item && isset($item['value'], $item['text']) ? '<option value="' . $item['value'] . '"' . (!empty ($condition['value']) && $condition['value'] == $item['value'] ? ' selected' : '') . '>' . $item['text'] . '</option>' : '';
             }, $condition['items']));
@@ -342,7 +342,7 @@ class AdminList {
               return $return;
 
             $return .= '<div class="row">';
-            $return .= '<b>' . $condition['title'] . '搜尋</b>';
+            $return .= '<b>' . $condition['title'] . '</b>';
             $return .= '<div class="checkboxs">';
             $return .= implode('', array_map(function($item) use($condition, $key) {
               return $item && isset($item['value'], $item['text']) ? '<label><input type="checkbox" name="' . $key . '[]" value="' . $item['value'] . '"' . (!empty ($condition['value']) && (is_array ($condition['value']) ? in_array ($item['value'], $condition['value']) : $condition['value'] == $item['value']) ? ' checked' : '') . ' /><span></span>' . $item['text'] . '</label>' : '';
@@ -356,7 +356,7 @@ class AdminList {
               return $return;
 
             $return .= '<div class="row">';
-            $return .= '<b>' . $condition['title'] . '搜尋</b>';
+            $return .= '<b>' . $condition['title'] . '</b>';
             $return .= '<div class="radios">';
             $return .= implode('', array_map(function($item) use($condition, $key) {
               return $item && isset($item['value'], $item['text']) ? '<label><input type="radio" name="' . $key . '" value="' . $item['value'] . '"' . (!empty ($condition['value']) && $condition['value'] == $item['value'] ? ' checked' : '') . ' /><span></span>' . $item['text'] . '</label>' : '';

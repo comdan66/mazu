@@ -47,11 +47,11 @@
 
       <div id='menu-main'>
         <div>
-          <span class='icon-14'>後台設定</span>
+          <span data-cntlabel='backup-unwatch' data-cnt='<?php echo $bcnt = \M\Backup::count('unwatch = ?', \M\Backup::UNWATCH_NO);?>' class='icon-14'>後台設定</span>
           <div>
             <a href="<?php echo $url = Url::toRouter('AdminMainIndex');?>" class='icon-21<?php echo $url === $currentUrl ? ' active' : '';?>'>後台首頁</a>
             <a href="<?php echo $url = Url::toRouter('AdminAdminIndex');?>" class='icon-15<?php echo $url === $currentUrl ? ' active' : '';?>'>後台帳號</a>
-            <a href="<?php echo $url = Url::toRouter('AdminBackupIndex');?>" class='icon-46<?php echo $url === $currentUrl ? ' active' : '';?>'>每日備份</a>
+            <a data-cntlabel='backup-unwatch' data-cnt='<?php echo $bcnt;?>' href="<?php echo $url = Url::toRouter('AdminBackupIndex');?>" class='icon-46<?php echo $url === $currentUrl ? ' active' : '';?>'>每日備份</a>
           </div>
           <span class='icon-16'>文章設定</span>
           <div>

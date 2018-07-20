@@ -3,7 +3,7 @@
 class Backup extends CliController {
 
   public function db() {
-    $backup = \M\Backup::create(['file' => '', 'size' => 0, 'type' => \M\Backup::TYPE_DB, 'status' => \M\Backup::STATUS_FAILURE, 'read' => \M\Backup::READ_NO,]);
+    $backup = \M\Backup::create(['file' => '', 'size' => 0, 'type' => \M\Backup::TYPE_DB, 'status' => \M\Backup::STATUS_FAILURE, 'unwatch' => \M\Backup::UNWATCH_NO,]);
     $backup || gg('資料庫建立失敗！');
 
     Load::sysFunc('file.php');
@@ -20,7 +20,7 @@ class Backup extends CliController {
     $backup->file->put($path) || gg('上傳檔案失敗！');
 
     $backup->status = \M\Backup::STATUS_SUCCESS;
-    $backup->read = \M\Backup::READ_YES;
+    $backup->unwatch = \M\Backup::UNWATCH_YES;
     $backup->save() || gg('更新資料庫失敗！');
   }
 
@@ -35,12 +35,12 @@ class Backup extends CliController {
 
     Load::sysFunc('file.php');
     foreach (['info', 'error', 'warning', 'model', 'uploader', 'saveTool', 'thumbnail', 'benchmark', 'query'] as $log) {
-      if (!$backup = \M\Backup::create(['file' => '', 'size' => 0, 'type' => $log, 'status' => \M\Backup::STATUS_FAILURE, 'read' => \M\Backup::READ_NO,]))
+      if (!$backup = \M\Backup::create(['file' => '', 'size' => 0, 'type' => $log, 'status' => \M\Backup::STATUS_FAILURE, 'unwatch' => \M\Backup::UNWATCH_NO,]))
         continue;
 
       if (!file_exists($path = PATH_LOG . $log . DIRECTORY_SEPARATOR . $beforeDay . Log::EXT)) {
         $backup->status = \M\Backup::STATUS_SUCCESS;
-        $backup->read = \M\Backup::READ_YES;
+        $backup->unwatch = \M\Backup::UNWATCH_YES;
         $backup->save();
         continue;
       }
@@ -54,7 +54,7 @@ class Backup extends CliController {
         continue;
 
       $backup->status = \M\Backup::STATUS_SUCCESS;
-      $backup->read = \M\Backup::READ_YES;
+      $backup->unwatch = \M\Backup::UNWATCH_YES;
       $backup->save();
     }
   }

@@ -12,7 +12,7 @@ class Admin extends AdminCrudController {
       if (!(($id = Router::params('id')) && ($this->obj = \M\Admin::one('id = ? AND id NOT IN(?)', $id, $this->ignoreIds))))
         Url::refreshWithFailureFlash(Url::toRouter('AdminAdminIndex'), '找不到資料！');
 
-    $this->view->with('title', '文章標籤')
+    $this->view->with('title', '後台帳號')
                ->with('currentUrl', Url::toRouter('AdminAdminIndex'));
   }
 
