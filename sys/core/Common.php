@@ -251,30 +251,6 @@ if (!function_exists('cc')) {
     return $str;
   }
 }
-// if (!function_exists('cliColor')) {
-//   function cliColor($str, $fontColor = null, $backgroundColor = null) {
-//     if ($str === "")
-//       return "";
-
-//     $keys = ['n' => '30', 'w' => '37', 'b' => '34', 'g' => '32', 'c' => '36', 'r' => '31', 'p' => '35', 'y' => '33'];
-
-//     $newStr = "";
-
-//     if ($fontColor && in_array(strtolower($fontColor), array_map('strtolower', array_keys($keys)))) {
-//       $fontColor = !in_array(ord($fontColor[0]), array_map('ord', array_keys($keys))) ? in_array(ord($fontColor[0]) | 0x20, array_map('ord', array_keys($keys))) ? '1;' . $keys[strtolower($fontColor[0])] : null : $keys[$fontColor[0]];
-//       $newStr .= $fontColor ? "\033[" . $fontColor . "m" : "";
-//     }
-
-//     $newStr .= $backgroundColor && in_array(strtolower($backgroundColor), array_map('strtolower', array_keys($keys))) ? "\033[" . ($keys[strtolower($backgroundColor[0])] + 10) . "m" : "";
-
-//     if ($has_new_line = substr($str, -1) == "\n")
-//       $str = substr($str, 0, -1);
-
-//     $newStr .=  $str . "\033[0m";
-//     $newStr = $newStr . ($has_new_line ? "\n" : "");
-//     return $newStr;
-//   }
-// }
 
 if (!function_exists('arrayFlatten')) {
   function arrayFlatten($arr) {

@@ -1,7 +1,7 @@
 <?php
 
 echo "\n";
-echo cliColor($text, 'W');
+echo cc($text, 'W');
 echo "\n\n";
-echo cliColor(' ➤ ', 'R') . cliColor('請確認一下 ', 'N') . cliColor('Routers', 'W') . cliColor(' 是否有設定正確！', 'N');
+echo cc(' ➤ ', 'R') . cc('請確認一下 ', 'N') . cc('Routers', 'W') . cc(' 是否有設定正確！', 'N');
 echo "\n\n";

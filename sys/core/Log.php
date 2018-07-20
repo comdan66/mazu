@@ -37,8 +37,8 @@ class Log {
   }
 
   private static function logFormat($args) {
-    $args = implode("\n" . cliColor('', 'N'), array_map(function($arg) { return cliColor('➜ ', 'G') . dump($arg); }, $args));
-    return cliColor('※ ', 'R') . date(Log::DATE_FORMAT) . "\n" . cliColor(str_repeat('─', 40), 'N') . "\n" . $args . "\n\n\n";
+    $args = implode("\n" . cc('', 'N'), array_map(function($arg) { return cc('➜ ', 'G') . dump($arg); }, $args));
+    return cc('※ ', 'R') . date(Log::DATE_FORMAT) . "\n" . cc(str_repeat('─', 40), 'N') . "\n" . $args . "\n\n\n";
   }
 
   public static function info($msg) {
@@ -88,10 +88,10 @@ class Log {
     $new = '';
 
     if (!self::$type) {
-      $new = "\n" . cliColor(str_repeat('─', 80), 'N') . "\n";
-      self::$type = ENVIRONMENT !== 'cmd' ? isCli() ? cliColor('cli', 'c') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'C') : cliColor('web', 'p') . cliColor(' ➜ ', 'N') . cliColor(implode('/', Url::segments()), 'P') : cliColor('cmd', 'y') . cliColor(' ➜ ', 'N') . cliColor(CMD, 'Y');
+      $new = "\n" . cc(str_repeat('─', 80), 'N') . "\n";
+      self::$type = ENVIRONMENT !== 'cmd' ? isCli() ? cc('cli', 'c') . cc(' ➜ ', 'N') . cc(implode('/', Url::segments()), 'C') : cc('web', 'p') . cc(' ➜ ', 'N') . cc(implode('/', Url::segments()), 'P') : cc('cmd', 'y') . cc(' ➜ ', 'N') . cc(CMD, 'Y');
     }
-    return $new . self::$type . cliColor('│', 'N') . cliColor(date(Log::DATE_FORMAT), 'w') . cliColor(' ➜ ', 'N') . cliColor($time, $time < 999 ? $time < 99 ? $time < 9 ? 'w' : 'W' : 'Y' : 'R') . '' . cliColor('ms', $time < 999 ? $time < 99 ? $time < 9 ? 'N' : 'w' : 'y' : 'r') . cliColor('│', 'N') . ($valid ? cliColor('OK', 'g') : cliColor('GG', 'r')) . cliColor(' ➜ ', 'N') . call_user_func_array('sprintf', array_merge(array(preg_replace_callback('/\?/', function($matches) { return cliColor('%s', 'W'); }, $sql)), $vals)) . "\n";
+    return $new . self::$type . cc('│', 'N') . cc(date(Log::DATE_FORMAT), 'w') . cc(' ➜ ', 'N') . cc($time, $time < 999 ? $time < 99 ? $time < 9 ? 'w' : 'W' : 'Y' : 'R') . '' . cc('ms', $time < 999 ? $time < 99 ? $time < 9 ? 'N' : 'w' : 'y' : 'r') . cc('│', 'N') . ($valid ? cc('OK', 'g') : cc('GG', 'r')) . cc(' ➜ ', 'N') . call_user_func_array('sprintf', array_merge(array(preg_replace_callback('/\?/', function($matches) { return cc('%s', 'W'); }, $sql)), $vals)) . "\n";
   }
   public static function query($valid, $time, $sql, $vals) {
     @self::msg(self::queryFormat(func_get_args()), 'query');
