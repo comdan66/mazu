@@ -19,7 +19,7 @@ class Admin extends AdminCrudController {
   public function index() {
     $where = Where::create('id NOT IN(?)', $this->ignoreIds);
 
-    $list = AdminList::model('\M\Admin', $where)
+    $list = AdminList::model('\M\Admin', ['where' => $where, 'include' => ['roles']])
                      ->input('ID', 'id = ?')
                      ->input('名稱', 'name LIKE ?')
                      ->checkboxs('角色', function ($vals) {

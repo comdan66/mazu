@@ -24,10 +24,6 @@ class Backup extends CliController {
     $backup->save() || gg('更新資料庫失敗！');
   }
 
-  public function x() {
-    // echo  "\033[7m" . "\033[0;31m" . "\033[42m" . "asd" . "";
-    echo  cc('123', 'r', 'b', 'u');
-  }
   public function logs() {
     $beforeDay = Router::params('beforeDay');
     $beforeDay !== null || $beforeDay = 1;
@@ -47,15 +43,20 @@ class Backup extends CliController {
 
       if (!is_readable($path = PATH_LOG . $log . DIRECTORY_SEPARATOR . $beforeDay . Log::EXT))
         continue;
+ 
+      if (!fileWrite($path2 = PATH_TMP . 'backup_' . $log . '_' . date ('YmdHis') . Log::EXT, preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', pack('H*','EFBBBF') . fileRead($path))))
+        continue;
+
+      if (!$backup->file->put($path2))
+        continue;
 
       $backup->size = filesize($path);
-
-      if (!$backup->file->put($path))
-        continue;
 
       $backup->status = \M\Backup::STATUS_SUCCESS;
       $backup->unwatch = \M\Backup::UNWATCH_YES;
       $backup->save();
+
+      @unlink($path);
     }
   }
 }

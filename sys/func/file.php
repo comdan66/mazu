@@ -28,6 +28,9 @@ if (!function_exists('fileRead')) {
 
 if (!function_exists('fileWrite')) {
   function fileWrite($path, $data, $mode = 'wb') {
+    if (function_exists('file_put_contents'))
+      return @file_put_contents($path, $data);
+
     if (!$fp = @fopen($path, $mode))
       return false;
 

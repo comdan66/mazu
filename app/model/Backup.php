@@ -53,8 +53,8 @@ class Backup extends Model {
   const UNWATCH_NO  = 'no';
 
   const UNWATCH = [
-    self::UNWATCH_YES => '關閉', 
-    self::UNWATCH_NO  => '打開',
+    self::UNWATCH_YES => '已讀', 
+    self::UNWATCH_NO  => '未讀',
   ];
 
   static $uploaders = [

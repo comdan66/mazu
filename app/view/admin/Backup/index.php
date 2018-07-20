@@ -13,6 +13,7 @@ echo $list->column('已讀', function($obj, $column) {
           }, 56, null, 'center')
           ->column('ID', 'id', 60, 'id')
           ->column('類型', function($obj) { return \M\Backup::TYPE[$obj->type]; })
+          ->column('下載', function($obj) { return $obj->file->link('下載', ['download' => (string)$obj->file]); }, 80)
           ->column('大小', function($obj) { return number_format($obj->size) . ' Byte'; }, 120, 'size')
           ->column('狀態', function($obj) { return $obj->status != \M\Backup::STATUS_SUCCESS ? '<font color="red">' . \M\Backup::STATUS[$obj->status] . '</font>' : \M\Backup::STATUS[$obj->status]; }, 80, 'status')
           ->column('新增時間', 'createAt', 150)
